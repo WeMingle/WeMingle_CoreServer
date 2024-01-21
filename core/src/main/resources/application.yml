@@ -1,0 +1,17 @@
+## prod setting
+spring:
+  profiles:
+    active: prod
+
+---
+## jungwooLocal
+spring:
+  profiles:
+    active: jungwoo
+
+---
+
+## howangLocal
+spring:
+  profiles:
+    active: howang
