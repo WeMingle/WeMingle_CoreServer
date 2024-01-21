@@ -3,6 +3,10 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
+#JWT
+jwt:
+  issuer: thrusum123@gmail.com
+  secret_key: ENC(GEvBTNbOBf8K0wL2KtWDdGD7+Pqpk9ck6uDFl1sIIlsVY0wNlcWrgxtNICCHrdAx/M+WiesQrOXdPfdQR2jC5TKBQoHG13i05CSF+uoL3H5Yk/v6buGKaBBBqM9AmQA6CBGsiq9ejQ2PR+Cdi09TRJo003DeJXeflkF5xhJ+vHHOgfLR7F3c2FW3Z610wI6m)
 
 #JASYPT
 jasypt:
