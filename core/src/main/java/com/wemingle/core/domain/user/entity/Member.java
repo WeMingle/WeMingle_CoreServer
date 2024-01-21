@@ -4,11 +4,15 @@ import com.wemingle.core.domain.user.entity.role.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.GrantedAuthority;
+//import org.springframework.security.core.authority.SimpleGrantedAuthority;
+//import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -81,6 +85,18 @@ public class Member implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return false;
+    }
+
+    @Builder
+    public Member(UUID memberId, String nickname, String memberName, String phoneNumber, LocalDate dateOfBirth, String email, String password, Role role) {
+        this.memberId = memberId;
+        this.nickname = nickname;
+        this.memberName = memberName;
+        this.phoneNumber = phoneNumber;
+        this.dateOfBirth = dateOfBirth;
+        this.email = email;
+        this.password = password;
+        this.role = role;
     }
 
     @Override

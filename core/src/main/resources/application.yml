@@ -62,3 +62,10 @@ spring:
     username: ENC(ApmdwaV15BRKLL0WmZV9QA==)
     password: ENC(nN/GHvgyZLbz7vhsaYBagTczwxNBREOi)
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
