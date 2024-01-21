@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JasyptConfig {
 
-    @Bean
+    @Bean("jasyptEncryptor")
     public StringEncryptor encryptor() {
         PooledPBEStringEncryptor pooledPBEStringEncryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig simpleStringPBEConfig = new SimpleStringPBEConfig();
