@@ -1,8 +1,3 @@
-spring:
-  jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-
 #JWT
 jwt:
   issuer: thrusum123@gmail.com
@@ -12,6 +7,26 @@ jwt:
 jasypt:
   encryptor:
     bean: jasyptEncryptor
+
+##common setting
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: wemingleteam@gmail.com
+    password: ENC(O/Aw9bvHjfnoXTLIpVGUSqstDMU1G4mEq9oyeC/R4pY=)
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        protocol: smtp
+    test-connection: true
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 ---
 ## prod setting
 spring:
@@ -24,6 +39,16 @@ spring:
 spring:
   profiles:
     active: jungwoo
+
+  datasource:
+    url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
+    username: ENC(ApmdwaV15BRKLL0WmZV9QA==)
+    password: ENC(nN/GHvgyZLbz7vhsaYBagTczwxNBREOi)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 
 ---
 
