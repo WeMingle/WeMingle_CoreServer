@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.mail.service;
 
-import com.wemingle.core.domain.user.entity.Member;
 import com.wemingle.core.domain.user.repository.MemberRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,9 +13,7 @@ import java.util.UUID;
 public class MailVerificationService {
     private final MemberRepository memberRepository;
 
-    public UUID getVerificationIdByMemberId(UUID memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()))
-                .getMemberId();
+    public boolean isPresentMemberIdByVerificationId(UUID verificationId) {
+        return memberRepository.findById(verificationId).isPresent();
     }
 }
