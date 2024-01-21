@@ -19,6 +19,10 @@ spring:
   profiles:
     active: prod
 
+jasypt:
+  encryptor:
+    bean: jasyptEncryptor
+    
 ---
 ## jungwooLocal
 spring:
@@ -41,3 +45,16 @@ spring:
 spring:
   profiles:
     active: howang
+
+  datasource:
+    url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
+    username: ENC(ApmdwaV15BRKLL0WmZV9QA==)
+    password: ENC(nN/GHvgyZLbz7vhsaYBagTczwxNBREOi)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+
+
