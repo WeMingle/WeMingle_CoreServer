@@ -122,7 +122,7 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(user, jwtToken, authorities);
     }
 
-    private Claims getClaim(String jwtToken) {
+    public Claims getClaim(String jwtToken) {
         return Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)))
                 .build()
@@ -130,13 +130,13 @@ public class TokenProvider {
                 .getBody();
     }
 
-    private String getMemberEmail(String jwtToken){
+    public String getMemberEmail(String jwtToken){
         Claims claims = getClaim(jwtToken);
 
         return String.valueOf(claims.get("email"));
     }
 
-    private String getRole(String jwtToken){
+    public String getRole(String jwtToken){
         Claims claims = getClaim(jwtToken);
 
         return String.valueOf(claims.get("role"));
