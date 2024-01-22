@@ -1,3 +1,13 @@
+#JWT
+jwt:
+  issuer: thrusum123@gmail.com
+  secret_key: ENC(GEvBTNbOBf8K0wL2KtWDdGD7+Pqpk9ck6uDFl1sIIlsVY0wNlcWrgxtNICCHrdAx/M+WiesQrOXdPfdQR2jC5TKBQoHG13i05CSF+uoL3H5Yk/v6buGKaBBBqM9AmQA6CBGsiq9ejQ2PR+Cdi09TRJo003DeJXeflkF5xhJ+vHHOgfLR7F3c2FW3Z610wI6m)
+
+#JASYPT
+jasypt:
+  encryptor:
+    bean: jasyptEncryptor
+
 ##common setting
 spring:
   mail:
@@ -13,17 +23,18 @@ spring:
             enable: true
         protocol: smtp
     test-connection: true
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 ---
 ## prod setting
 spring:
   profiles:
     active: prod
 
-jasypt:
-  encryptor:
-    bean: jasyptEncryptor
-    
 ---
+
 ## jungwooLocal
 spring:
   profiles:
@@ -52,11 +63,9 @@ spring:
     password: ENC(nN/GHvgyZLbz7vhsaYBagTczwxNBREOi)
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+
   jpa:
     hibernate:
       ddl-auto: create
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
-
-
-

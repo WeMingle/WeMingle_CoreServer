@@ -16,6 +16,10 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+.idea/
+.DS_Store
+test
+
 
 ### IntelliJ IDEA ###
 .idea
