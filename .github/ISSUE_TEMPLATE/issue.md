@@ -11,8 +11,6 @@ assignees: ''
 
 ## Issue Type
 
-사용하지 않은 옵션은 이 문구와함께 지워주세요
-
 - [ ] New feature
 - [ ] Refactor
 - [ ] Bug fix
