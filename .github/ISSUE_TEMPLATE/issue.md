@@ -33,6 +33,6 @@ assignees: ''
 ---
 
 ## Check list
-- [ ] 개발영역, 개발자 이름, issue type 순으로 라벨을 설정하셨나요? Ex. 백엔드, 이호왕, Feature
+- [ ] 개발영역, 개발자 이름, issue type 순으로 라벨을 설정하셨나요? Ex. 백엔드, 홍길동, Feat
 - [ ] 프로젝트에 issue 등록하셨나요?
 - [ ] commit에 issue 연동을 하셨나요?
