@@ -1,9 +1,9 @@
 ---
-name: Issue Title
+name: Issue
 about: Issue Description
 title: ''
 labels: ''
-assignees: LeeKing2017
+assignees: ''
 
 ---
 
