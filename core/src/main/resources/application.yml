@@ -10,6 +10,8 @@ jasypt:
 
 ##common setting
 spring:
+  jpa:
+    defer-datasource-initialization: true
   mail:
     host: smtp.gmail.com
     port: 587
@@ -23,10 +25,10 @@ spring:
             enable: true
         protocol: smtp
     test-connection: true
+  sql:
+    init:
+      mode: always
 
-  jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
 ---
 ## prod setting
 spring:
@@ -47,6 +49,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
+    hibernate:
+      ddl-auto: create
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
