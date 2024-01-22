@@ -17,10 +17,9 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class MemberSignUpListener  {//implements ApplicationListener<MemberSignUpEvent>
+public class MemberSignUpListener  {
 
     private final JavaMailSender mailSender;
-    private final MailVerificationService mailVerificationService;
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT,fallbackExecution = true)
     public void onApplicationEvent(MemberSignUpEvent event) {
         log.info("eventListener");
@@ -38,11 +37,9 @@ public class MemberSignUpListener  {//implements ApplicationListener<MemberSignU
         String encodedVerificationId = Base64.getEncoder()
                 .encodeToString(verificationId.toString().getBytes(StandardCharsets.UTF_8));
 
-        StringBuilder messageBuilder = new StringBuilder();
-        messageBuilder.append("안녕하세요 ").append(member.getMemberName()).append("님!");
-        messageBuilder.append("인증을 위해 다음 링크를 클릭하여 학교 인증을 완료해주세요:)").append("\n\n");
-        messageBuilder.append("http://localhost:8080/verify/").append(encodedVerificationId);
-        return messageBuilder.toString();
+        return "안녕하세요 " + member.getMemberName() + "님!" +
+                "대학 인증을 위해 아래 링크를 클릭하여 학교 인증을 완료해주세요:)" + "\n\n" +
+                "http://localhost:8080/verify/" + encodedVerificationId;
 
     }
 }
