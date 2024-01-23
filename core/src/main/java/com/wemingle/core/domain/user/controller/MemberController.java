@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.user.controller;
 
+import com.wemingle.core.domain.nickname.service.NicknameService;
 import com.wemingle.core.domain.user.dto.SignUpDto;
 import com.wemingle.core.domain.user.entity.Member;
 import com.wemingle.core.domain.user.entity.role.Role;
@@ -30,7 +31,7 @@ public class MemberController {
                 .dateOfBirth(signUpDto.getDateOfBirth())
                 .password(bCryptPasswordEncoder.encode(signUpDto.getPassword()))
                 .phoneNumber(signUpDto.getPhoneNumber())
-                .nickname("ninini")
+                .nickname(signUpDto.getNickname())
                 .role(Role.USER)
                 .build();
         memberService.saveMember(member);

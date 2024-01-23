@@ -17,6 +17,11 @@ public class SignUpDto {
     String memberName;
 
     @NotNull
+    @NotEmpty
+    @NotBlank
+    String nickname;
+
+    @NotNull
     String phoneNumber;
 
     @NotNull
