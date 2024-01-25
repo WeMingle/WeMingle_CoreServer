@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/member/").permitAll()
                         .requestMatchers("/verify/**").permitAll()
+                        .requestMatchers("/nickname/**").permitAll()
                         .anyRequest().hasAnyRole("ADMIN", "USER"));
 
         httpSecurity
