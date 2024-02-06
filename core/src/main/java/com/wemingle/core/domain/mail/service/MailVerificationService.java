@@ -1,8 +1,6 @@
 package com.wemingle.core.domain.mail.service;
 
-import com.wemingle.core.domain.user.repository.MemberRepository;
-import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
-import jakarta.persistence.EntityNotFoundException;
+import com.wemingle.core.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

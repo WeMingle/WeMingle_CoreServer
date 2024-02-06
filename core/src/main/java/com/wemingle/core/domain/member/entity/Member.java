@@ -1,6 +1,6 @@
-package com.wemingle.core.domain.user.entity;
+package com.wemingle.core.domain.member.entity;
 
-import com.wemingle.core.domain.user.entity.role.Role;
+import com.wemingle.core.domain.member.entity.role.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -58,7 +58,7 @@ public class Member implements UserDetails {
     @Column(name = "ROLE")
     private Role role;
 
-    @Column(name = "REFRESH_TOKEN", columnDefinition = "VARBINARY (400)")
+    @Column(name = "REFRESH_TOKEN", columnDefinition = "VARBINARY (400) NOT NULL")
     private String refreshToken;
 
     @Override
@@ -106,5 +106,9 @@ public class Member implements UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+    public void patchRefreshToken(String newRefreshToken){
+        this.refreshToken = newRefreshToken;
     }
 }

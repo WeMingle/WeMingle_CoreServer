@@ -1,13 +1,12 @@
-package com.wemingle.core.domain.user.dto;
+package com.wemingle.core.domain.member.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Value;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
- * DTO for {@link com.wemingle.core.domain.user.entity.Member}
+ * DTO for {@link com.wemingle.core.domain.member.entity.Member}
  */
 @Value
 public class SignUpDto {

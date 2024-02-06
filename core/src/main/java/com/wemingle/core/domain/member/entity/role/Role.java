@@ -1,4 +1,4 @@
-package com.wemingle.core.domain.user.entity.role;
+package com.wemingle.core.domain.member.entity.role;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
