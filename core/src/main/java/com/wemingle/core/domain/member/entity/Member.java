@@ -57,6 +57,10 @@ public class Member implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "ROLE")
     private Role role;
+
+    @Column(name = "REFRESH_TOKEN", columnDefinition = "VARBINARY (400)")
+    private String refreshToken;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(new SimpleGrantedAuthority(role.getRoleName()));

@@ -1,6 +1,6 @@
 package com.wemingle.core.global.config.jwt;
 
-import com.wemingle.core.domain.user.entity.role.Role;
+import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.global.config.jwt.exception.InvalidRoleException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -140,5 +140,12 @@ public class TokenProvider {
         Claims claims = getClaim(jwtToken);
 
         return String.valueOf(claims.get("role"));
+    }
+
+    public Duration getRemainingTokenExpirationTime(String jwtToken){
+        Claims claim = getClaim(jwtToken);
+        Date expirationDate = claim.getExpiration();
+
+        return Duration.ofMillis(expirationDate.getTime() - System.currentTimeMillis());
     }
 }
