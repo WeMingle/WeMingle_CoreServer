@@ -18,8 +18,6 @@ import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
 @Slf4j
 public class AuthenticationController {
     private final TokenService tokenService;
-    private static String ISSUE_ACCESS_TOKEN = "access token을 발급하였습니다.";
-
 
     @PatchMapping("/token")
     public ResponseEntity<?> patchToken(@RequestBody TokenDto.RequestTokenDto requestTokenDto){

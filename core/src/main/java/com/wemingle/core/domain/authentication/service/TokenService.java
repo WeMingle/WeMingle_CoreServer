@@ -46,7 +46,7 @@ public class TokenService {
         String newRefreshToken = tokenProvider.generateRefreshToken(member.getEmail(), member.getRole());
         member.patchRefreshToken(newRefreshToken);
 
-        return tokenProvider.generateAccessToken(member.getEmail(), member.getRole());
+        return tokenProvider.generateRefreshToken(member.getEmail(), member.getRole());
     }
 
     public boolean isExpiredAfter21Days(String refreshToken) {
