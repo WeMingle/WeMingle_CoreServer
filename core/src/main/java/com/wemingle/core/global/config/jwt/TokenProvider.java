@@ -141,4 +141,11 @@ public class TokenProvider {
 
         return String.valueOf(claims.get("role"));
     }
+
+    public Duration getRemainingTokenExpirationTime(String jwtToken){
+        Claims claim = getClaim(jwtToken);
+        Date expirationDate = claim.getExpiration();
+
+        return Duration.ofMillis(expirationDate.getTime() - System.currentTimeMillis());
+    }
 }

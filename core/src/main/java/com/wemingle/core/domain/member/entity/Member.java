@@ -124,8 +124,14 @@ public class Member implements UserDetails {
         return false;
     }
 
+
     public void setMemberProfile(String profileImgId, String nickname) {
         this.profileImgId = profileImgId;
         this.nickname = nickname;
+    }
+
+    public void patchRefreshToken(String newRefreshToken){
+        this.refreshToken = newRefreshToken;
+
     }
 }

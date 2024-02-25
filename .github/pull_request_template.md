@@ -1,6 +1,6 @@
 # **Pull request**
 
-# Realated issue
+# Related issue
 
 Fixes # (issue)
 
