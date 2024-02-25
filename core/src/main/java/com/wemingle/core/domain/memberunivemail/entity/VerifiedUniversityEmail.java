@@ -1,5 +1,6 @@
-package com.wemingle.core.domain.memberuniveemail.entity;
+package com.wemingle.core.domain.memberunivemail.entity;
 
+import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
@@ -7,7 +8,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-public class VerifiedUniversityEmail {
+public class VerifiedUniversityEmail extends BaseEntity {
 
     @Id
     @Column(name = "PK")

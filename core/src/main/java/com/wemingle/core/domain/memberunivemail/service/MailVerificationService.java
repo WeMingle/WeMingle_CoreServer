@@ -1,4 +1,4 @@
-package com.wemingle.core.domain.memberuniveemail.service;
+package com.wemingle.core.domain.memberunivemail.service;
 
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

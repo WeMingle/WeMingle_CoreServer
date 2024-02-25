@@ -1,6 +1,6 @@
-package com.wemingle.core.domain.memberuniveemail.controller;
+package com.wemingle.core.domain.memberunivemail.controller;
 
-import com.wemingle.core.domain.memberuniveemail.service.MailVerificationService;
+import com.wemingle.core.domain.memberunivemail.service.MailVerificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

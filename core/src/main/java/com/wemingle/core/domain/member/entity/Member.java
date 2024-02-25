@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.member.entity;
 
+import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
 import jakarta.persistence.*;
@@ -19,10 +20,8 @@ import java.util.Collections;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member implements UserDetails {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class Member extends BaseEntity implements UserDetails {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk")
     private Long pk;
 
@@ -72,6 +71,11 @@ public class Member implements UserDetails {
     @NotNull
     @Column(name = "COMPLAINTS_COUNT")
     private int complaintsCount;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "POLICY_TERMS")
+    private PolicyTerms policyTerms;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
