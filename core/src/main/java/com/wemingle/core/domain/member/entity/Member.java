@@ -1,7 +1,7 @@
-package com.wemingle.core.domain.user.entity;
+package com.wemingle.core.domain.member.entity;
 
-import com.wemingle.core.domain.user.entity.phonetype.PhoneType;
-import com.wemingle.core.domain.user.entity.role.Role;
+import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
+import com.wemingle.core.domain.member.entity.role.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -11,14 +11,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -27,8 +23,8 @@ public class Member implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MEMBER_PK")
-    private Long memberPk;
+    @Column(name = "pk")
+    private Long pk;
 
     @NotNull
     @Column(name = "MEMBER_ID", columnDefinition = "VARBINARY(255) NOT NULL")
@@ -108,8 +104,8 @@ public class Member implements UserDetails {
     }
 
     @Builder
-    public Member(Long memberPk, String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, PhoneType signupPlatform, LocalDate signupDate, String refreshToken, String firebaseToken, Role role, int complaintsCount) {
-        this.memberPk = memberPk;
+    public Member(Long pk, String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, PhoneType signupPlatform, LocalDate signupDate, String refreshToken, String firebaseToken, Role role, int complaintsCount) {
+        this.pk = pk;
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;

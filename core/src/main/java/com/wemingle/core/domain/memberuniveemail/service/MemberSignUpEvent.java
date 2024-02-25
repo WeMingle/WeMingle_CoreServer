@@ -1,6 +1,6 @@
-package com.wemingle.core.domain.mail.service;
+package com.wemingle.core.domain.memberuniveemail.service;
 
-import com.wemingle.core.domain.user.entity.Member;
+import com.wemingle.core.domain.member.entity.Member;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

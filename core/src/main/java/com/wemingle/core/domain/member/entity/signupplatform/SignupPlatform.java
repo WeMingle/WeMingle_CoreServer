@@ -1,4 +1,4 @@
-package com.wemingle.core.domain.user.entity.signupplatform;
+package com.wemingle.core.domain.member.entity.signupplatform;
 
 public enum SignupPlatform {
     NAVER,KAKAO,GOOGLE,APPLE,NONE

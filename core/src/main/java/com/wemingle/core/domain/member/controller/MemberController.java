@@ -1,10 +1,7 @@
-package com.wemingle.core.domain.user.controller;
+package com.wemingle.core.domain.member.controller;
 
-import com.wemingle.core.domain.nickname.service.NicknameService;
-import com.wemingle.core.domain.user.dto.SignUpDto;
-import com.wemingle.core.domain.user.entity.Member;
-import com.wemingle.core.domain.user.entity.role.Role;
-import com.wemingle.core.domain.user.service.MemberService;
+import com.wemingle.core.domain.member.dto.SignUpDto;
+import com.wemingle.core.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

@@ -1,18 +1,13 @@
-package com.wemingle.core.domain.user.service;
+package com.wemingle.core.domain.member.service;
 
-import com.wemingle.core.domain.mail.service.MemberSignUpEvent;
 import com.wemingle.core.domain.nickname.service.NicknameService;
 import com.wemingle.core.domain.univ.service.UnivCertificationService;
-import com.wemingle.core.domain.user.entity.Member;
-import com.wemingle.core.domain.user.repository.MemberRepository;
-import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
+import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 
 @RequiredArgsConstructor
 @Service

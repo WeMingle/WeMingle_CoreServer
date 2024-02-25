@@ -1,6 +1,6 @@
 package com.wemingle.core.global.config.jwt;
 
-import com.wemingle.core.domain.user.entity.role.Role;
+import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.global.config.jwt.exception.InvalidRoleException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

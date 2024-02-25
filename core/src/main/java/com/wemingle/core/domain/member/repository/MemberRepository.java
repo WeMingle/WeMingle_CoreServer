@@ -1,6 +1,6 @@
-package com.wemingle.core.domain.user.repository;
+package com.wemingle.core.domain.member.repository;
 
-import com.wemingle.core.domain.user.entity.Member;
+import com.wemingle.core.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

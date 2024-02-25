@@ -1,7 +1,7 @@
 package com.wemingle.core.global.advice.vaildation;
 
 import com.wemingle.core.domain.nickname.controller.NicknameController;
-import com.wemingle.core.domain.user.controller.MemberController;
+import com.wemingle.core.domain.member.controller.MemberController;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
