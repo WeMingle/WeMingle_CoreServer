@@ -123,4 +123,9 @@ public class Member implements UserDetails {
     public boolean isEnabled() {
         return false;
     }
+
+    public void setMemberProfile(String profileImgId, String nickname) {
+        this.profileImgId = profileImgId;
+        this.nickname = nickname;
+    }
 }

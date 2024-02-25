@@ -1,9 +1,11 @@
 package com.wemingle.core.domain.member.service;
 
+import com.wemingle.core.domain.member.dto.SetMemberProfileDto;
 import com.wemingle.core.domain.nickname.service.NicknameService;
 import com.wemingle.core.domain.univ.service.UnivCertificationService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,16 @@ public class MemberService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final UnivCertificationService univCertificationService;
     private final NicknameService nicknameService;
+
+    public Member findMemberByMemberId(String memberId) {
+        return memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new RuntimeException(ExceptionMessage.MEMBER_NOT_FOUNT.toString()));
+    }
+
+    @Transactional
+    public void setMemberProfile(Member member, SetMemberProfileDto setMemberProfileDto) {
+        member.setMemberProfile("todo img id", setMemberProfileDto.getNickname()); //todo s3 img upload
+    }
 
     @Transactional
     public void saveMember(Member member) {
