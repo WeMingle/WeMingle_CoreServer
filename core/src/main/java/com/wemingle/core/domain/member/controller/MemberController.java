@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.member.controller;
 
 import com.wemingle.core.domain.member.dto.SignUpDto;
+
 import com.wemingle.core.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

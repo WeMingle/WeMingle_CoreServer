@@ -4,13 +4,18 @@ import com.wemingle.core.domain.nickname.service.NicknameService;
 import com.wemingle.core.domain.univ.service.UnivCertificationService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
+
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -32,6 +37,18 @@ public class MemberService {
 //        }
 //        memberRepository.save(member);
 //        applicationEventPublisher.publishEvent(new MemberSignUpEvent(member));
+    }
+
+    public Member findByEmail(String memberEmail){
+        return memberRepository.findByEmail(memberEmail)
+                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+
+    }
+
+    public Member findByRefreshToken(String refreshToken){
+        return memberRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+
     }
 
     private boolean isAvailableEmail(String email) {
