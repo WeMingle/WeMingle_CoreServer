@@ -25,16 +25,16 @@ public class MemberController {
 
     @PostMapping("/")
     ResponseEntity<?> signUpMember(@RequestBody SignUpDto signUpDto) {
-        Member member = Member.builder()
-                .memberName(signUpDto.getMemberName())
-                .email(signUpDto.getEmail())
-                .dateOfBirth(signUpDto.getDateOfBirth())
-                .password(bCryptPasswordEncoder.encode(signUpDto.getPassword()))
-                .phoneNumber(signUpDto.getPhoneNumber())
-                .nickname(signUpDto.getNickname())
-                .role(Role.USER)
-                .build();
-        memberService.saveMember(member);
+//        Member member = Member.builder()
+//                .memberId(signUpDto.getMemberName())
+//                .email(signUpDto.getEmail())
+//                .dateOfBirth(signUpDto.getDateOfBirth())
+//                .password(bCryptPasswordEncoder.encode(signUpDto.getPassword()))
+//                .phoneNumber(signUpDto.getPhoneNumber())
+//                .nickname(signUpDto.getNickname())
+//                .role(Role.UNVERIFIED_USER)
+//                .build();
+//        memberService.saveMember(member);
         return ResponseEntity.ok().build();
     }
 }
