@@ -1,6 +1,6 @@
-package com.wemingle.core.domain.mail.controller;
+package com.wemingle.core.domain.memberuniveemail.controller;
 
-import com.wemingle.core.domain.mail.service.MailVerificationService;
+import com.wemingle.core.domain.memberuniveemail.service.MailVerificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 

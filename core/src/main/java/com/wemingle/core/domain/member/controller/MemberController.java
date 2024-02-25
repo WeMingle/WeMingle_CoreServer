@@ -1,8 +1,7 @@
 package com.wemingle.core.domain.member.controller;
 
 import com.wemingle.core.domain.member.dto.SignUpDto;
-import com.wemingle.core.domain.member.entity.Member;
-import com.wemingle.core.domain.member.entity.role.Role;
+
 import com.wemingle.core.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,16 +23,16 @@ public class MemberController {
 
     @PostMapping("/")
     ResponseEntity<?> signUpMember(@RequestBody SignUpDto signUpDto) {
-        Member member = Member.builder()
-                .memberName(signUpDto.getMemberName())
-                .email(signUpDto.getEmail())
-                .dateOfBirth(signUpDto.getDateOfBirth())
-                .password(bCryptPasswordEncoder.encode(signUpDto.getPassword()))
-                .phoneNumber(signUpDto.getPhoneNumber())
-                .nickname(signUpDto.getNickname())
-                .role(Role.USER)
-                .build();
-        memberService.saveMember(member);
+//        Member member = Member.builder()
+//                .memberId(signUpDto.getMemberName())
+//                .email(signUpDto.getEmail())
+//                .dateOfBirth(signUpDto.getDateOfBirth())
+//                .password(bCryptPasswordEncoder.encode(signUpDto.getPassword()))
+//                .phoneNumber(signUpDto.getPhoneNumber())
+//                .nickname(signUpDto.getNickname())
+//                .role(Role.UNVERIFIED_USER)
+//                .build();
+//        memberService.saveMember(member);
         return ResponseEntity.ok().build();
     }
 }

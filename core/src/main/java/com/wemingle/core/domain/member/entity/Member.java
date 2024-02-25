@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.member.entity;
 
+import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -10,14 +11,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -25,41 +22,56 @@ import java.util.UUID;
 public class Member implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "MEMBER_ID")
-    private UUID memberId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "pk")
+    private Long pk;
 
     @NotNull
-    @Column(name = "NICKNAME", columnDefinition = "VARBINARY(255) NOT NULL")
-    private String nickname;
-
-    @NotNull
-    @Column(name = "MEMBER_NAME", columnDefinition = "VARBINARY(255) NOT NULL")
-    private String memberName;
-
-    @NotNull
-    @Column(name = "PHONE_NUMBER", columnDefinition = "VARBINARY(255) NOT NULL")
-    private String phoneNumber;
-
-    @NotNull
-    @Column(name = "DATE_OF_BIRTH", columnDefinition = "VARBINARY(255) NOT NULL")
-    private LocalDate dateOfBirth;
-
-    @NotNull
-    @Column(name = "EMAIL", columnDefinition = "VARBINARY(255) NOT NULL")
-    private String email;
+    @Column(name = "MEMBER_ID", columnDefinition = "VARBINARY(255) NOT NULL")
+    private String memberId;
 
     @NotNull
     @Column(name = "PASSWORD", columnDefinition = "VARBINARY(255) NOT NULL")
     private String password;
 
     @NotNull
+    @Column(name = "NICKNAME", columnDefinition = "VARBINARY(255) NOT NULL")
+    private String nickname;
+
+    @NotNull
+    @Column(name = "PROFILE_IMG_ID", columnDefinition = "VARBINARY(255) NOT NULL")
+    private String profileImgId;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PHONE_TYPE")
+    private PhoneType phoneType;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "SIGNUP_PLATFORM")
+    private PhoneType signupPlatform;
+
+    @NotNull
+    @Column(name = "SIGNUP_DATE")
+    private LocalDate signupDate;
+
+    @NotNull
+    @Column(name = "REFRESH_TOKEN", columnDefinition = "VARBINARY(400) NOT NULL")
+    private String refreshToken;
+
+    @NotNull
+    @Column(name = "FIREBASE_TOKEN", columnDefinition = "VARBINARY(400) NOT NULL")
+    private String firebaseToken;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "ROLE")
     private Role role;
 
-    @Column(name = "REFRESH_TOKEN", columnDefinition = "VARBINARY (400) NOT NULL")
-    private String refreshToken;
+    @NotNull
+    @Column(name = "COMPLAINTS_COUNT")
+    private int complaintsCount;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -73,7 +85,7 @@ public class Member implements UserDetails {
 
     @Override
     public String getUsername() {
-        return memberName;
+        return memberId;
     }
 
     @Override
@@ -92,15 +104,19 @@ public class Member implements UserDetails {
     }
 
     @Builder
-    public Member(UUID memberId, String nickname, String memberName, String phoneNumber, LocalDate dateOfBirth, String email, String password, Role role) {
+    public Member(Long pk, String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, PhoneType signupPlatform, LocalDate signupDate, String refreshToken, String firebaseToken, Role role, int complaintsCount) {
+        this.pk = pk;
         this.memberId = memberId;
-        this.nickname = nickname;
-        this.memberName = memberName;
-        this.phoneNumber = phoneNumber;
-        this.dateOfBirth = dateOfBirth;
-        this.email = email;
         this.password = password;
+        this.nickname = nickname;
+        this.profileImgId = profileImgId;
+        this.phoneType = phoneType;
+        this.signupPlatform = signupPlatform;
+        this.signupDate = signupDate;
+        this.refreshToken = refreshToken;
+        this.firebaseToken = firebaseToken;
         this.role = role;
+        this.complaintsCount = complaintsCount;
     }
 
     @Override

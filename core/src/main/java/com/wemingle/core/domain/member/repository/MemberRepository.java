@@ -11,7 +11,6 @@ import java.util.UUID;
 public interface MemberRepository extends JpaRepository<Member, UUID> {
     @Override
     Optional<Member> findById(UUID uuid);
-
-    Optional<Member> findByEmail(String memberEmail);
     Optional<Member> findByRefreshToken(String refreshToken);
+    Optional<Member> findByEmail(String email);
 }
