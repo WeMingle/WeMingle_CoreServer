@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
+import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.IS_EXPIRED_REFRESH_AND_ACCESS_TOKEN;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,6 +58,7 @@ public class AuthenticationController {
                 .ok(ResponseHandler.<TokenDto.ResponseTokenDto>builder()
                         .responseMessage(generateResponseMessage(responseTokenDto))
                         .responseData(responseTokenDto)
+                        .build()
                 );
     }
 
