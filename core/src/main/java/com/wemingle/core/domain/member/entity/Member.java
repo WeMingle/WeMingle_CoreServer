@@ -103,6 +103,7 @@ public class Member extends BaseEntity implements UserDetails {
         return false;
     }
 
+    @Builder
     public Member(String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, int complaintsCount, PolicyTerms policyTerms) {
         this.memberId = memberId;
         this.password = password;
@@ -116,9 +117,6 @@ public class Member extends BaseEntity implements UserDetails {
         this.complaintsCount = complaintsCount;
         this.policyTerms = policyTerms;
     }
-
-    @Builder
-
 
     @Override
     public boolean isEnabled() {

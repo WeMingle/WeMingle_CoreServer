@@ -1,41 +1,26 @@
 package com.wemingle.core.domain.member.dto;
 
-import jakarta.validation.constraints.*;
-import lombok.Value;
-
-import java.time.LocalDate;
+import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.global.annotation.Essential;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
 /**
  * DTO for {@link com.wemingle.core.domain.member.entity.Member}
  */
-@Value
 public class SignUpDto {
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    String memberName;
+    @Value
+    public static class RequestSignUpDto{
+        @Essential
+        String memberId;
 
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    String nickname;
+        @Essential
+        @Size(min = 8, max = 20)
+        String password;
 
-    @NotNull
-    String phoneNumber;
+        @Essential
+        SignupPlatform signupPlatform;
+    }
 
-    @NotNull
-    @PastOrPresent
-    LocalDate dateOfBirth;
 
-    @NotNull
-    @Email
-    @NotEmpty
-    @NotBlank
-    String email;
-
-    @NotNull
-    @Size
-    @NotEmpty
-    @NotBlank
-    String password;
 }
