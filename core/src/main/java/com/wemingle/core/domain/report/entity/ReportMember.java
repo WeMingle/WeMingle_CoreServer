@@ -4,7 +4,7 @@
 //import jakarta.persistence.*;
 //
 //@Entity
-//public class MemberReport extends BaseEntity {
+//public class ReportMember extends BaseEntity {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "PK")

@@ -1,11 +1,11 @@
 package com.wemingle.core.domain.img.entity;
 
-import com.wemingle.core.domain.post.entity.GroupPost;
+import com.wemingle.core.domain.post.entity.TeamPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class GroupPostImg {
+public class TeamPostImg {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk")
     private Long pk;
@@ -20,6 +20,6 @@ public class GroupPostImg {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GROUP_POST")
-    private GroupPost groupPost;
+    @JoinColumn(name = "TEAM_POST")
+    private TeamPost teamPost;
 }

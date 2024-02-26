@@ -1,29 +1,32 @@
-package com.wemingle.core.domain.report.entity;
+package com.wemingle.core.domain.review.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
+import com.wemingle.core.domain.group.entity.Team;
 import com.wemingle.core.domain.member.entity.Member;
-import com.wemingle.core.domain.post.entity.MatchingPost;
-import com.wemingle.core.domain.report.entity.reportinfo.ReportInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class MatchingPostReport extends BaseEntity {
+public class TeamReview extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")
     private Long pk;
 
     @NotNull
-    @Embedded
-    private ReportInfo reportInfo;
+    @Column(name = "CONTENT", length = 3000)
+    private String content;
+
+    @NotNull
+    @Column(name = "RATING")
+    private int rating;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MATCHING_POST")
-    private MatchingPost matchingPost;
+    @JoinColumn(name = "REVIEWEE")
+    private Team reviewee;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER")
-    private Member member;
+    @JoinColumn(name = "REVIEWER")
+    private Member reviewer;
 }

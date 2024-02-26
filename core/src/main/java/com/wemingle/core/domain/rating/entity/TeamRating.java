@@ -1,13 +1,13 @@
 package com.wemingle.core.domain.rating.entity;
 
-import com.wemingle.core.domain.group.entity.Group;
+import com.wemingle.core.domain.group.entity.Team;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
 @Entity
-public class GroupRating {
+public class TeamRating {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")
     private Long pk;
@@ -18,6 +18,6 @@ public class GroupRating {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GROUP")
-    private Group group;
+    @JoinColumn(name = "TEAM")
+    private Team team;
 }

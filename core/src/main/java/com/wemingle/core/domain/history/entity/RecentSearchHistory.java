@@ -8,11 +8,11 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 public class RecentSearchHistory extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pk")
+    @Column(name = "PK")
     private Long pk;
 
     @NotNull
-    @Column(name = "content", length = 40)
+    @Column(name = "CONTENT", length = 40)
     private String content;
 
     @NotNull

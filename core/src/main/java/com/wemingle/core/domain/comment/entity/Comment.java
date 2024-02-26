@@ -1,8 +1,8 @@
 package com.wemingle.core.domain.comment.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.group.entity.GroupMember;
-import com.wemingle.core.domain.post.entity.GroupPost;
+import com.wemingle.core.domain.group.entity.TeamMember;
+import com.wemingle.core.domain.post.entity.TeamPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -30,11 +30,11 @@ public class Comment extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GROUP_POST")
-    private GroupPost groupPost;
+    @JoinColumn(name = "TEAM_POST")
+    private TeamPost teamPost;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GROUP_MEMBER")
-    private GroupMember groupMember;
+    @JoinColumn(name = "TEAM_MEMBER")
+    private TeamMember teamMember;
 }

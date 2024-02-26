@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.matching.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.group.entity.Group;
+import com.wemingle.core.domain.group.entity.Team;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import jakarta.persistence.*;
@@ -19,8 +19,8 @@ public class MatchingResult extends BaseEntity {
     private MatchingPost matchingPost;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GROUP")
-    private Group group;
+    @JoinColumn(name = "TEAM")
+    private Team team;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
