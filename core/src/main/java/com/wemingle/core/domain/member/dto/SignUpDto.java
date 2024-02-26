@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.member.dto;
 
+import com.wemingle.core.domain.member.signupplatform.Platform;
 import jakarta.validation.constraints.*;
 import lombok.Value;
 
@@ -18,4 +19,10 @@ public class SignUpDto {
     @NotEmpty
     @NotBlank
     String password;
+
+    //todo 회원가입 플랫폼
+    @NotNull
+    @NotEmpty
+    @NotBlank
+    Platform platform;
 }
