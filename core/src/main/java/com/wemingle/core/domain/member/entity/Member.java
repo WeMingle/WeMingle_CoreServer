@@ -137,4 +137,9 @@ public class Member extends BaseEntity implements UserDetails {
     public void patchRefreshToken(String newRefreshToken){
         this.refreshToken = newRefreshToken;
     }
+
+    public void convertToAuthenticationUser(String newRefreshToken){
+        this.refreshToken = newRefreshToken;
+        this.role = Role.USER;
+    }
 }

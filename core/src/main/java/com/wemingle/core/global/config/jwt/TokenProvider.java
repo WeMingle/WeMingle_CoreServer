@@ -30,15 +30,15 @@ public class TokenProvider {
     private static final String ACCESS_TOKEN = "accessToken";
 
     //todo 학교 인증 전까지 role unVerifiedUser 처리
-    public String generateRefreshToken(String memberEmail, Role role){
-        return makeToken(new Date(new Date().getTime() + generateExpiredAt(REFRESH_TOKEN)), memberEmail, role);
+    public String createRefreshToken(String memberId, Role role){
+        return createToken(new Date(new Date().getTime() + createExpiredAt(REFRESH_TOKEN)), memberId, role);
     }
 
-    public String generateAccessToken(String memberEmail, Role role){
-        return makeToken(new Date(new Date().getTime() + generateExpiredAt(ACCESS_TOKEN)), memberEmail, role);
+    public String createAccessToken(String memberId, Role role){
+        return createToken(new Date(new Date().getTime() + createExpiredAt(ACCESS_TOKEN)), memberId, role);
     }
 
-    protected long generateExpiredAt(String tokenType){
+    protected long createExpiredAt(String tokenType){
         if (tokenType.equals(REFRESH_TOKEN)){
             return Period.ofMonths(6).toTotalMonths() * Duration.ofDays(30L).toMillis();
         }else {
@@ -46,7 +46,7 @@ public class TokenProvider {
         }
     }
 
-    public String makeToken(Date expiry, String memberEmail, Role role){
+    public String createToken(Date expiry, String memberId, Role role){
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -54,8 +54,8 @@ public class TokenProvider {
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .setSubject("WeMingle")
-                .claim("email", memberEmail)
-                .claim("role", ROLE_PREFIX + role.getRoleName())
+                .claim("id", memberId)
+                .claim("role", role.getRoleName())
                 .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -101,24 +101,36 @@ public class TokenProvider {
             case "ROLE_USER" -> {
                 return getUserAuthentication(jwtToken);
             }
+            case "ROLE_UNVERIFIED_USER" -> {
+                return getUnVerifiedUserAuthentication(jwtToken);
+            }
             default -> throw new InvalidRoleException();
         }
     }
 
     private Authentication getAdminAuthentication(String jwtToken){
-        String email = getMemberEmail(jwtToken);
+        String id = getMemberId(jwtToken);
 
-        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(ROLE_PREFIX + "ADMIN"));
-        User user = new User(email, "", authorities);
+        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(Role.ADMIN.getRoleName()));
+        User user = new User(id, "", authorities);
 
         return new UsernamePasswordAuthenticationToken(user, jwtToken, authorities);
     }
 
     private Authentication getUserAuthentication(String jwtToken){
-        String email = getMemberEmail(jwtToken);
+        String id = getMemberId(jwtToken);
 
-        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(ROLE_PREFIX + "USER"));
-        User user = new User(email, "", authorities);
+        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(Role.USER.getRoleName()));
+        User user = new User(id, "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(user, jwtToken, authorities);
+    }
+
+    private Authentication getUnVerifiedUserAuthentication(String jwtToken){
+        String id = getMemberId(jwtToken);
+
+        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(Role.UNVERIFIED_USER.getRoleName()));
+        User user = new User(id, "", authorities);
 
         return new UsernamePasswordAuthenticationToken(user, jwtToken, authorities);
     }
@@ -131,10 +143,10 @@ public class TokenProvider {
                 .getBody();
     }
 
-    public String getMemberEmail(String jwtToken){
+    public String getMemberId(String jwtToken){
         Claims claims = getClaim(jwtToken);
 
-        return String.valueOf(claims.get("email"));
+        return String.valueOf(claims.get("id"));
     }
 
     public String getRole(String jwtToken){

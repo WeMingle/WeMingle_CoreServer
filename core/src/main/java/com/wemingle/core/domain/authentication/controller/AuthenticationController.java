@@ -31,6 +31,7 @@ public class AuthenticationController {
                         .body(ResponseHandler.<String>builder()
                             .responseMessage(IS_EXPIRED_REFRESH_AND_ACCESS_TOKEN.getExceptionMessage())
                             .responseData(null)
+                            .build()
                         );
             }
         }
@@ -38,12 +39,12 @@ public class AuthenticationController {
         TokenDto.ResponseTokenDto.ResponseTokenDtoBuilder responseTokenDtoBuilder = TokenDto.ResponseTokenDto.builder();
         if (tokenService.isInvalidAccessToken(refreshToken, accessToken)){
             if (tokenService.isExpiredAccessToken(accessToken)){
-                String newAccessToken = tokenService.createAccessTokenByRefreshToken(refreshToken);
+                String newAccessToken = tokenService.getAccessTokenByRefreshToken(refreshToken);
                 responseTokenDtoBuilder.accessToken(newAccessToken);
             }
 
             if (tokenService.isExpiredAfter21Days(refreshToken)){
-                String newRefreshToken = tokenService.createAndPatchRefreshToken(refreshToken);
+                String newRefreshToken = tokenService.getAndPatchRefreshTokenInMember(refreshToken);
                 responseTokenDtoBuilder.refreshToken(newRefreshToken);
             }
         }
