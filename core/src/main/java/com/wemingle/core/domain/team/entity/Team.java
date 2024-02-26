@@ -1,4 +1,4 @@
-package com.wemingle.core.domain.group.entity;
+package com.wemingle.core.domain.team.entity;
 
 import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.common.entity.BaseEntity;

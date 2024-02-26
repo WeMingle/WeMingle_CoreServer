@@ -2,7 +2,7 @@ package com.wemingle.core.domain.post.entity;
 
 import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.group.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.applicanttype.ApplicantType;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;

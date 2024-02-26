@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.post.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.group.entity.Team;
+import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.post.entity.posttype.PostType;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
 import jakarta.persistence.*;
