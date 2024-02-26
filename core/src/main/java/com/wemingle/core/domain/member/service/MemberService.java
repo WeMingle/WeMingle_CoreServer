@@ -49,11 +49,11 @@ public class MemberService {
 //        }
 //        memberRepository.save(member);
 //        applicationEventPublisher.publishEvent(new MemberSignUpEvent(member));
-    }
 
-    public Member findByEmail(String memberEmail){
-        return memberRepository.findByEmail(memberEmail)
-                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+
+//    public Member findByEmail(String memberEmail){
+//        return memberRepository.findByEmail(memberEmail)
+//                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
 
     }
 
@@ -63,7 +63,4 @@ public class MemberService {
 
     }
 
-    private boolean isAvailableEmail(String email) {
-        return memberRepository.findByEmail(email).isPresent();
-    }
 }

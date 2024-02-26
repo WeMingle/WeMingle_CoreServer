@@ -1,24 +1,23 @@
 package com.wemingle.core.domain.member.entity;
 
-import com.wemingle.core.domain.category.sports.SportsCategory;
-import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class MemberPreferenceSports {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pk", nullable = false)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PK", nullable = false)
     private Long pk;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member")
+    @JoinColumn(name = "MEMBER")
     private Member member;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sports")
+    @JoinColumn(name = "SPORTS")
     private SportsCategory sports;
 
 }
