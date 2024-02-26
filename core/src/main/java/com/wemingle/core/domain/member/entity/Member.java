@@ -109,7 +109,7 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     @Builder
-    public Member(Long pk, String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, PhoneType signupPlatform, LocalDate signupDate, String refreshToken, String firebaseToken, Role role, int complaintsCount) {
+    public Member(Long pk, String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, LocalDate signupDate, String refreshToken, String firebaseToken, Role role, int complaintsCount) {
         this.pk = pk;
         this.memberId = memberId;
         this.password = password;

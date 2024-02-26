@@ -11,7 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
@@ -41,7 +44,7 @@ public class MemberController {
                                        @AuthenticationPrincipal UserDetails userDetails) {
         Member member = memberService.findMemberByMemberId(userDetails.getUsername());
         memberService.setMemberProfile(member,setMemberProfileDto);
-        return ResponseEntity.ok().build(); //todo token 발급
+        return ResponseEntity.ok().build(); //todo token 발급 -> 토큰 서비스에서 사용할 것
     }
 
 //    @PostMapping("/profile")//todo 온보딩 절차 컨트롤러
