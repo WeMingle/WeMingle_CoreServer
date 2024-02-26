@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -23,13 +22,12 @@ public class MailVerificationService {
     private static final int LIMIT_TIME = 300000;
     private final ConcurrentHashMap<String, VerificationCodeEntry> verificationCodes = new ConcurrentHashMap<>();
     private final JavaMailSender mailSender;
-    private final MailVerificationService mailVerificationService;
 
     public void sendVerificationMail(String univEmail, Member member) {
 
-        String verificationCode = mailVerificationService.generateVerificationCode();
+        String verificationCode = generateVerificationCode();
 
-        mailVerificationService.saveVerificationCode(member.getMemberId(),verificationCode);
+        saveVerificationCode(member.getMemberId(),verificationCode);
 
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setSubject("Wemingle 재학 인증");
