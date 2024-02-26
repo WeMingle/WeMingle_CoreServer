@@ -3,6 +3,7 @@ package com.wemingle.core.domain.member.entity;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
+import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -49,7 +50,7 @@ public class Member extends BaseEntity implements UserDetails {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "SIGNUP_PLATFORM")
-    private PhoneType signupPlatform;
+    private SignupPlatform signupPlatform;
 
     @NotNull
     @Column(name = "SIGNUP_DATE")
