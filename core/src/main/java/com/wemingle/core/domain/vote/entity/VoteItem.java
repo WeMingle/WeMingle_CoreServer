@@ -15,6 +15,6 @@ public class VoteItem {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GROUP_POST_VOTE")
-    private GroupPostVote groupPostVote;
+    @JoinColumn(name = "TEAM_POST_VOTE")
+    private TeamPostVote teamPostVote;
 }

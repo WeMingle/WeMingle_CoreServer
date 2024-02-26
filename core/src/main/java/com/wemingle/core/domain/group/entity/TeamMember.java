@@ -1,13 +1,13 @@
 package com.wemingle.core.domain.group.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.group.entity.grouprole.GroupRole;
+import com.wemingle.core.domain.group.entity.grouprole.TeamRole;
 import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public class GroupMember extends BaseEntity {
+public class TeamMember extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")
     private Long pk;
@@ -22,7 +22,7 @@ public class GroupMember extends BaseEntity {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private GroupRole groupRole;
+    private TeamRole teamRole;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,6 +31,6 @@ public class GroupMember extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Group")
-    private Group group;
+    @JoinColumn(name = "TEAM")
+    private Team team;
 }

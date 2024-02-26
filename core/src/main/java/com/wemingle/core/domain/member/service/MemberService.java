@@ -36,8 +36,7 @@ public class MemberService {
 
     @Transactional
     public void saveMember(Member member) {
-    //todo 어떤 계정으로 회원가입되었는지 확인 후 리턴할 것(예: 카카오로 이미 가입된 학교 이메일입니다)
-
+        //todo 어떤 계정으로 회원가입되었는지 확인 후 리턴할 것(예: 카카오로 이미 가입된 학교 이메일입니다)
     }
 
     public Member findByRefreshToken(String refreshToken){

@@ -23,4 +23,9 @@ public class BannedMember {
     @NotNull
     @Enumerated(EnumType.STRING)
     private BanType banType;
+
+    @NotNull
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER")
+    private Member member;
 }

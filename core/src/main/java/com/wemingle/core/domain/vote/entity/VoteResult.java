@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.vote.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.group.entity.GroupMember;
+import com.wemingle.core.domain.group.entity.TeamMember;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,8 +13,8 @@ public class VoteResult extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GROUP_MEMBER")
-    private GroupMember groupMember;
+    @JoinColumn(name = "TEAM_MEMBER")
+    private TeamMember teamMember;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
