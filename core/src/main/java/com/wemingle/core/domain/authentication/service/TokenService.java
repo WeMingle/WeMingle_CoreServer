@@ -36,17 +36,17 @@ public class TokenService {
     public String createAccessTokenByRefreshToken(String refreshToken){
         Member member = memberService.findByRefreshToken(refreshToken);
 
-        return tokenProvider.generateAccessToken(member.getEmail(), member.getRole());
+        return tokenProvider.generateAccessToken(member.getMemberId(), member.getRole());
     }
 
     @Transactional
     public String createAndPatchRefreshToken(String refreshToken){
         Member member = memberService.findByRefreshToken(refreshToken);
 
-        String newRefreshToken = tokenProvider.generateRefreshToken(member.getEmail(), member.getRole());
+        String newRefreshToken = tokenProvider.generateRefreshToken(member.getMemberId(), member.getRole());
         member.patchRefreshToken(newRefreshToken);
 
-        return tokenProvider.generateRefreshToken(member.getEmail(), member.getRole());
+        return tokenProvider.generateRefreshToken(member.getMemberId(), member.getRole());
     }
 
     public boolean isExpiredAfter21Days(String refreshToken) {

@@ -4,13 +4,18 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class VerifiedUniversityEmail extends BaseEntity {
-
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")
     private Long pk;
 
@@ -24,6 +29,4 @@ public class VerifiedUniversityEmail extends BaseEntity {
 
     @Column(name = "VERIFIED_DATE")
     private LocalDateTime verifiedDate;
-
-
 }

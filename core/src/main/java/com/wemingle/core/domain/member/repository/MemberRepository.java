@@ -5,12 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, UUID> {
-    @Override
-    Optional<Member> findById(UUID uuid);
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    Optional<Member> findByMemberId(String memberId);
     Optional<Member> findByRefreshToken(String refreshToken);
-    Optional<Member> findByEmail(String email);
 }
