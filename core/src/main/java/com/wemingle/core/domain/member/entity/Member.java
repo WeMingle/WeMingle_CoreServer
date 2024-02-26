@@ -3,6 +3,7 @@ package com.wemingle.core.domain.member.entity;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
+import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -13,7 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -49,11 +49,7 @@ public class Member extends BaseEntity implements UserDetails {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "SIGNUP_PLATFORM")
-    private PhoneType signupPlatform;
-
-    @NotNull
-    @Column(name = "SIGNUP_DATE")
-    private LocalDate signupDate;
+    private SignupPlatform signupPlatform;
 
     @NotNull
     @Column(name = "REFRESH_TOKEN", columnDefinition = "VARBINARY(400) NOT NULL")
@@ -107,21 +103,22 @@ public class Member extends BaseEntity implements UserDetails {
         return false;
     }
 
-    @Builder
-    public Member(Long pk, String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, PhoneType signupPlatform, LocalDate signupDate, String refreshToken, String firebaseToken, Role role, int complaintsCount) {
-        this.pk = pk;
+    public Member(String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, int complaintsCount, PolicyTerms policyTerms) {
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;
         this.profileImgId = profileImgId;
         this.phoneType = phoneType;
         this.signupPlatform = signupPlatform;
-        this.signupDate = signupDate;
         this.refreshToken = refreshToken;
         this.firebaseToken = firebaseToken;
         this.role = role;
         this.complaintsCount = complaintsCount;
+        this.policyTerms = policyTerms;
     }
+
+    @Builder
+
 
     @Override
     public boolean isEnabled() {
