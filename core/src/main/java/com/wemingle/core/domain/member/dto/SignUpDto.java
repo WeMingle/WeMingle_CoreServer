@@ -20,7 +20,6 @@ public class SignUpDto {
     @NotBlank
     String password;
 
-    //todo 회원가입 플랫폼
     @NotNull
     @NotEmpty
     @NotBlank
