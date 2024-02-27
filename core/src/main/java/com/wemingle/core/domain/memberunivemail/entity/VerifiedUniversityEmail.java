@@ -4,10 +4,17 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class VerifiedUniversityEmail extends BaseEntity {
-    @Id @Column(name = "PK")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PK")
     private Long pk;
 
     @JoinColumn(name = "MEMBER")

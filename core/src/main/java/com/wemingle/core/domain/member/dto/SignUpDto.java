@@ -3,7 +3,8 @@ package com.wemingle.core.domain.member.dto;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import jakarta.validation.constraints.*;
+import lombok.Value;
 
 /**
  * DTO for {@link com.wemingle.core.domain.member.entity.Member}
@@ -21,6 +22,4 @@ public class SignUpDto {
         @Essential
         SignupPlatform signupPlatform;
     }
-
-
 }

@@ -128,11 +128,22 @@ public class Member extends BaseEntity implements UserDetails {
         return false;
     }
 
+
+    public void setMemberProfile(String profileImgId, String nickname) {
+        this.profileImgId = profileImgId;
+        this.nickname = nickname;
+    }
+
     public void patchRefreshToken(String newRefreshToken){
         this.refreshToken = newRefreshToken;
     }
-    public void patchMemberProfile(String nickname, String memberProfileImgName){
+    public void patchMemberProfile(String nickname, String memberProfileImgName) {
         this.nickname = nickname;
         this.profileImgId = memberProfileImgName;
+    }
+
+    public void convertToAuthenticationUser(String newRefreshToken){
+        this.refreshToken = newRefreshToken;
+        this.role = Role.USER;
     }
 }
