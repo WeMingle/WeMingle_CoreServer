@@ -1,9 +1,11 @@
 package com.wemingle.core.domain.member.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
+import com.wemingle.core.domain.member.dto.SignUpDto;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.domain.member.vo.SignupVo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -109,19 +111,18 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     @Builder
-    public Member(Long pk, String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, LocalDate signupDate, String refreshToken, String firebaseToken, Role role, int complaintsCount) {
-        this.pk = pk;
+    public Member(String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, int complaintsCount, PolicyTerms policyTerms) {
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;
         this.profileImgId = profileImgId;
         this.phoneType = phoneType;
         this.signupPlatform = signupPlatform;
-        this.signupDate = signupDate;
         this.refreshToken = refreshToken;
         this.firebaseToken = firebaseToken;
         this.role = role;
         this.complaintsCount = complaintsCount;
+        this.policyTerms = policyTerms;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.wemingle.core.domain.rating.entity;
 
-import com.wemingle.core.domain.group.entity.Team;
+import com.wemingle.core.domain.team.entity.Team;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
