@@ -28,6 +28,9 @@ public class VerifiedUniversityEmail extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private UnivEntity univName;
 
+    @Column(name = "UNIV_EMAIL_ADDRESS")
+    private String univEmailAddress;
+
     @Column(name = "VERIFIED_DATE")
     private LocalDateTime verifiedDate;
 }

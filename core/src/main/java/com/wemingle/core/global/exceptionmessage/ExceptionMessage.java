@@ -10,6 +10,7 @@ public enum ExceptionMessage {
     UNIV_DOMAIN_NOT_FOUND("미지원 대학 도메인입니다."),
     UNAVAILABLE_NICKNAME("이미 사용중인 닉네임입니다"),
     UNAVAILABLE_EMAIL("이미 가입된 이메일입니다"),
-    IS_EXPIRED_REFRESH_AND_ACCESS_TOKEN("Refresh와 Access Token이 만료되었습니다. 사용자 인증을 다시해주세요");
+    IS_EXPIRED_REFRESH_AND_ACCESS_TOKEN("Refresh와 Access Token이 만료되었습니다. 사용자 인증을 다시해주세요"),
+    UNREGISTERED_MEMBER("가입되지 않은 사용자입니다.");
     private final String exceptionMessage;
 }
