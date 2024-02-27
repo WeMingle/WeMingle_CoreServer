@@ -25,7 +25,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void saveMember(SignupVo.SaveMemberVo saveMemberVo) {
 
-        //todo 어떤 계정으로 회원가입되었는지 확인 후 리턴할 것(예: 카카오로 이미 가입된 학교 이메일입니다)
+
     }
 
     @Override
