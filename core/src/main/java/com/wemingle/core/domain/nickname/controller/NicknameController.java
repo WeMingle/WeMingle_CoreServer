@@ -1,12 +1,9 @@
 package com.wemingle.core.domain.nickname.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.wemingle.core.domain.nickname.service.NicknameService;
 import com.wemingle.core.global.responseform.ResponseHandler;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
