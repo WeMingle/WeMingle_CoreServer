@@ -1,4 +1,4 @@
-package com.wemingle.core.domain.memberuniveemail.repository;
+package com.wemingle.core.domain.memberunivemail.repository;
 
 
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;

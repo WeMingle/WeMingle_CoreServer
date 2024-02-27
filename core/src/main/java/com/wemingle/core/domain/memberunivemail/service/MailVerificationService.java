@@ -1,8 +1,8 @@
 package com.wemingle.core.domain.memberunivemail.service;
 
 import com.wemingle.core.domain.member.entity.Member;
-import com.wemingle.core.domain.memberuniveemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
+import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;

@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
-
 public class VerifiedUniversityEmail extends BaseEntity {
     @Id
     @Column(name = "PK")
