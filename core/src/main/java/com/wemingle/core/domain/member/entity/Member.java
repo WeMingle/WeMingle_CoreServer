@@ -68,6 +68,10 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "COMPLAINTS_COUNT")
     private int complaintsCount;
 
+    @NotNull
+    @Column(name = "NOTIFY_ALLOW")
+    private boolean notifyAllow;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POLICY_TERMS")
     private PolicyTerms policyTerms;
@@ -104,7 +108,7 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     @Builder
-    public Member(String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, int complaintsCount, PolicyTerms policyTerms) {
+    public Member(String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, int complaintsCount, boolean notifyAllow, PolicyTerms policyTerms) {
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;
@@ -115,6 +119,7 @@ public class Member extends BaseEntity implements UserDetails {
         this.firebaseToken = firebaseToken;
         this.role = role;
         this.complaintsCount = complaintsCount;
+        this.notifyAllow = notifyAllow;
         this.policyTerms = policyTerms;
     }
 
@@ -125,5 +130,9 @@ public class Member extends BaseEntity implements UserDetails {
 
     public void patchRefreshToken(String newRefreshToken){
         this.refreshToken = newRefreshToken;
+    }
+    public void patchMemberProfile(String nickname, String memberProfileImgName){
+        this.nickname = nickname;
+        this.profileImgId = memberProfileImgName;
     }
 }
