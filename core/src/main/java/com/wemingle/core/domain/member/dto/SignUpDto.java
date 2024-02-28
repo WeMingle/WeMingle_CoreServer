@@ -1,21 +1,25 @@
 package com.wemingle.core.domain.member.dto;
 
+import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.global.annotation.Essential;
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.*;
 import lombok.Value;
 
 /**
  * DTO for {@link com.wemingle.core.domain.member.entity.Member}
  */
-@Value
 public class SignUpDto {
-    @NotNull
-    @NotEmpty
-    @NotBlank
-    String memberId;
+    @Value
+    public static class RequestSignUpDto{
+        @Essential
+        String memberId;
 
-    @NotNull
-    @Size(min = 8, max = 20)
-    @NotEmpty
-    @NotBlank
-    String password;
+        @Essential
+        @Size(min = 8, max = 20)
+        String password;
+
+        @Essential
+        SignupPlatform signupPlatform;
+    }
 }
