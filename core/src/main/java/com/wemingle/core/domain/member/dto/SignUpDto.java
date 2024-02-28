@@ -37,6 +37,9 @@ public class SignUpDto {
                     .memberId(memberId)
                     .password(password)
                     .signupPlatform(signupPlatform)
+                    .notifyAllow(allowNotification)
+                    .firebaseToken(firebaseToken)
+                    .phoneType(phoneType)
                     .build();
         }
     }
