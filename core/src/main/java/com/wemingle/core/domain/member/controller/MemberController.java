@@ -4,8 +4,8 @@ import com.wemingle.core.domain.authentication.dto.TokenDto;
 import com.wemingle.core.domain.authentication.service.TokenService;
 import com.wemingle.core.domain.member.dto.SetMemberProfileDto;
 import com.wemingle.core.domain.member.dto.SignUpDto;
-import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
+import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,10 @@ public class MemberController {
 
     @PostMapping("/signup")
     ResponseEntity<?> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) { //todo 약관 정보 받아야함
-        memberService.saveMember(signUpDto.of());
         TokenDto.ResponseTokenDto unVerifiedUserTokens = tokenService.getUnVerifiedUserTokens(signUpDto.getMemberId());
+        SignupVo.SaveMemberVo saveMemberVo = signUpDto.of();
+        saveMemberVo.setRefreshToken(unVerifiedUserTokens.getRefreshToken());
+        memberService.saveMember(saveMemberVo);
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
                         .responseMessage("Token issuance completed")
@@ -41,13 +43,18 @@ public class MemberController {
     @PostMapping("/profile")
     ResponseEntity<?> setMemberProfile(SetMemberProfileDto setMemberProfileDto,
                                        @AuthenticationPrincipal UserDetails userDetails) {
-        memberService.patchMemberProfile(setMemberProfileDto.of());//todo memberid 같이 넘기는 걸로 업데이트되면 추후 수정
+        String memberId = userDetails.getUsername();
+        SignupVo.PatchMemberProfileVo patchMemberProfileVo = setMemberProfileDto.of();
+        patchMemberProfileVo.setMemberId(memberId);
+        memberService.patchMemberProfile(patchMemberProfileVo);
+
+
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
                         .responseMessage("Token issuance completed")
-                        .responseData(unVerifiedUserTokens)
+                        .responseData(null)
                         .build()
-        ); //todo token 발급 -> 토큰 서비스에서 사용할 것
+        );
     }
 
 //    @PostMapping("/profile")//todo 온보딩 절차 컨트롤러
