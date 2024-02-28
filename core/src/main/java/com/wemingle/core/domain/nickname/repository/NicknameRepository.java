@@ -18,5 +18,5 @@ public interface NicknameRepository extends JpaRepository<Nickname, Long> {
     @Query("select n.available " +
             "from Nickname n " +
             "where n.nickname = :nickname")
-    boolean isAvailableNickname(@Param("nickname") String nickname);
+    boolean isExistsNickname(@Param("nickname") String nickname);
 }
