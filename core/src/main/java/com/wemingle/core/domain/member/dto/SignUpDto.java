@@ -1,9 +1,10 @@
 package com.wemingle.core.domain.member.dto;
 
+import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.*;
 import lombok.Value;
 
 /**
@@ -21,5 +22,25 @@ public class SignUpDto {
 
         @Essential
         SignupPlatform signupPlatform;
+
+        @Essential
+        PhoneType phoneType;
+
+        @Essential
+        String firebaseToken;
+
+        @Essential
+        boolean allowNotification;
+
+        public SignupVo.SaveMemberVo of() {
+            return SignupVo.SaveMemberVo.builder()
+                    .memberId(memberId)
+                    .password(password)
+                    .signupPlatform(signupPlatform)
+                    .notifyAllow(allowNotification)
+                    .firebaseToken(firebaseToken)
+                    .phoneType(phoneType)
+                    .build();
+        }
     }
 }

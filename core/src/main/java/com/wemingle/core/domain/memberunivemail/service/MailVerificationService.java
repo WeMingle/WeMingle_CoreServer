@@ -4,6 +4,7 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -22,6 +23,20 @@ public class MailVerificationService {
     private static final int LIMIT_TIME = 300000;
     private final ConcurrentHashMap<String, VerificationCodeEntry> verificationCodes = new ConcurrentHashMap<>();
     private final JavaMailSender mailSender;
+
+    private boolean isMemberRegistered(String univEmail) {
+        return verifiedUniversityEmailRepository.findByUnivEmailAddress(univEmail).isPresent();
+    }
+
+    public String getRegisteredPlatform(String univEmail) {
+        if (isMemberRegistered(univEmail)) {
+            return verifiedUniversityEmailRepository.findPlatformUsedForRegistration(univEmail)
+                    .orElseThrow(() -> new RuntimeException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage())
+                    ).toString();
+        }
+        return ExceptionMessage.UNREGISTERED_MEMBER.toString();
+    }
+
 
     public void sendVerificationMail(String univEmail, Member member) {
 
