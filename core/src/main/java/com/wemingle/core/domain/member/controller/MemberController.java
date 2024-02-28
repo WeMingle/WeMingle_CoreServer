@@ -41,7 +41,7 @@ public class MemberController {
     }
 
     @PostMapping("/profile")
-    ResponseEntity<?> setMemberProfile(SetMemberProfileDto setMemberProfileDto,
+    ResponseEntity<ResponseHandler<Object>> setMemberProfile(SetMemberProfileDto setMemberProfileDto,
                                        @AuthenticationPrincipal UserDetails userDetails) {
         String memberId = userDetails.getUsername();
         SignupVo.PatchMemberProfileVo patchMemberProfileVo = setMemberProfileDto.of();
