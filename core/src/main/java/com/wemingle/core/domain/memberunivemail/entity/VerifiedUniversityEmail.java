@@ -8,13 +8,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class VerifiedUniversityEmail extends BaseEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     @Column(name = "PK")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pk;
 
     @JoinColumn(name = "MEMBER")
@@ -24,4 +27,10 @@ public class VerifiedUniversityEmail extends BaseEntity {
     @JoinColumn(name = "UNIV_NAME")
     @ManyToOne(fetch = FetchType.LAZY)
     private UnivEntity univName;
+
+    @Column(name = "UNIV_EMAIL_ADDRESS")
+    private String univEmailAddress;
+
+    @Column(name = "VERIFIED_DATE")
+    private LocalDateTime verifiedDate;
 }

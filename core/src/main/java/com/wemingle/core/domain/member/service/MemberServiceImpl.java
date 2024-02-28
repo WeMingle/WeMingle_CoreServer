@@ -28,7 +28,6 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void saveMember(SignupVo.SaveMemberVo saveMemberVo) {
         saveMemberVo.patchPassword(bCryptPasswordEncoder.encode(saveMemberVo.getPassword()));
-
         Member member = saveMemberVo.of(saveMemberVo);
         memberRepository.save(member);
     }
