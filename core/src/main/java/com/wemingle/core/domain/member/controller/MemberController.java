@@ -37,7 +37,7 @@ public class MemberController {
     }
 
     @PostMapping("/profile")
-    ResponseEntity<?> setMemberProfile(SetMemberProfileDto setMemberProfileDto,
+    ResponseEntity<ResponseHandler<Object>> setMemberProfile(SetMemberProfileDto setMemberProfileDto,
                                        @AuthenticationPrincipal UserDetails userDetails) {
         Member member = memberService.findMemberByMemberId(userDetails.getUsername());
         memberService.setMemberProfile(member,setMemberProfileDto);
