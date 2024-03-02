@@ -27,7 +27,7 @@ public class MemberController {
     private final TokenService tokenService;
 
     @PostMapping("/signup")
-    ResponseEntity<?> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) { //todo 약관 정보 받아야함
+    ResponseEntity<?> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) {
         TokenDto.ResponseTokenDto unVerifiedUserTokens = tokenService.getUnVerifiedUserTokens(signUpDto.getMemberId());
         SignupVo.SaveMemberVo saveMemberVo = signUpDto.of();
         saveMemberVo.setRefreshToken(unVerifiedUserTokens.getRefreshToken());

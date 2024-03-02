@@ -32,6 +32,12 @@ public class SignUpDto {
         @Essential
         boolean allowNotification;
 
+        @Essential
+        boolean agreeToLocationBasedServices;
+
+        @Essential
+        boolean agreeToReceiveMarketingInformation;
+
         public SignupVo.SaveMemberVo of() {
             return SignupVo.SaveMemberVo.builder()
                     .memberId(memberId)
@@ -40,6 +46,8 @@ public class SignUpDto {
                     .notifyAllow(allowNotification)
                     .firebaseToken(firebaseToken)
                     .phoneType(phoneType)
+                    .agreeToReceiveMarketingInformation(agreeToReceiveMarketingInformation)
+                    .agreeToLocationBasedServices(agreeToLocationBasedServices)
                     .build();
         }
     }
