@@ -24,9 +24,12 @@ public class SignupVo {
         boolean notifyAllow;
         PhoneType phoneType;
         SignupPlatform signupPlatform;
+        boolean agreeToLocationBasedServices;
+        boolean agreeToReceiveMarketingInformation;
+
 
         @Builder
-        public SaveMemberVo(String memberId, String password, String refreshToken, String firebaseToken, boolean notifyAllow, PhoneType phoneType, SignupPlatform signupPlatform) {
+        public SaveMemberVo(String memberId, String password, String refreshToken, String firebaseToken, boolean notifyAllow, PhoneType phoneType, SignupPlatform signupPlatform, boolean agreeToLocationBasedServices, boolean agreeToReceiveMarketingInformation) {
             this.memberId = memberId;
             this.password = password;
             this.refreshToken = refreshToken;
@@ -34,7 +37,10 @@ public class SignupVo {
             this.notifyAllow = notifyAllow;
             this.phoneType = phoneType;
             this.signupPlatform = signupPlatform;
+            this.agreeToLocationBasedServices = agreeToLocationBasedServices;
+            this.agreeToReceiveMarketingInformation = agreeToReceiveMarketingInformation;
         }
+
 
         public void patchPassword(String password){
             this.password = password;
