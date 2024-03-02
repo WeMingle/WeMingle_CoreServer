@@ -51,7 +51,7 @@ public class MemberController {
 
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
-                        .responseMessage("Token issuance completed")
+                        .responseMessage("Profile update completed")
                         .responseData(null)
                         .build()
         );
