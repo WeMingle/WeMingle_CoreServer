@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.category.sports.entity;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.Sportstype;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -10,6 +11,7 @@ public class SportsCategory {
     private Long pk;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "sprots_name", columnDefinition = "VARCHAR(255) NOT NULL")
-    private String sportsName;
+    private Sportstype sportsName;
 }

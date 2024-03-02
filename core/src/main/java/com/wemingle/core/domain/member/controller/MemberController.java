@@ -57,5 +57,4 @@ public class MemberController {
         );
     }
 
-//    @PostMapping("/profile")//todo 온보딩 절차 컨트롤러
 }
