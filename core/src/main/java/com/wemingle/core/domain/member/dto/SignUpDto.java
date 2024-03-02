@@ -5,13 +5,16 @@ import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Size;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO for {@link com.wemingle.core.domain.member.entity.Member}
  */
 public class SignUpDto {
-    @Value
+
+    @Getter
+    @NoArgsConstructor
     public static class RequestSignUpDto{
         @Essential
         String memberId;
