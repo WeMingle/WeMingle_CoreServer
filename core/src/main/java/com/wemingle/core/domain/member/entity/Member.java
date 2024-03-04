@@ -1,11 +1,9 @@
 package com.wemingle.core.domain.member.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.member.dto.SignUpDto;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
-import com.wemingle.core.domain.member.vo.SignupVo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -16,7 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -53,10 +50,6 @@ public class Member extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "SIGNUP_PLATFORM")
     private SignupPlatform signupPlatform;
-
-    @NotNull
-    @Column(name = "SIGNUP_DATE")
-    private LocalDate signupDate;
 
     @NotNull
     @Column(name = "REFRESH_TOKEN", columnDefinition = "VARBINARY(400) NOT NULL")

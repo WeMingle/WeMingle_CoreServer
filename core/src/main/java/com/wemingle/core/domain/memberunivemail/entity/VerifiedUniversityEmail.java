@@ -8,10 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class VerifiedUniversityEmail extends BaseEntity {
@@ -31,6 +28,12 @@ public class VerifiedUniversityEmail extends BaseEntity {
     @Column(name = "UNIV_EMAIL_ADDRESS")
     private String univEmailAddress;
 
-    @Column(name = "VERIFIED_DATE")
-    private LocalDateTime verifiedDate;
+    @Builder
+    public VerifiedUniversityEmail(Member member, UnivEntity univName, String univEmailAddress) {
+        this.member = member;
+        this.univName = univName;
+        this.univEmailAddress = univEmailAddress;
+    }
+
+
 }
