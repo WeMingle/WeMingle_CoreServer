@@ -4,9 +4,11 @@ import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
+@NoArgsConstructor
 public class SetMemberProfileDto {
     MultipartFile profilePic;
     @Essential

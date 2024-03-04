@@ -5,13 +5,16 @@ import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Size;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO for {@link com.wemingle.core.domain.member.entity.Member}
  */
 public class SignUpDto {
-    @Value
+
+    @Getter
+    @NoArgsConstructor
     public static class RequestSignUpDto{
         @Essential
         String memberId;
@@ -32,6 +35,12 @@ public class SignUpDto {
         @Essential
         boolean allowNotification;
 
+        @Essential
+        boolean agreeToLocationBasedServices;
+
+        @Essential
+        boolean agreeToReceiveMarketingInformation;
+
         public SignupVo.SaveMemberVo of() {
             return SignupVo.SaveMemberVo.builder()
                     .memberId(memberId)
@@ -40,6 +49,8 @@ public class SignUpDto {
                     .notifyAllow(allowNotification)
                     .firebaseToken(firebaseToken)
                     .phoneType(phoneType)
+                    .agreeToReceiveMarketingInformation(agreeToReceiveMarketingInformation)
+                    .agreeToLocationBasedServices(agreeToLocationBasedServices)
                     .build();
         }
     }
