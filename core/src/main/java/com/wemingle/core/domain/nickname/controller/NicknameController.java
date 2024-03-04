@@ -25,6 +25,7 @@ public class NicknameController {
     ResponseEntity<ResponseHandler<Object>> checkNickname(@PathVariable("nickname")
                                                      @Size(min = 2, max = 10, message = "2~10글자 사이로 입력하세요")
                                                      String nickname) {
+        log.info(nickname);
         if (nicknameService.isAvailableNickname(nickname)) {
             return ResponseEntity.ok(ResponseHandler.builder().responseMessage("사용 가능한 닉네임입니다.").build());
         }
