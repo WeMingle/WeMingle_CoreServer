@@ -13,8 +13,8 @@ public class NicknameService {
     private final NicknameRepository nicknameRepository;
     public boolean isAvailableNickname(String nickname) {
         NicknameCleaner nicknameCleaner = new NicknameCleaner();
-        return (nicknameRepository.isExistsNickname(nickname)==null
-                || !nicknameRepository.isExistsNickname(nickname)) && nicknameCleaner.isCleanNickname(nickname);
+        return nicknameCleaner.isCleanNickname(nickname)
+                && (nicknameRepository.isExistsNickname(nickname)==null || !nicknameRepository.isExistsNickname(nickname));
 
     }
 }
