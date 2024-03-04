@@ -39,13 +39,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private PolicyTerms savePolicyTerms(boolean agreeToLocationBasedServices, boolean agreeToReceiveMarketingInformation){
-        PolicyTerms policyTerms = PolicyTerms.builder()
+        return policyTermsRepository.save(PolicyTerms.builder()
                 .agreeToLocationBasedServices(agreeToLocationBasedServices)
                 .agreeToReceiveMarketingInformation(agreeToReceiveMarketingInformation)
-                .build();
-        policyTermsRepository.save(policyTerms);
-
-        return policyTerms;
+                .build());
     }
 
     @Override
