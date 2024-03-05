@@ -74,9 +74,11 @@ public class TokenService {
 
     @Transactional
     public TokenDto.ResponseTokenDto getTokensForRegisteredMember(String memberId) {
-        String accessToken = tokenProvider.createAccessToken(memberId, Role.USER);
-        String refreshToken = tokenProvider.createRefreshToken(memberId, Role.USER);
         Member member = memberService.findByMemberId(memberId);
+
+        String accessToken = tokenProvider.createAccessToken(memberId, member.getRole());
+        String refreshToken = tokenProvider.createRefreshToken(memberId, member.getRole());
+
         member.patchRefreshToken(refreshToken);
         return TokenDto.ResponseTokenDto.builder()
                 .refreshToken(refreshToken)
