@@ -72,6 +72,18 @@ public class TokenService {
                 .build();
     }
 
+    @Transactional
+    public TokenDto.ResponseTokenDto getTokensForRegisteredMember(String memberId) {
+        String accessToken = tokenProvider.createAccessToken(memberId, Role.USER);
+        String refreshToken = tokenProvider.createRefreshToken(memberId, Role.USER);
+        Member member = memberService.findByMemberId(memberId);
+        member.patchRefreshToken(refreshToken);
+        return TokenDto.ResponseTokenDto.builder()
+                .refreshToken(refreshToken)
+                .accessToken(accessToken)
+                .build();
+    }
+
     private void convertToAuthenticationUser(Member member, String newRefreshToken){
         member.convertToAuthenticationUser(newRefreshToken);
     }
