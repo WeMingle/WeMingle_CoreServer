@@ -1,7 +1,9 @@
 package com.wemingle.core.domain.member.service;
 
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.entity.PolicyTerms;
 import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PolicyTermsRepository policyTermsRepository;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
@@ -27,9 +30,19 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void saveMember(SignupVo.SaveMemberVo saveMemberVo) {
+        PolicyTerms policyTerms = savePolicyTerms(saveMemberVo.isAgreeToLocationBasedServices(), saveMemberVo.isAgreeToReceiveMarketingInformation());
         saveMemberVo.patchPassword(bCryptPasswordEncoder.encode(saveMemberVo.getPassword()));
         Member member = saveMemberVo.of(saveMemberVo);
+        member.patchPolicyTerms(policyTerms);
+
         memberRepository.save(member);
+    }
+
+    private PolicyTerms savePolicyTerms(boolean agreeToLocationBasedServices, boolean agreeToReceiveMarketingInformation){
+        return policyTermsRepository.save(PolicyTerms.builder()
+                .agreeToLocationBasedServices(agreeToLocationBasedServices)
+                .agreeToReceiveMarketingInformation(agreeToReceiveMarketingInformation)
+                .build());
     }
 
     @Override

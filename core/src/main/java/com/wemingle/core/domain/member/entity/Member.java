@@ -146,4 +146,8 @@ public class Member extends BaseEntity implements UserDetails {
         this.refreshToken = newRefreshToken;
         this.role = Role.USER;
     }
+
+    public void patchPolicyTerms(PolicyTerms policyTerms){
+        this.policyTerms = policyTerms;
+    }
 }
