@@ -2,6 +2,7 @@ package com.wemingle.core.domain.member.service;
 
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
+import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
@@ -70,5 +71,12 @@ public class MemberServiceImpl implements MemberService {
     public Member findByMemberId(String memberId) {
         return memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+    }
+
+    @Override
+    public boolean isRegisteredMember(String memberId, SignupPlatform platform) {
+        return memberRepository.findByMemberId(memberId)
+                .map(member -> member.getSignupPlatform().toString().equals(platform.toString()))
+                .orElse(false);
     }
 }
