@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(assignableTypes = {NicknameController.class, MemberController.class, MatchingController.class})
 public class ValidExceptionHandler {
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ResponseHandler<String>> HttpMessageNotReadableException(Exception e) {
         return ResponseEntity.badRequest().body(
