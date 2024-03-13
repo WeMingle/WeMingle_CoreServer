@@ -1,8 +1,13 @@
 package com.wemingle.core.domain.member.service;
 
+import com.wemingle.core.domain.category.sports.entity.SportsCategory;
+import com.wemingle.core.domain.category.sports.entity.sportstype.Sportstype;
+import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.entity.MemberPreferenceSports;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.domain.member.repository.MemberPreferenceSportsRepository;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
@@ -13,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
 @RequiredArgsConstructor
@@ -22,6 +29,8 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PolicyTermsRepository policyTermsRepository;
+    private final SportsCategoryRepository sportsCategoryRepository;
+    private final MemberPreferenceSportsRepository memberPreferenceSportsRepository;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
@@ -78,5 +87,21 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.findByMemberId(memberId)
                 .map(member -> member.getSignupPlatform().toString().equals(platform.toString()))
                 .orElse(false);
+    }
+
+    @Override
+    @Transactional
+    public void saveMemberPreferenceSports(String memberId, List<Sportstype> preferenceSports) {
+        Member findMember = findByMemberId(memberId);
+        List<SportsCategory> preferenceSportsCategories = sportsCategoryRepository.findBySportsTypes(preferenceSports);
+
+        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSportsCategories.stream()
+                .map(preferenceSportsCategory -> MemberPreferenceSports.builder()
+                        .member(findMember)
+                        .sports(preferenceSportsCategory)
+                        .build())
+                .toList();
+
+        memberPreferenceSportsRepository.saveAll(memberPreferenceSportsList);
     }
 }
