@@ -125,3 +125,17 @@ INSERT INTO UNIVERSITY (UNIV_NAME,DOMAIN) VALUES
 ,('서울예술대학교','seoularts')
 ,('부산대학교','pusan')
 ,('상명대학교','sangmyung');
+
+INSERT INTO SportsCategory (sprots_name) VALUES
+    ('RUNNING'),
+    ('SOCCER'),
+    ('BASKETBALL'),
+    ('BASEBALL'),
+    ('TENNIS'),
+    ('BOWLING'),
+    ('SQUASH'),
+    ('CLIMBING'),
+    ('CYCLING'),
+    ('BADMINTON'),
+    ('SKATEBOARDING'),
+    ('OTHER');
