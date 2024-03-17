@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.univ.entity;
 
-import com.wemingle.core.domain.univ.CityCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -22,14 +21,9 @@ public class UnivEntity {
     @Column(name = "DOMAIN")
     private String domain;
 
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "CITY_CODE")
-    private CityCode cityCode;
-
     @Builder
-    public UnivEntity(String univName, String domain, CityCode cityCode) {
+    public UnivEntity(String univName, String domain) {
         this.univName = univName;
         this.domain = domain;
-        this.cityCode = cityCode;
     }
 }

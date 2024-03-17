@@ -13,8 +13,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
     defer-datasource-initialization: true
 
   mail:
@@ -34,18 +32,23 @@ spring:
     init:
       mode: always
 
-  datasource:
-    url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
-    username: ENC(ApmdwaV15BRKLL0WmZV9QA==)
-    password: ENC(nN/GHvgyZLbz7vhsaYBagTczwxNBREOi)
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
 ---
 ## prod setting
 spring:
   profiles:
     active: prod
 
+  datasource:
+    url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
+    username: ENC(ApmdwaV15BRKLL0WmZV9QA==)
+    password: ENC(nN/GHvgyZLbz7vhsaYBagTczwxNBREOi)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 ---
 
 ## jungwooLocal
