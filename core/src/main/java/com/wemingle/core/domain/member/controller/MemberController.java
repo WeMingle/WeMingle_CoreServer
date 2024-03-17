@@ -79,6 +79,12 @@ public class MemberController {
     @PostMapping("/onboard")
     ResponseEntity<ResponseHandler<Object>> setOnboardInfo(OnboardingDto onboardingDto,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
-        
+        memberService.saveMemberPreferenceSports(userDetails.getUsername(), onboardingDto.getFavoriteSports());
+        return ResponseEntity.ok().body(
+                ResponseHandler.builder()
+                        .responseMessage("Preference sports update completed")
+                        .responseData(null)
+                        .build()
+        );
     }
 }
