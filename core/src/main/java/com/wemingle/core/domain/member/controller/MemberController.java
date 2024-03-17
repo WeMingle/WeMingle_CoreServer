@@ -10,6 +10,7 @@ import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,8 +28,24 @@ public class MemberController {
     private final MemberService memberService;
     private final TokenService tokenService;
 
+    @PostMapping("/signin")
+    ResponseEntity<ResponseHandler<Object>> signInMember(@RequestBody SignUpDto.RequestSignInDto signInDto) {
+        boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId(), signInDto.getSignupPlatform());
+        if (!isRegisteredMember) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("Member not found")
+                            .responseData(null));
+        }
+        TokenDto.ResponseTokenDto tokensForRegisteredMember = tokenService.getTokensForRegisteredMember(signInDto.getMemberId());
+        return ResponseEntity.ok(ResponseHandler.builder()
+                .responseMessage("Token reissuance complete")
+                .responseData(tokensForRegisteredMember)
+                .build());
+    }
+
     @PostMapping("/signup")
-    ResponseEntity<?> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) {
+    ResponseEntity<ResponseHandler<Object>> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) {
         TokenDto.ResponseTokenDto unVerifiedUserTokens = tokenService.getUnVerifiedUserTokens(signUpDto.getMemberId());
         SignupVo.SaveMemberVo saveMemberVo = signUpDto.of();
         saveMemberVo.setRefreshToken(unVerifiedUserTokens.getRefreshToken());
