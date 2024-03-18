@@ -2,7 +2,6 @@ package com.wemingle.core.domain.member.controller;
 
 import com.wemingle.core.domain.authentication.dto.TokenDto;
 import com.wemingle.core.domain.authentication.service.TokenService;
-import com.wemingle.core.domain.member.dto.OnboardingDto;
 import com.wemingle.core.domain.member.dto.SetMemberProfileDto;
 import com.wemingle.core.domain.member.dto.SignUpDto;
 import com.wemingle.core.domain.member.service.MemberService;
@@ -70,19 +69,6 @@ public class MemberController {
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
                         .responseMessage("Profile update completed")
-                        .responseData(null)
-                        .build()
-        );
-    }
-
-
-    @PostMapping("/onboard")
-    ResponseEntity<ResponseHandler<Object>> setOnboardInfo(OnboardingDto onboardingDto,
-                                                           @AuthenticationPrincipal UserDetails userDetails) {
-        memberService.saveMemberPreferenceSports(userDetails.getUsername(), onboardingDto.getFavoriteSports());
-        return ResponseEntity.ok().body(
-                ResponseHandler.builder()
-                        .responseMessage("Preference sports update completed")
                         .responseData(null)
                         .build()
         );
