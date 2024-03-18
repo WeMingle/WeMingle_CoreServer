@@ -126,7 +126,7 @@ INSERT INTO UNIVERSITY (UNIV_NAME,DOMAIN) VALUES
 ,('부산대학교','pusan')
 ,('상명대학교','sangmyung');
 
-INSERT INTO SportsCategory (sprots_name) VALUES
+INSERT INTO SPORTS_CATEGORY (sports_name) VALUES
     ('RUNNING'),
     ('SOCCER'),
     ('BASKETBALL'),

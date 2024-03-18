@@ -14,7 +14,6 @@ public class SportsCategory {
     @Getter
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "sprots_name")
-
+    @Column(name = "sports_name")
     private Sportstype sportsName;
 }
