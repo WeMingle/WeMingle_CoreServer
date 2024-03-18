@@ -1,7 +1,9 @@
-package com.wemingle.core.global.util;
+package com.wemingle.core.global.util.fileextension;
+
+import java.util.List;
 
 public interface AllowedFileExtension {
-    String[] allowedFileExtensions = {
+    List<String> allowedFileExtensions = List.of(
             "jpg",
             "jpeg",
             "png",
@@ -13,5 +15,5 @@ public interface AllowedFileExtension {
             "svg",
             "xcf",
             "raw"
-    };
+    );
 }
