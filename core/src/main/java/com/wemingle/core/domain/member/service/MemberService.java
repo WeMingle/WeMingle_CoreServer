@@ -1,6 +1,6 @@
 package com.wemingle.core.domain.member.service;
 
-import com.wemingle.core.domain.category.sports.entity.sportstype.Sportstype;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.vo.SignupVo;
@@ -14,5 +14,5 @@ public interface MemberService {
     Member findByRefreshToken(String refreshToken);
     Member findByMemberId(String memberId);
     boolean isRegisteredMember(String memberId, SignupPlatform platform);
-    void saveMemberPreferenceSports(String memberId, List<Sportstype> preferenceSports);
+    void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports);
 }

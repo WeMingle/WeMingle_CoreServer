@@ -1,6 +1,6 @@
 package com.wemingle.core.domain.category.sports.entity;
 
-import com.wemingle.core.domain.category.sports.entity.sportstype.Sportstype;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -14,6 +14,6 @@ public class SportsCategory {
     @Getter
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "sprots_name")
-    private Sportstype sportsName;
+    @Column(name = "sports_name")
+    private SportsType sportsName;
 }

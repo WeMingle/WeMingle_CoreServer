@@ -73,6 +73,4 @@ public class MemberController {
                         .build()
         );
     }
-
-
 }

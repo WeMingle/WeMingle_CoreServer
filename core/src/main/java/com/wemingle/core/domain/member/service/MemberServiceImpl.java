@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.member.service;
 
 import com.wemingle.core.domain.category.sports.entity.SportsCategory;
-import com.wemingle.core.domain.category.sports.entity.sportstype.Sportstype;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.MemberPreferenceSports;
@@ -91,7 +91,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void saveMemberPreferenceSports(String memberId, List<Sportstype> preferenceSports) {
+    public void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports) {
         Member findMember = findByMemberId(memberId);
         List<SportsCategory> preferenceSportsCategories = sportsCategoryRepository.findBySportsTypes(preferenceSports);
 
