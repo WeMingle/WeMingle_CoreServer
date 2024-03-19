@@ -30,7 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/member/signup").permitAll()
                         .requestMatchers("/nickname/**").permitAll()
                         .requestMatchers("/token").permitAll()
-                        .anyRequest().hasAnyRole("ADMIN", "USER"));
+                        .anyRequest().authenticated());
 
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)

@@ -5,9 +5,11 @@ import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class SetMemberProfileDto {
     MultipartFile profilePic;

@@ -68,6 +68,10 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
+member-profile:
+  store:
+    path: ENC(xsYJV+Oq0Jp9Ge9SJpLP0Wgyiq48ZUHy0wTDOoCc8W8+FCdGt07Vn9ezcQ5E2/v0I0qMIhnyqPM=)
+
 ---
 
 ## howangLocal
