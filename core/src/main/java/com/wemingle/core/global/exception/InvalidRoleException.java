@@ -1,4 +1,4 @@
-package com.wemingle.core.global.config.jwt.exception;
+package com.wemingle.core.global.exception;
 
 public class InvalidRoleException extends RuntimeException{
     public InvalidRoleException() {
