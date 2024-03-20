@@ -30,7 +30,6 @@ public class SecurityConfig {
                         .requestMatchers("/member/signup").permitAll()
                         .requestMatchers("/nickname/**").permitAll()
                         .requestMatchers("/token").permitAll()
-                        .requestMatchers("/member/s3").permitAll()
                         .anyRequest().hasAnyRole("ADMIN", "USER"));
 
         httpSecurity
