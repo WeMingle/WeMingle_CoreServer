@@ -8,6 +8,16 @@ jasypt:
   encryptor:
     bean: jasyptEncryptor
 
+cloud:
+  aws:
+    s3:
+      bucket: wemingle
+    stack.auto: false
+    region: ap-northeast-2
+    credentials:
+      accessKey: ENC(8Fi8YcNTxSrBsq3tXIPo9zhA3b/pujVTNFxEVfZGJPk=)
+      secretKey: ENC(LAY1JojjSdbTjhDpw1SCI0PAm4tdeMf7AlAwaa3QaML9pWBJW5Nt9KoAnNP6l/kpPrDJCTQ6h6Q=)
+
 ##common setting
 spring:
   jpa:

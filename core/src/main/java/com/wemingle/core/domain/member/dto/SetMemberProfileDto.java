@@ -6,13 +6,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
+
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class SetMemberProfileDto {
-    MultipartFile profilePic;
     @Essential
     @Size(min = 2, max = 10, message = "2~10글자 사이로 입력하세요")
     String nickname;
@@ -20,7 +19,6 @@ public class SetMemberProfileDto {
     public SignupVo.PatchMemberProfileVo of() {
         return SignupVo.PatchMemberProfileVo.builder()
                 .nickname(nickname)
-                .memberProfileImg(profilePic)
                 .build();
     }
 }
