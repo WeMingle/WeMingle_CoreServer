@@ -5,7 +5,9 @@ import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
+@Getter
 @Entity
 public class TeamMember extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

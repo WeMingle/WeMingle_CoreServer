@@ -15,11 +15,11 @@ public class MatchingRequest extends BaseEntity {
     @Column(name = "pk")
     private Long pk;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM_MEMBER")
     private TeamMember teamMember;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MATCHIN_POST")
     private MatchingPost matchingPost;
 }
