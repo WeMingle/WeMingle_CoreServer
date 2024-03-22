@@ -1,9 +1,9 @@
 package com.wemingle.core.domain.post.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.post.entity.area.AreaName;
-import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
+import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelectionType;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.Team;
@@ -11,13 +11,19 @@ import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MatchingPost extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,8 +42,8 @@ public class MatchingPost extends BaseEntity {
     private LocalDate expiryDate;//마감
 
     @NotNull
-    @Column(name = "AREA_NAME")
-    private AreaName areaName;
+    @Column(name = "LOCATION_NAME")
+    private String locationName; // 매칭 장소 이름
 
     @NotNull
     @Column(name = "POSITION")
@@ -59,7 +65,6 @@ public class MatchingPost extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Ability ability;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
@@ -75,6 +80,10 @@ public class MatchingPost extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MatchingStatus matchingStatus;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private LocationSelectionType locationSelectionType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "WRITER")
     private TeamMember writer;
@@ -82,4 +91,33 @@ public class MatchingPost extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM")
     private Team team;
+
+    @NotNull
+    @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL)
+    @JoinColumn(name = "MATCHING_POST_AREA")
+    private List<MatchingPostArea> areaList = new ArrayList<>();
+
+    @Builder
+    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Point position, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
+        this.completedMatchingCnt = 0;
+        this.matchingDate = matchingDate;
+        this.expiryDate = expiryDate;
+        this.locationName = locationName;
+        this.position = position;
+        this.content = content;
+        this.capacityLimit = capacityLimit;
+        this.isLocationConsensusPossible = isLocationConsensusPossible;
+        this.ability = ability;
+        this.gender = gender;
+        this.recruitmentType = recruitmentType;
+        this.recruiterType = recruiterType;
+        this.matchingStatus = MatchingStatus.PENDING;
+        this.locationSelectionType = locationSelectionType;
+        this.writer = writer;
+        this.team = team;
+    }
+
+    public void addAreaList(List<MatchingPostArea> matchingPostAreaList){
+        this.areaList = matchingPostAreaList;
+    }
 }

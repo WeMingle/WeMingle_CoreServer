@@ -6,10 +6,10 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
-import com.wemingle.core.domain.post.entity.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
+import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -47,10 +47,10 @@ public class MatchingPostService {
         ObjectNode objectNode = new ObjectMapper().createObjectNode();
 
         return filteredMatchingPost.stream().map(post -> objectNode.put(post.getPk().toString(),
-                MatchingPostDto.ResponseMatchingPostDto.builder()
+                com.wemingle.core.domain.post.entity.dto.MatchingPostDto.ResponseMatchingPostDto.builder()
                         .writer(post.getWriter().getTeam().getTeamName())
                         .matchingDate(post.getMatchingDate())
-                        .areaName(post.getAreaName())
+//                        .areaName(post.getAreaName())  //todo areaName이 복수 선택으로 바뀜으로써 이를 관리하는 MatchingPostArea 테이블 추가하여 변경 필요
                         .ability(post.getAbility())
                         .isLocationConsensusPossible(post.isLocationConsensusPossible())
                         .contents(post.getContent())
@@ -59,6 +59,10 @@ public class MatchingPostService {
                         .matchingCnt(post.getCompletedMatchingCnt())
                         .build().toString()
         )).toList();
+
+    }
+
+    public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto){
 
     }
 }
