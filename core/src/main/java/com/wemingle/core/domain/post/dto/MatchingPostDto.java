@@ -71,7 +71,8 @@ public class MatchingPostDto {
         @NotNull
         @Min(value = 1, message = "capacityLimit must be greater than 1")
         private int capacityLimit;
-        private List<Long> participantsId; // teamMember pk
+        private Long teamPk;
+        private List<Long> participantsPk; // member pk
         @NotNull
         private LocalDate expiryDate;
         @NotNull
@@ -106,7 +107,7 @@ public class MatchingPostDto {
                     .build();
 
             List<MatchingPostArea> areaList = areaNameList.stream().map(areaName -> new MatchingPostArea(areaName, matchingPost)).toList();
-            matchingPost.addAreaList(areaList);
+            matchingPost.putAreaList(areaList);
 
             return matchingPost;
         }

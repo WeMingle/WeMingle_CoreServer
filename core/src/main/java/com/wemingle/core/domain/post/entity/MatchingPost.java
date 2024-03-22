@@ -117,7 +117,7 @@ public class MatchingPost extends BaseEntity {
         this.team = team;
     }
 
-    public void addAreaList(List<MatchingPostArea> matchingPostAreaList){
+    public void putAreaList(List<MatchingPostArea> matchingPostAreaList){
         this.areaList = matchingPostAreaList;
     }
 }
