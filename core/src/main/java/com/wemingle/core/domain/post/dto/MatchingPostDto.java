@@ -13,10 +13,7 @@ import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -25,6 +22,32 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class MatchingPostDto {
+    @Setter
+    public static class ResponseMatchingPostDto{
+        private String profilePicUrl;
+        private String writer;
+        private String contents;
+        private AreaName areaName;
+        private int matchingCnt;
+        private LocalDate matchingDate;
+        private RecruiterType recruiterType;
+        private Ability ability;
+        private boolean isLocationConsensusPossible;
+
+        @Builder
+        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, AreaName areaName, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible) {
+            this.profilePicUrl = profilePicUrl;
+            this.writer = writer;
+            this.contents = contents;
+            this.areaName = areaName;
+            this.matchingCnt = matchingCnt;
+            this.matchingDate = matchingDate;
+            this.recruiterType = recruiterType;
+            this.ability = ability;
+            this.isLocationConsensusPossible = isLocationConsensusPossible;
+        }
+    }
+
     @Getter
     @Setter
     @NoArgsConstructor

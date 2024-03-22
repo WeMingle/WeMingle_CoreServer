@@ -47,7 +47,7 @@ public class MatchingPostService {
         ObjectNode objectNode = new ObjectMapper().createObjectNode();
 
         return filteredMatchingPost.stream().map(post -> objectNode.put(post.getPk().toString(),
-                com.wemingle.core.domain.post.entity.dto.MatchingPostDto.ResponseMatchingPostDto.builder()
+                MatchingPostDto.ResponseMatchingPostDto.builder()
                         .writer(post.getWriter().getTeam().getTeamName())
                         .matchingDate(post.getMatchingDate())
 //                        .areaName(post.getAreaName())  //todo areaName이 복수 선택으로 바뀜으로써 이를 관리하는 MatchingPostArea 테이블 추가하여 변경 필요
