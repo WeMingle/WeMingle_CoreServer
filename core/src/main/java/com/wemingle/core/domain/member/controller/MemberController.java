@@ -9,7 +9,6 @@ import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,13 +28,13 @@ public class MemberController {
 
     @PostMapping("/signin")
     ResponseEntity<ResponseHandler<Object>> signInMember(@RequestBody SignUpDto.RequestSignInDto signInDto) {
-        boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId(), signInDto.getSignupPlatform());
-        if (!isRegisteredMember) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ResponseHandler.builder()
-                            .responseMessage("Member not found")
-                            .responseData(null));
-        }
+//        boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId(), signInDto.getSignupPlatform());
+//        if (!isRegisteredMember) {
+//            ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body(ResponseHandler.builder()
+//                            .responseMessage("Member not found")
+//                            .responseData(null));
+//        }
         TokenDto.ResponseTokenDto tokensForRegisteredMember = tokenService.getTokensForRegisteredMember(signInDto.getMemberId());
         return ResponseEntity.ok(ResponseHandler.builder()
                 .responseMessage("Token reissuance complete")
@@ -46,9 +45,9 @@ public class MemberController {
     @PostMapping("/signup")
     ResponseEntity<ResponseHandler<Object>> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) {
         TokenDto.ResponseTokenDto unVerifiedUserTokens = tokenService.getUnVerifiedUserTokens(signUpDto.getMemberId());
-        SignupVo.SaveMemberVo saveMemberVo = signUpDto.of();
-        saveMemberVo.setRefreshToken(unVerifiedUserTokens.getRefreshToken());
-        memberService.saveMember(saveMemberVo);
+//        SignupVo.SaveMemberVo saveMemberVo = signUpDto.of();
+//        saveMemberVo.setRefreshToken(unVerifiedUserTokens.getRefreshToken());
+//        memberService.saveMember(saveMemberVo);
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
                         .responseMessage("Token issuance completed")
@@ -63,7 +62,7 @@ public class MemberController {
         String memberId = userDetails.getUsername();
         SignupVo.PatchMemberProfileVo patchMemberProfileVo = setMemberProfileDto.of();
         patchMemberProfileVo.setMemberId(memberId);
-        memberService.patchMemberProfile(patchMemberProfileVo);
+//        memberService.patchMemberProfile(patchMemberProfileVo);
 
 
         return ResponseEntity.ok().body(
