@@ -5,7 +5,11 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
+import java.util.UUID;
+
+@Getter
 @Entity
 public class Team extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +23,10 @@ public class Team extends BaseEntity {
     @NotNull
     @Column(name = "CAPACITY_LIMIT")
     private int capacityLimit;
+
+    @NotNull
+    @Column(name = "PROFILE_IMG_ID", columnDefinition = "VARBINARY(255) NOT NULL")
+    private UUID profileImgId;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
