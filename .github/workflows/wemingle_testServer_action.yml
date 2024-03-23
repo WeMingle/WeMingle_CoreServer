@@ -29,7 +29,7 @@ jobs:
         with:
           host: ${{secrets.DEPLOYMENT_SERVER_HOST}}
           username: ${{secrets.DEPLOYMENT_SERVER_USERNAME}}
-          password: ${{secrets.DEPLOYMENT_SERVER_PASSWORD}
+          password: ${{secrets.DEPLOYMENT_SERVER_PASSWORD}}
           port: ${{secrets.DEPLOYMENT_SERVER_PORT}}
           source: 'core/build/libs/*.jar'
           target: '~/WeMingle_CoreServer/'
