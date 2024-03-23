@@ -30,6 +30,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                                                        RecruiterType recruiterType,
                                                        List<MatchingPostArea> areaList,
                                                        LocalDate currentDate,
+                                                       LocalDate dateFilter,
                                                        Pageable pageable) {
         return jpaQueryFactory.select(matchingPost)
                 .join(matchingPost.team).fetchJoin()
