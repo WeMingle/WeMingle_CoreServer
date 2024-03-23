@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.post.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.entity.Matching;
@@ -21,11 +20,9 @@ import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.TEAM_MEMBER_NOT_FOUND;
@@ -51,40 +48,41 @@ public class MatchingPostService {
                                                Boolean excludeExpired){
 
 
-        List<MatchingPost> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
-                nextIdx,
-                recruitmentType == null ? null : recruitmentType.name(),
-                ability == null ? null : ability.name(),
-                gender == null ? null : gender.name(),
-                recruiterType == null ? null : recruiterType.name(),
-                location == null ? null : location.name(),
-                excludeExpired == null ? null : LocalDate.now(),
-                PageRequest.of(0, 30)
-        );
-
-        ObjectNode objectNode = new ObjectMapper().createObjectNode();
-
-        return filteredMatchingPost.stream().map(post -> objectNode.put(post.getPk().toString(),
-                MatchingPostDto.ResponseMatchingPostDto.builder()
-                        .writer(post.getWriter().getTeam().getTeamName())
-                        .matchingDate(post.getMatchingDate())
-//                        .areaName(post.getAreaName())  //todo areaName이 복수 선택으로 바뀜으로써 이를 관리하는 MatchingPostArea 테이블 추가하여 변경 필요
-                        .ability(post.getAbility())
-                        .isLocationConsensusPossible(post.isLocationConsensusPossible())
-                        .contents(post.getContent())
-                        .recruiterType(post.getRecruiterType())
-                        .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
-                        .matchingCnt(post.getCompletedMatchingCnt())
-                        .build().toString()
-        )).toList();
-
+//        List<MatchingPost> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
+//                nextIdx,
+//                recruitmentType == null ? null : recruitmentType.name(),
+//                ability == null ? null : ability.name(),
+//                gender == null ? null : gender.name(),
+//                recruiterType == null ? null : recruiterType.name(),
+//                location == null ? null : location.name(),
+//                excludeExpired == null ? null : LocalDate.now(),
+//                PageRequest.of(0, 30)
+//        );
+//
+//        ObjectNode objectNode = new ObjectMapper().createObjectNode();
+//
+//        return filteredMatchingPost.stream().map(post -> objectNode.put(post.getPk().toString(),
+//                MatchingPostDto.ResponseMatchingPostDto.builder()
+//                        .writer(post.getWriter().getTeam().getTeamName())
+//                        .matchingDate(post.getMatchingDate())
+////                        .areaName(post.getAreaName())  //todo areaName이 복수 선택으로 바뀜으로써 이를 관리하는 MatchingPostArea 테이블 추가하여 변경 필요
+//                        .ability(post.getAbility())
+//                        .isLocationConsensusPossible(post.isLocationConsensusPossible())
+//                        .contents(post.getContent())
+//                        .recruiterType(post.getRecruiterType())
+//                        .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
+//                        .matchingCnt(post.getCompletedMatchingCnt())
+//                        .build().toString()
+//        )).toList();
+//
+        return null;
     }
 
     @Transactional
     public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
         RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
         Long teamPk = createMatchingPostDto.getTeamPk();
-        List<Long> participantsPk = createMatchingPostDto.getParticipantsPk();
+        List<String> participantsId = createMatchingPostDto.getParticipantsId();
 
         Team team = teamRepository.findById(teamPk).orElseThrow(() -> new EntityNotFoundException(TEAM_NOT_FOUND.getExceptionMessage()));
         TeamMember writerInTeam = teamMemberRepository.findByTeamAndMember_MemberId(team, writerId)
@@ -93,24 +91,24 @@ public class MatchingPostService {
         MatchingPost matchingPost = createMatchingPostDto.of(team, writerInTeam);
         matchingPostRepository.save(matchingPost);
 
-        if (isExistTeamParticipant(recruiterType, participantsPk)){
-            createParticipants(team, participantsPk, matchingPost);
+        if (isExistTeamParticipant(recruiterType, participantsId)){
+            List<Member> memberList = memberRepository.findByMemberIdIn(participantsId);
+            createParticipants(team, memberList, matchingPost);
         }
     }
 
-    private void createParticipants(Team team, List<Long> postParticipantsId, MatchingPost matchingPost) {
-        List<Member> memberList = memberRepository.findByPkIn(postParticipantsId);
-        List<Matching> matchingList = memberList.stream().map(member -> Matching.builder()
+    private void createParticipants(Team team, List<Member> memberList, MatchingPost matchingPost) {
+        List<Matching> matchingParticipantList = memberList.stream().map(member -> Matching.builder()
                         .matchingPost(matchingPost)
                         .member(member)
                         .team(team)
                         .build())
                 .toList();
 
-        matchingRepository.saveAll(matchingList);
+        matchingRepository.saveAll(matchingParticipantList);
     }
 
-    private boolean isExistTeamParticipant(RecruiterType recruiterType, List<Long> participantsPk) {
+    private boolean isExistTeamParticipant(RecruiterType recruiterType, List<String> participantsPk) {
         return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty();
     }
 }

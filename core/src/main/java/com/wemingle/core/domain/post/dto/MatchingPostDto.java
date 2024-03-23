@@ -19,6 +19,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MatchingPostDto {
@@ -51,7 +52,6 @@ public class MatchingPostDto {
     @Getter
     @Setter
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class CreateMatchingPostDto {
         @NotNull
         private LocalDate matchingDate;
@@ -71,8 +71,9 @@ public class MatchingPostDto {
         @NotNull
         @Min(value = 1, message = "capacityLimit must be greater than 1")
         private int capacityLimit;
+        @NotNull
         private Long teamPk;
-        private List<Long> participantsPk; // member pk
+        private List<String> participantsId = new ArrayList<>(); // member pk
         @NotNull
         private LocalDate expiryDate;
         @NotNull
@@ -83,6 +84,26 @@ public class MatchingPostDto {
         private String content;
         @NotNull
         private LocationSelectionType locationSelectionType;
+
+        @Builder
+        public CreateMatchingPostDto(LocalDate matchingDate, Double latitude, Double longitude, String locationName, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<String> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType) {
+            this.matchingDate = matchingDate;
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.locationName = locationName;
+            this.areaNameList = areaNameList;
+            this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.ability = ability;
+            this.gender = gender;
+            this.capacityLimit = capacityLimit;
+            this.teamPk = teamPk;
+            this.participantsId = participantsId;
+            this.expiryDate = expiryDate;
+            this.recruiterType = recruiterType;
+            this.recruitmentType = recruitmentType;
+            this.content = content;
+            this.locationSelectionType = locationSelectionType;
+        }
 
         public MatchingPost of(Team team, TeamMember writer){
             GeometryFactory geometryFactory = new GeometryFactory();

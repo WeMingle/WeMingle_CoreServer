@@ -5,10 +5,16 @@ import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TeamMember extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")
@@ -20,7 +26,7 @@ public class TeamMember extends BaseEntity {
 
     @NotNull
     @Column(name = "PROFILE_IMG")
-    private String profileImg;
+    private UUID profileImg;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -35,4 +41,13 @@ public class TeamMember extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM")
     private Team team;
+
+    @Builder
+    public TeamMember(String nickname, UUID profileImg, TeamRole teamRole, Member member, Team team) {
+        this.nickname = nickname;
+        this.profileImg = profileImg;
+        this.teamRole = teamRole;
+        this.member = member;
+        this.team = team;
+    }
 }

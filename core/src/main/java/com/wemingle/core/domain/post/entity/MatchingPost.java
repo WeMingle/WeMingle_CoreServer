@@ -94,7 +94,6 @@ public class MatchingPost extends BaseEntity {
 
     @NotNull
     @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL)
-    @JoinColumn(name = "MATCHING_POST_AREA")
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
