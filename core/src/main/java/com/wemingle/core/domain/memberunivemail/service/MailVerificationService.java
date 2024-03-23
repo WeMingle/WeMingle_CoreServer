@@ -1,8 +1,15 @@
 package com.wemingle.core.domain.memberunivemail.service;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
+import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
+import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
+import com.wemingle.core.domain.team.repository.TeamMemberRepository;
+import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +17,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -19,6 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class MailVerificationService {
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
+    private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
+    private final SportsCategoryRepository sportsCategoryRepository;
     private final int VERIFIED_CODE_LENGTH = 8;
     private static final int LIMIT_TIME = 300000;
     private final ConcurrentHashMap<String, VerificationCodeEntry> verificationCodes = new ConcurrentHashMap<>();
@@ -65,6 +76,7 @@ public class MailVerificationService {
         return false;
     }
 
+    @Transactional
     public void saveVerifiedUniversityEmail(Member member, UnivEntity univEntity) {
         verifiedUniversityEmailRepository.save(
                 VerifiedUniversityEmail.builder()
@@ -72,6 +84,25 @@ public class MailVerificationService {
                         .univName(univEntity)
                         .build()
         );
+        createIndividualTeam(member);
+    }
+    private void createIndividualTeam(Member member) {
+        Team team = Team.builder()
+                .teamName(member.getMemberId())
+                .teamOwner(member)
+                .profileImgId(member.getProfileImgId())
+                .sportsCategory(sportsCategoryRepository.findBySportsType(SportsType.OTHER))
+                .capacityLimit(1)
+                .build();
+        teamRepository.save(team);
+        TeamMember teamMember = TeamMember.builder()
+                .member(member)
+                .team(team)
+                .nickname(member.getMemberId())
+                .profileImg(member.getProfileImgId())
+                .teamRole(TeamRole.OWNER)
+                .build();
+        teamMemberRepository.save(teamMember);
     }
 
     public void saveVerificationCode(String memberId, String verificationCode) {
