@@ -1,15 +1,15 @@
-import com.ewerk.gradle.plugins.tasks.QuerydslCompile
+//import com.ewerk.gradle.plugins.tasks.QuerydslCompile
 plugins {
 	java
 	id("org.springframework.boot") version "3.2.2"
 	id("io.spring.dependency-management") version "1.1.4"
-	id("com.ewerk.gradle.plugins.querydsl") version "1.0.10"
+//	id("com.ewerk.gradle.plugins.querydsl") version "1.0.10"
 }
 
 group = "com.wemingle"
 version = "0.0.1-SNAPSHOT"
 
-val queryDslVersion = "5.0.0"
+//val queryDslVersion = "5.0.0"
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
@@ -41,10 +41,10 @@ dependencies {
 
 
 	// QueryDSL Implementation
-	implementation ("com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta")
+/*	implementation ("com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta")
 	annotationProcessor("com.querydsl:querydsl-apt:${queryDslVersion}:jakarta")
 	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
-	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")*/
 
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
@@ -80,6 +80,7 @@ tasks.withType<Test> {
 //	}
 //}
 
+/*
 val querydslDir = "src/main/generated"
 
 querydsl {
@@ -97,3 +98,4 @@ configurations {
 tasks.withType<QuerydslCompile> {
 	options.annotationProcessorPath = configurations.querydsl.get()
 }
+*/
