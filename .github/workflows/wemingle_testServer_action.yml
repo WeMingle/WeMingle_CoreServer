@@ -21,7 +21,7 @@ jobs:
         working-directory: ${{secrets.WORKING_DIRECTORY}}
 
       - name: Build with Gradle
-        run: ./gradlew build -x test —warning-mode all
+        run: ./gradlew build -x test
         working-directory: ${{secrets.WORKING_DIRECTORY}}
 
       - name: Copy JAR file to deployment server
