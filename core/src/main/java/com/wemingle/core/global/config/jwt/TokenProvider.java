@@ -29,7 +29,6 @@ public class TokenProvider {
     private static final String REFRESH_TOKEN= "refreshToken";
     private static final String ACCESS_TOKEN = "accessToken";
 
-    //todo 학교 인증 전까지 role unVerifiedUser 처리
     public String createRefreshToken(String memberId, Role role){
         return createToken(new Date(new Date().getTime() + createExpiredAt(REFRESH_TOKEN)), memberId, role);
     }

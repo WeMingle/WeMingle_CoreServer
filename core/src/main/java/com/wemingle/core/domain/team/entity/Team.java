@@ -5,12 +5,16 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Team extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")
@@ -37,4 +41,13 @@ public class Team extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SPORTS_CATEGORY")
     private SportsCategory sportsCategory;
+
+    @Builder
+    public Team(String teamName, int capacityLimit, UUID profileImgId, Member teamOwner, SportsCategory sportsCategory) {
+        this.teamName = teamName;
+        this.capacityLimit = capacityLimit;
+        this.profileImgId = profileImgId;
+        this.teamOwner = teamOwner;
+        this.sportsCategory = sportsCategory;
+    }
 }

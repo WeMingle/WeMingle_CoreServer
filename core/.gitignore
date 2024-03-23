@@ -19,6 +19,7 @@ bin/
 .idea/
 .DS_Store
 test
+src/main/generated
 
 
 ### IntelliJ IDEA ###
