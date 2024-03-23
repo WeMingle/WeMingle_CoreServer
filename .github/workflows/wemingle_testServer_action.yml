@@ -25,7 +25,7 @@ jobs:
         working-directory: ${{secrets.WORKING_DIRECTORY}}
 
       - name: Copy JAR file to deployment server
-        uses: appleboy/scp-action@master@v0.1.7
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.DEPLOYMENT_SERVER_HOST }}
           username: ${{ secrets.DEPLOYMENT_SERVER_USERNAME }}
