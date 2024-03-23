@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-//public interface MatchingPostRepository extends JpaRepository<MatchingPost,Long>, DSLMatchingPostRepository {
-public interface MatchingPostRepository extends JpaRepository<MatchingPost,Long> {
+public interface MatchingPostRepository extends JpaRepository<MatchingPost,Long>, DSLMatchingPostRepository {
     Optional<MatchingPost> findByWriter(TeamMember writer);
 }

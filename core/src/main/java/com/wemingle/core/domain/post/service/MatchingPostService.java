@@ -34,7 +34,7 @@ public class MatchingPostService {
     private final MatchingRepository matchingRepository;
     private final S3ImgService s3ImgService;
 
-/*    List<ObjectNode> getFilteredMatchingPost(Long nextIdx,
+    List<ObjectNode> getFilteredMatchingPost(Long nextIdx,
                                              RecruitmentType recruitmentType,
                                              Ability ability,
                                              Gender gender,
@@ -70,7 +70,7 @@ public class MatchingPostService {
                         .build().toString()
         )).toList();
 
-    }*/
+    }
 
     @Transactional
     public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
