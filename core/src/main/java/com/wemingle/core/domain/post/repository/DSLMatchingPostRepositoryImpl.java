@@ -43,7 +43,8 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                         genderEq(gender),
                         recruiterTypeEq(recruiterType),
                         areaListIn(areaList),
-                        currentDateAfter(currentDate)
+                        currentDateAfter(currentDate),
+                        dateFilterEq(dateFilter)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -75,5 +76,9 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
 
     private BooleanExpression currentDateAfter(LocalDate currentDate) {
         return currentDate == null ? null : matchingPost.expiryDate.after(currentDate);
+    }
+
+    private BooleanExpression dateFilterEq(LocalDate dateFilter) {
+        return dateFilter == null ? null : matchingPost.matchingDate.eq(dateFilter);
     }
 }
