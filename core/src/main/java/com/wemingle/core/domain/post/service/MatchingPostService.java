@@ -113,6 +113,6 @@ public class MatchingPostService {
     }
 
     private boolean isExistTeamParticipant(RecruiterType recruiterType, List<String> participantsPk) {
-        return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty();
+        return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty(); //
     }
 }

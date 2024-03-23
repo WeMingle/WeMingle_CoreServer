@@ -95,6 +95,6 @@ public class MemberServiceImpl implements MemberService {
                         .build())
                 .toList();
 
-        memberPreferenceSportsRepository.saveAll(memberPreferenceSportsList);
+        memberPreferenceSportsRepository.saveAll(memberPreferenceSportsList); //
     }
 }
