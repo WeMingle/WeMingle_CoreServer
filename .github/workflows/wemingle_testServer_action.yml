@@ -20,6 +20,10 @@ jobs:
         run: chmod +x gradlew
         working-directory: ${{secrets.WORKING_DIRECTORY}}
 
+      - name: Build Clean with Gradle
+        run: ./gradlew clean
+        working-directory: ${{secrets.WORKING_DIRECTORY}}
+
       - name: Build with Gradle
         run: ./gradlew build -x test
         working-directory: ${{secrets.WORKING_DIRECTORY}}

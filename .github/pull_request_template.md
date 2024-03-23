@@ -2,7 +2,7 @@
 
 # Related issue
 
-Fixes # (issue)
+close # (issue)
 
 ---
 
