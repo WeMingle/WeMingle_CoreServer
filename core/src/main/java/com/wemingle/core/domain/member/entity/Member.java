@@ -109,7 +109,7 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     @Builder
-    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, int complaintsCount, boolean notifyAllow, PolicyTerms policyTerms) {
+    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, boolean notifyAllow, PolicyTerms policyTerms) {
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;
@@ -119,7 +119,7 @@ public class Member extends BaseEntity implements UserDetails {
         this.refreshToken = refreshToken;
         this.firebaseToken = firebaseToken;
         this.role = role;
-        this.complaintsCount = complaintsCount;
+        this.complaintsCount = 0;
         this.notifyAllow = notifyAllow;
         this.policyTerms = policyTerms;
     }

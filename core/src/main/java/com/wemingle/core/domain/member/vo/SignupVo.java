@@ -59,7 +59,6 @@ public class SignupVo {
                     .refreshToken(saveMemberVo.getRefreshToken())
                     .firebaseToken(saveMemberVo.getFirebaseToken())
                     .role(Role.UNVERIFIED_USER)
-                    .complaintsCount(0)
                     .notifyAllow(saveMemberVo.isNotifyAllow())
                     .policyTerms(null)
                     .build();

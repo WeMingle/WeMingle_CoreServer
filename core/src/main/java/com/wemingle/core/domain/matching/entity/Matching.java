@@ -6,6 +6,7 @@ import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -27,4 +28,11 @@ public class Matching extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MATCHING_POST")
     private MatchingPost matchingPost;
+
+    @Builder
+    public Matching(Team team, Member member, MatchingPost matchingPost) {
+        this.team = team;
+        this.member = member;
+        this.matchingPost = matchingPost;
+    }
 }

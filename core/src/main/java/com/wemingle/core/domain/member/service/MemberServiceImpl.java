@@ -13,7 +13,6 @@ import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +30,6 @@ public class MemberServiceImpl implements MemberService {
     private final PolicyTermsRepository policyTermsRepository;
     private final SportsCategoryRepository sportsCategoryRepository;
     private final MemberPreferenceSportsRepository memberPreferenceSportsRepository;
-
-    @Value("${member-profile.store.path}")
-    private String memberProfilePath;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
