@@ -13,6 +13,6 @@ import java.util.List;
 
 public interface DSLMatchingPostRepository {
 
-    List<MatchingPost> findFilteredMatchingPost(Long nextIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<MatchingPostArea> areaList, LocalDate currentDate, Pageable pageable);
+    List<MatchingPost> findFilteredMatchingPost(Long nextIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<MatchingPostArea> areaList, LocalDate currentDate, LocalDate dateFilter, Pageable pageable);
 
 }

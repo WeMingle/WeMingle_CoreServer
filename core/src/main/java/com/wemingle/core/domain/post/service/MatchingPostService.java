@@ -48,6 +48,7 @@ public class MatchingPostService {
                                              Gender gender,
                                              RecruiterType recruiterType,
                                              List<MatchingPostArea> areaList,
+                                             LocalDate dateFilter,
                                              Boolean excludeExpired){
 
 
@@ -59,6 +60,7 @@ public class MatchingPostService {
                 recruiterType,
                 areaList,
                 excludeExpired == null ? null : LocalDate.now(),
+                dateFilter,
                 PageRequest.of(0, 30)
         );
 
@@ -81,7 +83,7 @@ public class MatchingPostService {
     }
 
     @Transactional
-    public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
+    public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){//todo 월욜날 할 컨트롤러에 써먹어야함,,
         RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
         Long teamPk = createMatchingPostDto.getTeamPk();
         List<String> participantsId = createMatchingPostDto.getParticipantsId();
