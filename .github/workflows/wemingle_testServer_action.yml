@@ -1,14 +1,8 @@
 name: WemingleTestServerCI
 
 on:
-  pull_request_review:
-    types:
-      - submitted
-    branches:
-      - main
-    properties:
-      review:
-        state: approved
+  push:
+    branches: [testServer]
 
 jobs:
   build:
