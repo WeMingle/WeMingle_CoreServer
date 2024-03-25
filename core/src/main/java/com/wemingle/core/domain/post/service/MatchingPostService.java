@@ -19,6 +19,7 @@ import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.TEAM_MEMBER_NOT_FOUND;
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.TEAM_NOT_FOUND;
@@ -42,14 +44,19 @@ public class MatchingPostService {
     private final MatchingRepository matchingRepository;
     private final S3ImgService s3ImgService;
 
-    List<ObjectNode> getFilteredMatchingPost(Long nextIdx,
-                                             RecruitmentType recruitmentType,
-                                             Ability ability,
-                                             Gender gender,
-                                             RecruiterType recruiterType,
-                                             List<MatchingPostArea> areaList,
-                                             LocalDate dateFilter,
-                                             Boolean excludeExpired){
+    public MatchingPost getMatchingPostByPostId(Long postId) {
+        return matchingPostRepository.findById(postId)
+                .orElseThrow(()->new NoSuchElementException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+    }
+
+    public List<ObjectNode> getFilteredMatchingPost(Long nextIdx,
+                                                    RecruitmentType recruitmentType,
+                                                    Ability ability,
+                                                    Gender gender,
+                                                    RecruiterType recruiterType,
+                                                    List<MatchingPostArea> areaList,
+                                                    LocalDate dateFilter,
+                                                    Boolean excludeExpired){
 
 
         List<MatchingPost> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
