@@ -71,7 +71,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
         return recruiterType == null ? null : matchingPost.recruiterType.eq(recruiterType);
     }
     private BooleanExpression areaListIn(List<MatchingPostArea> areaList) {
-        return areaList.isEmpty() ? null : matchingPost.areaList.any().in(areaList);
+        return areaList == null ? null : matchingPost.areaList.any().in(areaList);
     }
 
     private BooleanExpression currentDateAfter(LocalDate currentDate) {
