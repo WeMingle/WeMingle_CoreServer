@@ -83,7 +83,7 @@ public class MatchingPostService {
     }
 
     @Transactional
-    public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){//todo 월욜날 할 컨트롤러에 써먹어야함,,
+    public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
         RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
         Long teamPk = createMatchingPostDto.getTeamPk();
         List<String> participantsId = createMatchingPostDto.getParticipantsId();
