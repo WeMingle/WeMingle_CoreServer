@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -39,7 +40,7 @@ public class Member extends BaseEntity implements UserDetails {
 
     @NotNull
     @Column(name = "PROFILE_IMG_ID", columnDefinition = "VARBINARY(255) NOT NULL")
-    private String profileImgId;
+    private UUID profileImgId;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -108,7 +109,7 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     @Builder
-    public Member(String memberId, String password, String nickname, String profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, int complaintsCount, boolean notifyAllow, PolicyTerms policyTerms) {
+    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, boolean notifyAllow, PolicyTerms policyTerms) {
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;
@@ -118,7 +119,7 @@ public class Member extends BaseEntity implements UserDetails {
         this.refreshToken = refreshToken;
         this.firebaseToken = firebaseToken;
         this.role = role;
-        this.complaintsCount = complaintsCount;
+        this.complaintsCount = 0;
         this.notifyAllow = notifyAllow;
         this.policyTerms = policyTerms;
     }
@@ -129,7 +130,7 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
 
-    public void setMemberProfile(String profileImgId, String nickname) {
+    public void setMemberProfile(UUID profileImgId, String nickname) {
         this.profileImgId = profileImgId;
         this.nickname = nickname;
     }
@@ -137,9 +138,8 @@ public class Member extends BaseEntity implements UserDetails {
     public void patchRefreshToken(String newRefreshToken){
         this.refreshToken = newRefreshToken;
     }
-    public void patchMemberProfile(String nickname, String memberProfileImgName) {
+    public void patchMemberProfile(String nickname) {
         this.nickname = nickname;
-        this.profileImgId = memberProfileImgName;
     }
 
     public void convertToAuthenticationUser(String newRefreshToken){

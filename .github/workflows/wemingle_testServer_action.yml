@@ -1,0 +1,48 @@
+name: WemingleTestServerCI
+
+on:
+  push:
+    branches: [testServer]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        working-directory: ${{secrets.working_directory}}
+
+      - name: Build with Gradle
+        run: ./gradlew build -x test
+        working-directory: ${{secrets.working_directory}}
+
+      - name: Copy JAR file to deployment server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEPLOYMENT_SERVER_HOST }}
+          username: ${{ secrets.DEPLOYMENT_SERVER_USERNAME }}
+          password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
+          port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
+          source: 'core/build/libs/*.jar'
+          target: '~/WeMingle_CoreServer/'
+          overwrite: true
+
+      - name: Execute deployment script on server
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.DEPLOYMENT_SERVER_HOST }}
+          username: ${{ secrets.DEPLOYMENT_SERVER_USERNAME }}
+          password: ${{ secrets.DEPLOYMENT_SERVER_PASSWORD }}
+          port: ${{ secrets.DEPLOYMENT_SERVER_PORT }}
+          script: |
+            cd ~/WeMingle_CoreServer/core/build/libs
+            ps -ef | grep java | grep -v grep | awk '{print $2}' | xargs kill -9
+            nohup java -jar -Djasypt.encryptor.password=qpwoeiruty1029384756 -Dspring.profiles.active=prod core-0.0.1-SNAPSHOT.jar > wemingle_core.log 2>&1 &

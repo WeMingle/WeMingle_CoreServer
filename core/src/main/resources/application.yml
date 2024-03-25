@@ -8,10 +8,23 @@ jasypt:
   encryptor:
     bean: jasyptEncryptor
 
+cloud:
+  aws:
+    s3:
+      bucket: wemingle
+    stack.auto: false
+    region: ap-northeast-2
+    credentials:
+      accessKey: ENC(8Fi8YcNTxSrBsq3tXIPo9zhA3b/pujVTNFxEVfZGJPk=)
+      secretKey: ENC(LAY1JojjSdbTjhDpw1SCI0PAm4tdeMf7AlAwaa3QaML9pWBJW5Nt9KoAnNP6l/kpPrDJCTQ6h6Q=)
+
 ##common setting
 spring:
   jpa:
+    hibernate:
+      ddl-auto: create
     defer-datasource-initialization: true
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -35,6 +48,17 @@ spring:
   profiles:
     active: prod
 
+  datasource:
+    url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
+    username: ENC(ApmdwaV15BRKLL0WmZV9QA==)
+    password: ENC(nN/GHvgyZLbz7vhsaYBagTczwxNBREOi)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 ---
 
 ## jungwooLocal
@@ -53,6 +77,10 @@ spring:
       ddl-auto: create
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
+member-profile:
+  store:
+    path: ENC(xsYJV+Oq0Jp9Ge9SJpLP0Wgyiq48ZUHy0wTDOoCc8W8+FCdGt07Vn9ezcQ5E2/v0I0qMIhnyqPM=)
 
 ---
 

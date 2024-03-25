@@ -47,19 +47,18 @@ public class SignupVo {
         }
 
         public Member of(SaveMemberVo saveMemberVo){
-            String randomUUID = UUID.randomUUID().toString();
+            UUID randomUUID = UUID.randomUUID();
 
             return Member.builder()
                     .memberId(saveMemberVo.getMemberId())
                     .password(saveMemberVo.getPassword())
-                    .nickname(randomUUID)
+                    .nickname(randomUUID.toString())
                     .profileImgId(randomUUID)
                     .phoneType(saveMemberVo.getPhoneType())
                     .signupPlatform(saveMemberVo.getSignupPlatform())
                     .refreshToken(saveMemberVo.getRefreshToken())
                     .firebaseToken(saveMemberVo.getFirebaseToken())
                     .role(Role.UNVERIFIED_USER)
-                    .complaintsCount(0)
                     .notifyAllow(saveMemberVo.isNotifyAllow())
                     .policyTerms(null)
                     .build();

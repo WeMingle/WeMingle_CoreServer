@@ -1,8 +1,13 @@
 package com.wemingle.core.domain.member.service;
 
+import com.wemingle.core.domain.category.sports.entity.SportsCategory;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
+import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.entity.MemberPreferenceSports;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.domain.member.repository.MemberPreferenceSportsRepository;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
@@ -11,7 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
@@ -22,6 +28,8 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PolicyTermsRepository policyTermsRepository;
+    private final SportsCategoryRepository sportsCategoryRepository;
+    private final MemberPreferenceSportsRepository memberPreferenceSportsRepository;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
@@ -50,15 +58,9 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void patchMemberProfile(SignupVo.PatchMemberProfileVo patchMemberProfileVo) {
         Member findMember = findByMemberId(patchMemberProfileVo.getMemberId());
-        String nickname = patchMemberProfileVo.getNickname();;
-        String profileImgName = uploadMemberProfileImg(patchMemberProfileVo.getMemberProfileImg());
+        String nickname = patchMemberProfileVo.getNickname();
 
-        findMember.patchMemberProfile(nickname, profileImgName);
-    }
-
-    private String uploadMemberProfileImg(MultipartFile memberProfileImg) {
-        //todo 이미지를 s3/local에 올리는 로직 향후에 구현
-        return "Dummy";
+        findMember.patchMemberProfile(nickname);
     }
 
     @Override
@@ -78,5 +80,21 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.findByMemberId(memberId)
                 .map(member -> member.getSignupPlatform().toString().equals(platform.toString()))
                 .orElse(false);
+    }
+
+    @Override
+    @Transactional
+    public void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports) {
+        Member findMember = findByMemberId(memberId);
+        List<SportsCategory> preferenceSportsCategories = sportsCategoryRepository.findBySportsTypes(preferenceSports);
+
+        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSportsCategories.stream()
+                .map(preferenceSportsCategory -> MemberPreferenceSports.builder()
+                        .member(findMember)
+                        .sports(preferenceSportsCategory)
+                        .build())
+                .toList();
+
+        memberPreferenceSportsRepository.saveAll(memberPreferenceSportsList);
     }
 }

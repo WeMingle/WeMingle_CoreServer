@@ -27,10 +27,10 @@ public class SecurityConfig {
         httpSecurity
                 .authorizeHttpRequests(httpRequest -> httpRequest
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/member/").permitAll()
-                        .requestMatchers("/verify/**").permitAll()
+                        .requestMatchers("/member/signup").permitAll()
                         .requestMatchers("/nickname/**").permitAll()
-                        .anyRequest().hasAnyRole("ADMIN", "USER"));
+                        .requestMatchers("/token").permitAll()
+                        .anyRequest().authenticated());
 
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)

@@ -1,7 +1,7 @@
 package com.wemingle.core.global.config.jwt;
 
 import com.wemingle.core.domain.member.entity.role.Role;
-import com.wemingle.core.global.config.jwt.exception.InvalidRoleException;
+import com.wemingle.core.global.exception.InvalidRoleException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,6 @@ public class TokenProvider {
     private static final String REFRESH_TOKEN= "refreshToken";
     private static final String ACCESS_TOKEN = "accessToken";
 
-    //todo 학교 인증 전까지 role unVerifiedUser 처리
     public String createRefreshToken(String memberId, Role role){
         return createToken(new Date(new Date().getTime() + createExpiredAt(REFRESH_TOKEN)), memberId, role);
     }
