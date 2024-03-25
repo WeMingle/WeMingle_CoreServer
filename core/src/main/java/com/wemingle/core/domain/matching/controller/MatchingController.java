@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.matching.controller;
 
-import com.wemingle.core.domain.matching.dto.RequestCreateMatchingPostDto;
+import com.wemingle.core.domain.post.dto.MatchingPostDto;
+import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/match")
 @RequiredArgsConstructor
 public class MatchingController {
+    private final MatchingPostService matchingPostService;
     @PostMapping
-    ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody RequestCreateMatchingPostDto matchingPostDto,
+    ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody MatchingPostDto.CreateMatchingPostDto matchingPostDto,
                                                                @AuthenticationPrincipal UserDetails userDetails) {
-
+        matchingPostService.createMatchingPost(matchingPostDto, userDetails.getUsername());
+        return ResponseEntity.ok()
+                .body(
+                        ResponseHandler.builder()
+                                .responseMessage("matching post successfully created")
+                                .build()
+                );
     }
 }

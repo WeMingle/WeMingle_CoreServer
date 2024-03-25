@@ -34,7 +34,7 @@ public class MemberController {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ResponseHandler.builder()
                             .responseMessage("Member not found")
-                            .responseData(null));
+                            .build());
         }
         TokenDto.ResponseTokenDto tokensForRegisteredMember = tokenService.getTokensForRegisteredMember(signInDto.getMemberId());
         return ResponseEntity.ok(ResponseHandler.builder()
@@ -69,7 +69,6 @@ public class MemberController {
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
                         .responseMessage("Profile update completed")
-                        .responseData(null)
                         .build()
         );
     }
