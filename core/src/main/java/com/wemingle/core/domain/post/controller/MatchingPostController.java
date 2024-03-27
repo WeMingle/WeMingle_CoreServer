@@ -1,8 +1,8 @@
 package com.wemingle.core.domain.post.controller;
 
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
-import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
+import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.service.MatchingPostService;
@@ -41,7 +41,7 @@ public class MatchingPostController {
                                                                                        @RequestParam(required = false) Ability ability,
                                                                                        @RequestParam(required = false) Gender gender,
                                                                                        @RequestParam(required = false) RecruiterType recruiterType,
-                                                                                       @RequestParam(required = false) List<MatchingPostArea> areaList,
+                                                                                       @RequestParam(required = false) List<AreaName> areaList,
                                                                                        @RequestParam(required = false) LocalDate dateFilter,
                                                                                        @RequestParam(required = false) Boolean excludeExpired,
                                                                                        @AuthenticationPrincipal UserDetails userDetails){
