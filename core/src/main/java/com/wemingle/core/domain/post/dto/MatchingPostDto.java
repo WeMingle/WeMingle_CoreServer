@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MatchingPostDto {
+    @ToString
     @Setter
+    @Getter
     public static class ResponseMatchingPostDto{
         private String profilePicUrl;
         private String writer;
@@ -34,9 +36,10 @@ public class MatchingPostDto {
         private RecruiterType recruiterType;
         private Ability ability;
         private boolean isLocationConsensusPossible;
+        private boolean isBookmarked;
 
         @Builder
-        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<MatchingPostArea> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible) {
+        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<MatchingPostArea> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
             this.contents = contents;
@@ -46,6 +49,7 @@ public class MatchingPostDto {
             this.recruiterType = recruiterType;
             this.ability = ability;
             this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.isBookmarked = isBookmarked;
         }
     }
 

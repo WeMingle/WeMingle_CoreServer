@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.post.controller;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
@@ -16,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -27,7 +27,7 @@ public class MatchingPostController {
     ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody MatchingPostDto.CreateMatchingPostDto matchingPostDto,
                                                                @AuthenticationPrincipal UserDetails userDetails) {
         matchingPostService.createMatchingPost(matchingPostDto, userDetails.getUsername());
-        return ResponseEntity.ok()
+        return ResponseEntity.ok() //todo 글 상세페이지 조회 api 구현 후 201로 변경하고 url 함께 반환
                 .body(
                         ResponseHandler.builder()
                                 .responseMessage("matching post successfully created")
@@ -36,21 +36,22 @@ public class MatchingPostController {
     }
 
     @GetMapping("/calendar")
-    public ResponseEntity<ResponseHandler<List<ObjectNode>>> getMatchingPostByCalender(@RequestParam(required = false) Long nextIdx,
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalender(@RequestParam(required = false) Long nextIdx,
                                                                                        @RequestParam(required = false) RecruitmentType recruitmentType,
                                                                                        @RequestParam(required = false) Ability ability,
                                                                                        @RequestParam(required = false) Gender gender,
                                                                                        @RequestParam(required = false) RecruiterType recruiterType,
                                                                                        @RequestParam(required = false) List<MatchingPostArea> areaList,
                                                                                        @RequestParam(required = false) LocalDate dateFilter,
-                                                                                       @RequestParam(required = false) Boolean excludeExpired){
-        List<ObjectNode> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPost(nextIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, excludeExpired);
+                                                                                       @RequestParam(required = false) Boolean excludeExpired,
+                                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPost(userDetails.getUsername(), nextIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, excludeExpired);
 
         return ResponseEntity.ok(
-                ResponseHandler.<List<ObjectNode>>builder()
+                ResponseHandler.builder()
                         .responseMessage("matching posts retrieval successfully")
-                        .responseData(getFilteredMatchingPost)
-                        .build()
+                        .responseData(getFilteredMatchingPost).build()
         );
     }
+
 }

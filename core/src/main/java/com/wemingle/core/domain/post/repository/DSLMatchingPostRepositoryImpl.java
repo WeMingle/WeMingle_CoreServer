@@ -32,10 +32,11 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                                                        LocalDate currentDate,
                                                        LocalDate dateFilter,
                                                        Pageable pageable) {
-        return jpaQueryFactory.select(matchingPost)
+        return jpaQueryFactory.selectFrom(matchingPost)
                 .join(matchingPost.team).fetchJoin()
                 .join(matchingPost.writer).fetchJoin()
                 .join(matchingPost.writer.team).fetchJoin()
+                .join(matchingPost.areaList).fetchJoin()
                 .where(
                         nextIdxLt(nextIdx),
                         recruitmentTypeEq(recruitmentType),
@@ -53,7 +54,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     }
 
     private BooleanExpression nextIdxLt(Long nextIdx) {
-        return nextIdx == null ? null : matchingPost.pk.lt(nextIdx);
+        return nextIdx == null ? null : matchingPost.pk.loe(nextIdx);
     }
 
     private BooleanExpression recruitmentTypeEq(RecruitmentType recruitmentType) {

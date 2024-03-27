@@ -9,6 +9,8 @@ import com.wemingle.core.domain.post.service.MatchingPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BookmarkService {
@@ -24,5 +26,9 @@ public class BookmarkService {
                 .member(member)
                 .build();
         bookmarkRepository.save(bookmarkedMatchingPost);
+    }
+
+    public List<BookmarkedMatchingPost> getBookmarkedByMatchingPosts(List<MatchingPost> matchingPostList, String memberId) {
+        return bookmarkRepository.findBookmarkedByMatchingPosts(matchingPostList, memberId);
     }
 }
