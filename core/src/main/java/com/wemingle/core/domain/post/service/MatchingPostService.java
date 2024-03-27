@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.post.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
+import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.entity.Matching;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
@@ -22,17 +22,21 @@ import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.TEAM_MEMBER_NOT_FOUND;
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.TEAM_NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -42,6 +46,7 @@ public class MatchingPostService {
     private final TeamMemberRepository teamMemberRepository;
     private final MemberRepository memberRepository;
     private final MatchingRepository matchingRepository;
+    private final BookmarkRepository bookmarkRepository;
     private final S3ImgService s3ImgService;
 
     public MatchingPost getMatchingPostByPostId(Long postId) {
@@ -49,7 +54,8 @@ public class MatchingPostService {
                 .orElseThrow(()->new NoSuchElementException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
     }
 
-    public List<ObjectNode> getFilteredMatchingPost(Long nextIdx,
+    public HashMap<Long, Object> getFilteredMatchingPost(String memberId,
+                                                    Long nextIdx,
                                                     RecruitmentType recruitmentType,
                                                     Ability ability,
                                                     Gender gender,
@@ -71,22 +77,28 @@ public class MatchingPostService {
                 PageRequest.of(0, 30)
         );
 
-        ObjectNode objectNode = new ObjectMapper().createObjectNode();
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
 
-        return filteredMatchingPost.stream().map(post -> objectNode.put(post.getPk().toString(),
-                MatchingPostDto.ResponseMatchingPostDto.builder()
-                        .writer(post.getWriter().getTeam().getTeamName())
-                        .matchingDate(post.getMatchingDate())
-                        .areaList(post.getAreaList())
-                        .ability(post.getAbility())
-                        .isLocationConsensusPossible(post.isLocationConsensusPossible())
-                        .contents(post.getContent())
-                        .recruiterType(post.getRecruiterType())
-                        .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
-                        .matchingCnt(post.getCompletedMatchingCnt())
-                        .build().toString()
-        )).toList();
+        HashMap<Long, Object> objectNode = new LinkedHashMap<>();
 
+        filteredMatchingPost.forEach(post -> {
+                    boolean isBookmarked = bookmarkedByMatchingPosts.stream().anyMatch(bookmark -> bookmark.getMatchingPost().equals(post));
+
+                    objectNode.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
+                            .writer(post.getWriter().getTeam().getTeamName())
+                            .matchingDate(post.getMatchingDate())
+                            .areaList(post.getAreaList())
+                            .ability(post.getAbility())
+                            .isLocationConsensusPossible(post.isLocationConsensusPossible())
+                            .contents(post.getContent())
+                            .recruiterType(post.getRecruiterType())
+                            .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
+                            .matchingCnt(post.getCompletedMatchingCnt())
+                            .isBookmarked(isBookmarked)
+                            .build());
+                }
+        );
+        return objectNode;
     }
 
     @Transactional

@@ -65,8 +65,8 @@ public class MailVerificationService {
 
     private String getMailVerificationText(Member member, String verificationCode) {
 
-        return "안녕하세요 " + member.getNickname() + "님!" +
-                "[Wemingle] 재학생 확인을 위해 인증번호 [" + verificationCode +"]를 입력해 주세요.";
+        return "안녕하세요 " + member.getNickname() + "님!\n" +
+                "Wemingle 서비스 이용을 위한 재학생 인증번호 [" + verificationCode +"]를 앱에 입력해 주세요.";
     }
 
     public boolean validVerificationCode(String memberId, String verificationCode) {

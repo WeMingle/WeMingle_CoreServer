@@ -73,6 +73,11 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
     hibernate:
       ddl-auto: create
     database: mysql
@@ -81,6 +86,15 @@ spring:
 member-profile:
   store:
     path: ENC(xsYJV+Oq0Jp9Ge9SJpLP0Wgyiq48ZUHy0wTDOoCc8W8+FCdGt07Vn9ezcQ5E2/v0I0qMIhnyqPM=)
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
+출처: https://haenny.tistory.com/379 [Haenny:티스토리]
 
 ---
 
