@@ -3,8 +3,8 @@ package com.wemingle.core.domain.post.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wemingle.core.domain.post.entity.MatchingPost;
-import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
+import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
@@ -28,7 +28,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                                                        Ability ability,
                                                        Gender gender,
                                                        RecruiterType recruiterType,
-                                                       List<MatchingPostArea> areaList,
+                                                       List<AreaName> areaList,
                                                        LocalDate currentDate,
                                                        LocalDate dateFilter,
                                                        Pageable pageable) {
@@ -71,8 +71,8 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     private BooleanExpression recruiterTypeEq(RecruiterType recruiterType) {
         return recruiterType == null ? null : matchingPost.recruiterType.eq(recruiterType);
     }
-    private BooleanExpression areaListIn(List<MatchingPostArea> areaList) {
-        return areaList == null ? null : matchingPost.areaList.any().in(areaList);
+    private BooleanExpression areaListIn(List<AreaName> areaList) {
+        return areaList == null ? null : matchingPost.areaList.any().areaName.in(areaList);
     }
 
     private BooleanExpression currentDateAfter(LocalDate currentDate) {
