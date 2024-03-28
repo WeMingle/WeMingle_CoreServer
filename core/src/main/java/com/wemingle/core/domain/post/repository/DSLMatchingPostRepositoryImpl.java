@@ -86,8 +86,8 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     @Override
     public List<MatchingPost> findFilteredMatchingPostInMatchingFeed(Long nextIdx, RecruiterType recruiterType, boolean completeMatchesFilter, Pageable pageable) {
         return jpaQueryFactory.selectFrom(matchingPost)
-                .join(matchingPost.team).fetchJoin()
                 .join(matchingPost.team)
+//                .where(matchingPost.team)
                 .where(nextIdxLt(nextIdx))
                 .where(recruiterTypeEq(recruiterType))
                 .offset(pageable.getOffset())

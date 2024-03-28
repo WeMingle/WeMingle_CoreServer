@@ -94,7 +94,7 @@ public class MailVerificationService {
                 .sportsCategory(sportsCategoryRepository.findBySportsType(SportsType.OTHER))
                 .capacityLimit(1)
                 .build();
-        teamRepository.save(team);
+
         TeamMember teamMember = TeamMember.builder()
                 .member(member)
                 .team(team)
@@ -102,7 +102,9 @@ public class MailVerificationService {
                 .profileImg(member.getProfileImgId())
                 .teamRole(TeamRole.OWNER)
                 .build();
-        teamMemberRepository.save(teamMember);
+
+        team.addTeamMember(teamMember);
+        teamRepository.save(team);
     }
 
     public void saveVerificationCode(String memberId, String verificationCode) {

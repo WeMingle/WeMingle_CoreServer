@@ -91,7 +91,7 @@ public class MatchingPost extends BaseEntity {
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
-    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Point position, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, MatchingStatus matchingStatus, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
+    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Point position, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
         this.locationName = locationName;
@@ -103,7 +103,7 @@ public class MatchingPost extends BaseEntity {
         this.gender = gender;
         this.recruitmentType = recruitmentType;
         this.recruiterType = recruiterType;
-        this.matchingStatus = matchingStatus;
+        this.matchingStatus = MatchingStatus.PENDING;
         this.locationSelectionType = locationSelectionType;
         this.writer = writer;
         this.team = team;
@@ -111,5 +111,9 @@ public class MatchingPost extends BaseEntity {
 
     public void putAreaList(List<MatchingPostArea> matchingPostAreaList){
         this.areaList = matchingPostAreaList;
+    }
+
+    public void putArea(MatchingPostArea matchingPostArea){
+        areaList.add(matchingPostArea);
     }
 }
