@@ -127,7 +127,6 @@ public class InitDatabase {
         ArrayList<MatchingPost> matchingPosts = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             matchingPosts.add(MatchingPost.builder()
-                    .completedMatchingCnt(0)
                     .matchingDate(LocalDate.now())
                     .expiryDate(LocalDate.of(2023, 3, 29))
                     .locationName("jacob house")
