@@ -82,4 +82,17 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     private BooleanExpression dateFilterEq(LocalDate dateFilter) {
         return dateFilter == null ? null : matchingPost.matchingDate.eq(dateFilter);
     }
+
+    @Override
+    public List<MatchingPost> findFilteredMatchingPostInMatchingFeed(Long nextIdx, RecruiterType recruiterType, boolean completeMatchesFilter, Pageable pageable) {
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .join(matchingPost.team)
+//                .where(matchingPost.team)
+                .where(nextIdxLt(nextIdx))
+                .where(recruiterTypeEq(recruiterType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(matchingPost.pk.desc())
+                .fetch();
+    }
 }

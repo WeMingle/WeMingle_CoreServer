@@ -17,7 +17,6 @@ import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelectionType;
-import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostAreaRepository;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
@@ -44,7 +43,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Profile("jungwoo")
+@Profile("howang")
 @Component
 public class InitDatabase {
 
@@ -63,61 +62,67 @@ public class InitDatabase {
     @Autowired
     SportsCategoryRepository sportsCategoryRepository;
 
-
-
-
     @PostConstruct
     public void InitDatabase() throws NoSuchAlgorithmException, InvalidKeySpecException {
         log.info("initinit");
 
-
-
         createMember(10);
         List<Member> memberRepositoryAll = memberRepository.findAll();
-        createTeam(10,memberRepositoryAll);
-        List<Team> teamRepositoryAll = teamRepository.findAll();
-        createTeamMember(10,memberRepositoryAll,teamRepositoryAll);
+        List<Team> teams = createTeam(10, memberRepositoryAll);
+        List<TeamMember> teamMembers = createTeamMember(10, memberRepositoryAll, teams);
+        for (int i = 0; i < 10; i++) {
+            teams.get(i).addTeamMember(teamMembers.get(i));
+        }
+        List<Team> teamList = teamRepository.saveAll(teams);
         List<TeamMember> teamMemberRepositoryAll = teamMemberRepository.findAll();
-        ArrayList<MatchingPost> matchingPost = createMatchingPost(10, teamMemberRepositoryAll, teamRepositoryAll);
+        ArrayList<MatchingPost> matchingPost = createMatchingPost(10, teamMemberRepositoryAll, teamList);
         List<MatchingPostArea> matchingPostArea = createMatchingPostArea(matchingPost);
+        for (int i = 0; i < 10; i++) {
+            matchingPost.get(i).putArea(matchingPostArea.get(i));
+        }
         matchingPostRepository.saveAll(matchingPost);
-        matchingPostAreaRepository.saveAll(matchingPostArea);
-
-
     }
 
     private List<MatchingPostArea> createMatchingPostArea(ArrayList<MatchingPost> matchingPosts) {
         return matchingPosts.stream().map(m -> MatchingPostArea.builder().areaName(AreaName.경기).matchingPost(m).build()).toList();
     }
 
-    private void createTeamMember(int amount,List<Member> memberList,List<Team> teams) {
+    private List<TeamMember> createTeamMember(int amount, List<Member> memberList, List<Team> teams) {
+        List<TeamMember> returnTeamMembers = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
-            teamMemberRepository.save(TeamMember.builder()
-                    .nickname("nickname"+i)
+            TeamMember teamMember = TeamMember.builder()
+                    .nickname("nickname" + i)
                     .profileImg(UUID.randomUUID())
                     .teamRole(TeamRole.PARTICIPANT)
                     .member(memberList.get(i))
                     .team(teams.get(i))
-                    .build()
-            );
+                    .build();
 
+            returnTeamMembers.add(teamMember);
         }
+
+        return returnTeamMembers;
     }
 
     private SportsCategory createSportsCategory() {
         return sportsCategoryRepository.save(SportsCategory.builder().sportsName(SportsType.OTHER).build());
     }
 
-    private void createTeam(int amount,List<Member> memberList) {
+    private List<Team> createTeam(int amount,List<Member> memberList) {
+        List<Team> returnTeams = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
-            teamRepository.save(Team.builder()
+            Team team = Team.builder()
                     .teamName("teamname" + i)
                     .capacityLimit(100)
                     .profileImgId(UUID.randomUUID())
                     .teamOwner(memberList.get(i))
                     .sportsCategory(createSportsCategory())
-                    .build());
+                    .build();
+
+            returnTeams.add(team);
         }
+
+        return returnTeams;
     }
 
     private ArrayList<MatchingPost> createMatchingPost(int amount, List<TeamMember> memberList, List<Team> teams) {
@@ -138,7 +143,6 @@ public class InitDatabase {
                     .gender(Gender.MALE)
                     .recruiterType(RecruiterType.INDIVIDUAL)
                     .recruitmentType(RecruitmentType.APPROVAL_BASED)
-                    .matchingStatus(MatchingStatus.CANCEL)
                     .locationSelectionType(LocationSelectionType.SELECT_BASED)
                     .writer(memberList.get(i))
                     .team(teams.get(i))

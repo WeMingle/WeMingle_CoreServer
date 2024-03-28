@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -41,6 +43,10 @@ public class Team extends BaseEntity {
     private Member teamOwner;
 
     @NotNull
+    @OneToMany(mappedBy = "team", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<TeamMember> teamMembers = new ArrayList<>();
+
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SPORTS_CATEGORY")
     private SportsCategory sportsCategory;
@@ -53,5 +59,13 @@ public class Team extends BaseEntity {
         this.profileImgId = profileImgId;
         this.teamOwner = teamOwner;
         this.sportsCategory = sportsCategory;
+    }
+
+    public void addTeamMember(TeamMember teamMember){
+        this.teamMembers.add(teamMember);
+    }
+
+    public void addTeamMembers(List<TeamMember> teamMembers){
+        this.teamMembers = teamMembers;
     }
 }

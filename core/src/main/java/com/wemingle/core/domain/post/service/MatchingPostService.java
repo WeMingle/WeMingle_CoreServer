@@ -101,6 +101,10 @@ public class MatchingPostService {
         return objectNode;
     }
 
+    public void getFilteredMatchingPostInMatchingFeed(Long nextIdx, RecruiterType recruiterType){
+
+    }
+
     @Transactional
     public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
         RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
