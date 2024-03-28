@@ -49,7 +49,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(matchingPost.pk.desc())
+                .orderBy(matchingPost.createdTime.desc())
                 .fetch();
     }
 
