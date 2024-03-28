@@ -9,7 +9,6 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.entity.MatchingPost;
-import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -94,7 +93,7 @@ public class MatchingPostService {
                             .contents(post.getContent())
                             .recruiterType(post.getRecruiterType())
                             .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
-                            .matchingCnt(post.getCompletedMatchingCnt())
+                            .matchingCnt(post.getTeam().getCompletedMatchingCnt())
                             .isBookmarked(isBookmarked)
                             .build());
                 }
