@@ -28,6 +28,9 @@ public class Team extends BaseEntity {
     @Column(name = "CAPACITY_LIMIT")
     private int capacityLimit;
 
+    @Column(name = "COMPLETED_MATCHING_CNT")
+    private int completedMatchingCnt;
+
     @NotNull
     @Column(name = "PROFILE_IMG_ID", columnDefinition = "VARBINARY(255) NOT NULL")
     private UUID profileImgId;
@@ -46,6 +49,7 @@ public class Team extends BaseEntity {
     public Team(String teamName, int capacityLimit, UUID profileImgId, Member teamOwner, SportsCategory sportsCategory) {
         this.teamName = teamName;
         this.capacityLimit = capacityLimit;
+        this.completedMatchingCnt = 0;
         this.profileImgId = profileImgId;
         this.teamOwner = teamOwner;
         this.sportsCategory = sportsCategory;

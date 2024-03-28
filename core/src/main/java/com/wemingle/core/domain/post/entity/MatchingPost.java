@@ -27,9 +27,6 @@ public class MatchingPost extends BaseEntity {
     @Column(name = "pk")
     private Long pk;
 
-    @Column(name = "COMPLETED_MATCHING_CNT")
-    private int completedMatchingCnt;
-
     @NotNull
     @Column(name = "MATCHING_DATE")
     private LocalDate matchingDate;//매칭이 성사된 날짜
@@ -94,9 +91,7 @@ public class MatchingPost extends BaseEntity {
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
-    public MatchingPost(Long pk, int completedMatchingCnt, LocalDate matchingDate, LocalDate expiryDate, String locationName, Point position, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, MatchingStatus matchingStatus, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
-        this.pk = pk;
-        this.completedMatchingCnt = completedMatchingCnt;
+    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Point position, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, MatchingStatus matchingStatus, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
         this.locationName = locationName;
@@ -113,9 +108,6 @@ public class MatchingPost extends BaseEntity {
         this.writer = writer;
         this.team = team;
     }
-
-
-
 
     public void putAreaList(List<MatchingPostArea> matchingPostAreaList){
         this.areaList = matchingPostAreaList;

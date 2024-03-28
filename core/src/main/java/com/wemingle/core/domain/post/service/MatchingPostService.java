@@ -93,7 +93,7 @@ public class MatchingPostService {
                             .contents(post.getContent())
                             .recruiterType(post.getRecruiterType())
                             .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
-                            .matchingCnt(post.getCompletedMatchingCnt())
+                            .matchingCnt(post.getTeam().getCompletedMatchingCnt())
                             .isBookmarked(isBookmarked)
                             .build());
                 }
