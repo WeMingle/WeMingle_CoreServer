@@ -26,9 +26,15 @@ public class TeamServiceImpl implements TeamService{
         teamList.forEach(team -> responseTeamInfo.put(team.getPk(),
                         TeamDto.ResponseTeamInfoDto.builder()
                                 .teamName(team.getTeamName())
-                                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                                .teamImgUrl(getTeamImgUrl(memberId, team))
                                 .build()));
 
         return responseTeamInfo;
+    }
+
+    private String getTeamImgUrl(String memberId, Team team) {
+        return team.getTeamName().equals(memberId) 
+                ? s3ImgService.getMemberProfilePicUrl(team.getProfileImgId())
+                : s3ImgService.getGroupProfilePicUrl(team.getProfileImgId());
     }
 }
