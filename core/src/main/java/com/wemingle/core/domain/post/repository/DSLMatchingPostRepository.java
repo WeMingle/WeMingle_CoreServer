@@ -14,5 +14,6 @@ import java.util.List;
 public interface DSLMatchingPostRepository {
 
     List<MatchingPost> findFilteredMatchingPost(Long nextIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, Pageable pageable);
+    List<MatchingPost> findFilteredMatchingPostInMatchingFeed(Long nextIdx, RecruiterType recruiterType, boolean completeMatchesFilter, Pageable pageable);
 
 }

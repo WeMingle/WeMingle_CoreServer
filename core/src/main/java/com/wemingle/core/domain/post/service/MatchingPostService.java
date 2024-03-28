@@ -9,7 +9,6 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.entity.MatchingPost;
-import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -100,6 +99,10 @@ public class MatchingPostService {
                 }
         );
         return objectNode;
+    }
+
+    public void getFilteredMatchingPostInMatchingFeed(Long nextIdx, RecruiterType recruiterType){
+
     }
 
     @Transactional
