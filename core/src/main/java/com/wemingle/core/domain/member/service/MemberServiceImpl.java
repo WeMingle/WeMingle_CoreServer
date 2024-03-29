@@ -3,6 +3,8 @@ package com.wemingle.core.domain.member.service;
 import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
+import com.wemingle.core.domain.member.dto.MemberAuthenticationInfoDto;
+import com.wemingle.core.domain.member.dto.MemberInfoDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.MemberPreferenceSports;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
@@ -11,6 +13,8 @@ import com.wemingle.core.domain.member.repository.MemberPreferenceSportsReposito
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
+import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
+import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
@@ -30,6 +35,7 @@ public class MemberServiceImpl implements MemberService {
     private final PolicyTermsRepository policyTermsRepository;
     private final SportsCategoryRepository sportsCategoryRepository;
     private final MemberPreferenceSportsRepository memberPreferenceSportsRepository;
+    private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
@@ -96,5 +102,32 @@ public class MemberServiceImpl implements MemberService {
                 .toList();
 
         memberPreferenceSportsRepository.saveAll(memberPreferenceSportsList);
+    }
+
+    @Override
+    public MemberInfoDto getMemberInfo(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        return MemberInfoDto.builder().oneLineIntroduction(member.getOneLineIntroduction())
+                .ability(member.getAbility())
+                .gender(member.getGender())
+                .numberOfMatches(member.getNumberOfMatches())
+                .majorActivityArea(member.getMajorActivityArea())
+                .oneLineIntroduction(member.getOneLineIntroduction())
+                .build();
+    }
+
+    @Override
+    public MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        VerifiedUniversityEmail verifiedUniversityEmail = verifiedUniversityEmailRepository.findByMember(member)
+                .orElse(
+                        VerifiedUniversityEmail.builder()
+                        .univEmailAddress("University authentication has not been completed")
+                        .build()
+                );
+        return MemberAuthenticationInfoDto.builder()
+                .memberId(member.getMemberId())
+                .univEmail(verifiedUniversityEmail.getUnivEmailAddress())
+                .build();
     }
 }

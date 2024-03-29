@@ -30,7 +30,7 @@ public class MatchingPostDto {
         private String profilePicUrl;
         private String writer;
         private String contents;
-        private List<MatchingPostArea> areaList;
+        private List<AreaName> areaList;
         private int matchingCnt;
         private LocalDate matchingDate;
         private RecruiterType recruiterType;
@@ -39,7 +39,7 @@ public class MatchingPostDto {
         private boolean isBookmarked;
 
         @Builder
-        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<MatchingPostArea> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
+        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
             this.contents = contents;
