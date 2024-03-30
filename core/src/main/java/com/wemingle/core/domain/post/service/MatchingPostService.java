@@ -28,13 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
-import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.TEAM_MEMBER_NOT_FOUND;
-import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.TEAM_NOT_FOUND;
+import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
 
 @Slf4j
 @Service
@@ -118,13 +114,26 @@ public class MatchingPostService {
         MatchingPost matchingPost = createMatchingPostDto.of(team, writerInTeam);
         matchingPostRepository.save(matchingPost);
 
+        Member teamOwner = memberRepository.findByMemberId(writerId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        saveMatchingOwner(team, teamOwner, matchingPost);
+
         if (isExistTeamParticipant(recruiterType, participantsId)){
             List<Member> memberList = memberRepository.findByMemberIdIn(participantsId);
-            createParticipants(team, memberList, matchingPost);
+            saveMatchingParticipants(team, memberList, matchingPost);
         }
     }
 
-    private void createParticipants(Team team, List<Member> memberList, MatchingPost matchingPost) {
+    private void saveMatchingOwner(Team team, Member member, MatchingPost matchingPost) {
+        Matching matchingTeamOwner = Matching.builder()
+                        .matchingPost(matchingPost)
+                        .member(member)
+                        .team(team)
+                        .build();
+
+        matchingRepository.save(matchingTeamOwner);
+    }
+
+    private void saveMatchingParticipants(Team team, List<Member> memberList, MatchingPost matchingPost) {
         List<Matching> matchingParticipantList = memberList.stream().map(member -> Matching.builder()
                         .matchingPost(matchingPost)
                         .member(member)
