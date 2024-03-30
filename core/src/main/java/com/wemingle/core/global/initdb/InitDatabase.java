@@ -24,6 +24,7 @@ import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import jakarta.annotation.PostConstruct;
@@ -43,7 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Profile("howang")
+@Profile("jungwoo")
 @Component
 public class InitDatabase {
 
@@ -116,6 +117,7 @@ public class InitDatabase {
                     .capacityLimit(100)
                     .profileImgId(UUID.randomUUID())
                     .teamOwner(memberList.get(i))
+                    .teamType(TeamType.TEAM)
                     .sportsCategory(createSportsCategory())
                     .build();
 
@@ -132,8 +134,8 @@ public class InitDatabase {
         ArrayList<MatchingPost> matchingPosts = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             matchingPosts.add(MatchingPost.builder()
-                    .matchingDate(LocalDate.now())
-                    .expiryDate(LocalDate.of(2023, 3, 29))
+                    .matchingDate(LocalDate.of(2024, 3, 29))
+                    .expiryDate(LocalDate.of(2024, 3, 29))
                     .locationName("jacob house")
                     .position(point)
                     .content("msg")
@@ -147,7 +149,6 @@ public class InitDatabase {
                     .writer(memberList.get(i))
                     .team(teams.get(i))
                     .build());
-
         }
         return matchingPosts;
     }

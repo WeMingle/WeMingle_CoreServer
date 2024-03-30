@@ -17,12 +17,12 @@ public class MatchingService {
     public LinkedHashMap<String, Integer> getMatchingSummaryInfo(String memberId) {
         Integer completeMatchingCnt = matchingRepository.findCompleteMatchingCnt(memberId, MatchingStatus.COMPLETE);
         Integer scheduledMatchingCnt = matchingRepository.findScheduledMatchingCnt(memberId);
-        Integer requestedMatchingCnt = matchingRequestRepository.findRequestedMatchingCnt(memberId);
+//        Integer requestedMatchingCnt = matchingRequestRepository.findRequestedMatchingCnt(memberId);
         Integer receivedMatchingCnt = matchingRequestRepository.findReceivedMatchingCnt(memberId);
         LinkedHashMap<String, Integer> responseNode = new LinkedHashMap<>();
         responseNode.put("completeMatchingCnt", completeMatchingCnt);
         responseNode.put("scheduledMatchingCnt", scheduledMatchingCnt);
-        responseNode.put("requestedMatchingCnt", requestedMatchingCnt);
+//        responseNode.put("requestedMatchingCnt", requestedMatchingCnt);
         responseNode.put("receivedMatchingCnt", receivedMatchingCnt);
         return responseNode;
     }
