@@ -121,8 +121,5 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
 
     private BooleanExpression allCompleteMatches(){
         return matchingPost.matchingStatus.ne(MatchingStatus.PENDING);
-        /*return matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE)
-                .or(matchingPost.matchingStatus.eq(MatchingStatus.CANCEL))
-                .or((matchingPost.matchingDate.after(LocalDate.now()).and(matchingPost.matchingStatus.eq(MatchingStatus.PENDING))));*/
     }
 }
