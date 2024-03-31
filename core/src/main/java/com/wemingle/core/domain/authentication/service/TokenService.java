@@ -34,8 +34,6 @@ public class TokenService {
 
     public Date getExpirationTime(String jwtToken) {
         return tokenProvider.getExpirationTime(jwtToken);
-//        Instant instant = expirationDate.toInstant();
-//        return instant.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
 
     public TokenDto.ResponseTokenDto getUnVerifiedUserTokens(String memberId){

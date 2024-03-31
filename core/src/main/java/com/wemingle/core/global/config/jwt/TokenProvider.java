@@ -163,7 +163,6 @@ public class TokenProvider {
 
     public Date getExpirationTime(String jwtToken){
         Claims claim = getClaim(jwtToken);
-        log.info("expiry {}", claim.getExpiration());
         return claim.getExpiration();
     }
 }
