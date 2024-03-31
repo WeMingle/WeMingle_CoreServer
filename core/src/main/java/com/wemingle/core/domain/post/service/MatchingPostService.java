@@ -177,7 +177,7 @@ public class MatchingPostService {
     private MatchingPostDto.ScheduledRequest getScheduledRequest(MatchingPost matchingPost, Member member, List<MatchingPost> matchingPostWithMemberId) {
         return isTeamOwner(matchingPost, member)
                 ? scheduledRequestFactoryWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWithMemberId)
-                : scheduledRequestFactoryWithOwner();
+                : scheduledRequestFactoryWithMember();
     }
 
     private static boolean isTeamOwner(MatchingPost matchingPost, Member member) {
@@ -216,7 +216,7 @@ public class MatchingPostService {
         }
     }
 
-    private MatchingPostDto.ScheduledRequest scheduledRequestFactoryWithOwner() {
+    private MatchingPostDto.ScheduledRequest scheduledRequestFactoryWithMember() {
         return new MatchingPostDto.ScheduledRequest(NO_PERMISSION.getDescription(), NO_PERMISSION.getRequestUrl());
     }
 
