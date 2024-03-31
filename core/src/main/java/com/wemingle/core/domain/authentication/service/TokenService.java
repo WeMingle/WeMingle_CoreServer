@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -19,20 +20,22 @@ public class TokenService {
     private final MemberService memberService;
 
 
-    public boolean isInvalidRefreshAndAccessToken(String refreshToken, String accessToken) {
+    public boolean verifyRefreshAndAccessToken(String refreshToken, String accessToken) {
         return !tokenProvider.validToken(refreshToken) && !tokenProvider.validToken(accessToken);
     }
 
-    public boolean isInvalidAccessToken(String refreshToken, String accessToken) {
-        return tokenProvider.validToken(refreshToken) && !tokenProvider.validToken(accessToken);
+    public boolean verifyRefreshToken(String refreshToken) {
+        return tokenProvider.validToken(refreshToken);
     }
 
     public boolean isExpiredRefreshAndAccessToken(String refreshToken, String accessToken) {
         return tokenProvider.isExpired(refreshToken) && tokenProvider.isExpired(accessToken);
     }
 
-    public boolean isExpiredAccessToken(String accessToken) {
-        return tokenProvider.isExpired(accessToken);
+    public Date getExpirationTime(String jwtToken) {
+        return tokenProvider.getExpirationTime(jwtToken);
+//        Instant instant = expirationDate.toInstant();
+//        return instant.atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
 
     public TokenDto.ResponseTokenDto getUnVerifiedUserTokens(String memberId){
@@ -42,14 +45,14 @@ public class TokenService {
                 .build();
     }
 
-    public String getAccessTokenByRefreshToken(String refreshToken){
+    public String createAccessTokenByRefreshToken(String refreshToken){
         Member member = memberService.findByRefreshToken(refreshToken);
 
         return tokenProvider.createAccessToken(member.getMemberId(), member.getRole());
     }
 
     @Transactional
-    public String getAndPatchRefreshTokenInMember(String refreshToken){
+    public String createAndPatchRefreshTokenInMember(String refreshToken){
         Member member = memberService.findByRefreshToken(refreshToken);
 
         String newRefreshToken = tokenProvider.createRefreshToken(member.getMemberId(), member.getRole());
