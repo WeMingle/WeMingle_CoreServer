@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MatchingPostDto {
+    @ToString
     @Setter
+    @Getter
     public static class ResponseMatchingPostDto{
         private String profilePicUrl;
         private String writer;
@@ -34,9 +36,10 @@ public class MatchingPostDto {
         private RecruiterType recruiterType;
         private Ability ability;
         private boolean isLocationConsensusPossible;
+        private boolean isBookmarked;
 
         @Builder
-        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<MatchingPostArea> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible) {
+        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<MatchingPostArea> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
             this.contents = contents;
@@ -46,6 +49,7 @@ public class MatchingPostDto {
             this.recruiterType = recruiterType;
             this.ability = ability;
             this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.isBookmarked = isBookmarked;
         }
     }
 
@@ -131,6 +135,53 @@ public class MatchingPostDto {
             matchingPost.putAreaList(areaList);
 
             return matchingPost;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseCompletedMatchingPost {
+        private LocalDate matchingDate;
+        private RecruiterType recruiterType;
+        private String teamName;
+        private int completedMatchingCnt;
+        private String content;
+        private List<AreaName> areaNames;
+        private boolean isLocationConsensusPossible;
+        private Ability ability;
+        private String profileImgUrl;
+        private String detailPostUrl;
+        private String matchingStatus;
+        private ScheduledRequest scheduledRequest;
+
+        @Builder
+        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, ScheduledRequest scheduledRequest) {
+            this.matchingDate = matchingDate;
+            this.recruiterType = recruiterType;
+            this.teamName = teamName;
+            this.completedMatchingCnt = completedMatchingCnt;
+            this.content = content;
+            this.areaNames = areaNames;
+            this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.ability = ability;
+            this.profileImgUrl = profileImgUrl;
+            this.detailPostUrl = detailPostUrl;
+            this.matchingStatus = matchingStatus;
+            this.scheduledRequest = scheduledRequest;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ScheduledRequest {
+        private String description;
+        private String requestApiUri;
+
+        public ScheduledRequest(String description, String requestApiUri) {
+            this.description = description;
+            this.requestApiUri = requestApiUri;
         }
     }
 }

@@ -140,10 +140,10 @@ INSERT INTO sports_category (sports_name) VALUES
                                               ('SKATEBOARDING'),
                                               ('OTHER');
 
-INSERT INTO policy_terms (policy_1, policy_2, policy_3, agree_to_location_based_services, agree_to_receive_marketing_information, created_time) values
-    (true, true, true, true, true, NOW());
-
-INSERT INTO member (complaints_count, notify_allow, created_time, policy_terms, firebase_token, member_id, nickname, password, profile_img_id, refresh_token, phone_type, role, signup_platform) values
-    (0, true, NOW(), 1, 'Dummy', 'wemingle@gmail.com', 'Wemingle', '123123123123', UUID_TO_BIN(UUID()), 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0aHJ1c3VtMTIzQGdtYWlsLmNvbSIsImlhdCI6MTcxMDYxMjEwMSwiZXhwIjo0ODIxMDEyMTAxLCJzdWIiOiJXZU1pbmdsZSIsImlkIjoid2VtaW5nbGVAZ21haWwuY29tIiwicm9sZSI6IlJPTEVfVU5WRVJJRklFRF9VU0VSIn0.pJp2RpdcVhMgitugJYgk1pJwK_Unvlq1Vg7MtWppCtA', 'IOS', 'UNVERIFIED_USER', 'NAVER');
-
+-- INSERT INTO policy_terms (policy_1, policy_2, policy_3, agree_to_location_based_services, agree_to_receive_marketing_information, created_time) values
+--     (true, true, true, true, true, NOW());
+--
+-- INSERT INTO member (complaints_count, notify_allow, created_time, policy_terms, firebase_token, member_id, nickname, password, profile_img_id, refresh_token, phone_type, role, signup_platform) values
+--     (0, true, NOW(), 1, 'Dummy', 'wemingle@gmail.com', 'Wemingle', '123123123123', UUID_TO_BIN(UUID()), 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ0aHJ1c3VtMTIzQGdtYWlsLmNvbSIsImlhdCI6MTcxMDYxMjEwMSwiZXhwIjo0ODIxMDEyMTAxLCJzdWIiOiJXZU1pbmdsZSIsImlkIjoid2VtaW5nbGVAZ21haWwuY29tIiwicm9sZSI6IlJPTEVfVU5WRVJJRklFRF9VU0VSIn0.pJp2RpdcVhMgitugJYgk1pJwK_Unvlq1Vg7MtWppCtA', 'IOS', 'UNVERIFIED_USER', 'NAVER');
+--
 

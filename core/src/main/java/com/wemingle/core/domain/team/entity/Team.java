@@ -3,6 +3,7 @@ package com.wemingle.core.domain.team.entity;
 import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -10,6 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -28,9 +31,16 @@ public class Team extends BaseEntity {
     @Column(name = "CAPACITY_LIMIT")
     private int capacityLimit;
 
+    @Column(name = "COMPLETED_MATCHING_CNT")
+    private int completedMatchingCnt;
+
     @NotNull
     @Column(name = "PROFILE_IMG_ID", columnDefinition = "VARBINARY(255) NOT NULL")
     private UUID profileImgId;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private TeamType teamType;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,16 +48,30 @@ public class Team extends BaseEntity {
     private Member teamOwner;
 
     @NotNull
+    @OneToMany(mappedBy = "team", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<TeamMember> teamMembers = new ArrayList<>();
+
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SPORTS_CATEGORY")
     private SportsCategory sportsCategory;
 
     @Builder
-    public Team(String teamName, int capacityLimit, UUID profileImgId, Member teamOwner, SportsCategory sportsCategory) {
+    public Team(String teamName, int capacityLimit, UUID profileImgId, TeamType teamType, Member teamOwner, SportsCategory sportsCategory) {
         this.teamName = teamName;
         this.capacityLimit = capacityLimit;
+        this.completedMatchingCnt = 0;
         this.profileImgId = profileImgId;
+        this.teamType = teamType;
         this.teamOwner = teamOwner;
         this.sportsCategory = sportsCategory;
+    }
+
+    public void addTeamMember(TeamMember teamMember){
+        this.teamMembers.add(teamMember);
+    }
+
+    public void addTeamMembers(List<TeamMember> teamMembers){
+        this.teamMembers = teamMembers;
     }
 }

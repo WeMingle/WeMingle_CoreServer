@@ -8,6 +8,7 @@ import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEma
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
@@ -65,8 +66,8 @@ public class MailVerificationService {
 
     private String getMailVerificationText(Member member, String verificationCode) {
 
-        return "안녕하세요 " + member.getNickname() + "님!" +
-                "[Wemingle] 재학생 확인을 위해 인증번호 [" + verificationCode +"]를 입력해 주세요.";
+        return "안녕하세요 " + member.getNickname() + "님!\n" +
+                "Wemingle 서비스 이용을 위한 재학생 인증번호 [" + verificationCode +"]를 앱에 입력해 주세요.";
     }
 
     public boolean validVerificationCode(String memberId, String verificationCode) {
@@ -90,11 +91,12 @@ public class MailVerificationService {
         Team team = Team.builder()
                 .teamName(member.getMemberId())
                 .teamOwner(member)
+                .teamType(TeamType.INDIVIDUAL)
                 .profileImgId(member.getProfileImgId())
                 .sportsCategory(sportsCategoryRepository.findBySportsType(SportsType.OTHER))
                 .capacityLimit(1)
                 .build();
-        teamRepository.save(team);
+
         TeamMember teamMember = TeamMember.builder()
                 .member(member)
                 .team(team)
@@ -102,7 +104,9 @@ public class MailVerificationService {
                 .profileImg(member.getProfileImgId())
                 .teamRole(TeamRole.OWNER)
                 .build();
-        teamMemberRepository.save(teamMember);
+
+        team.addTeamMember(teamMember);
+        teamRepository.save(team);
     }
 
     public void saveVerificationCode(String memberId, String verificationCode) {

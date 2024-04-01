@@ -21,8 +21,6 @@ cloud:
 ##common setting
 spring:
   jpa:
-    hibernate:
-      ddl-auto: create
     defer-datasource-initialization: true
 
   mail:
@@ -42,6 +40,9 @@ spring:
     init:
       mode: always
 
+wemingle:
+  ip: ENC(Xtb3qSACnMuBfHLCacz17TL1GTEQbFINe4khOzj2NU8WOEVgSU/i9g==)
+
 ---
 ## prod setting
 spring:
@@ -59,6 +60,12 @@ spring:
       ddl-auto: create
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        default_batch_fetch_size: 1000
+
+  jackson:
+    time-zone: Asia/Seoul
 ---
 
 ## jungwooLocal
@@ -73,6 +80,11 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
     hibernate:
       ddl-auto: create
     database: mysql
@@ -82,12 +94,23 @@ member-profile:
   store:
     path: ENC(xsYJV+Oq0Jp9Ge9SJpLP0Wgyiq48ZUHy0wTDOoCc8W8+FCdGt07Vn9ezcQ5E2/v0I0qMIhnyqPM=)
 
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
+
 ---
 
 ## howangLocal
 spring:
   profiles:
     active: howang
+
+  jackson:
+    time-zone: Asia/Seoul
 
   datasource:
     url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
@@ -101,3 +124,6 @@ spring:
       ddl-auto: create
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        default_batch_fetch_size: 1000

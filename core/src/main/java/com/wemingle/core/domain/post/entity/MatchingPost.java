@@ -11,10 +11,7 @@ import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
@@ -29,9 +26,6 @@ public class MatchingPost extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk")
     private Long pk;
-
-    @Column(name = "COMPLETED_MATCHING_CNT")
-    private int completedMatchingCnt;
 
     @NotNull
     @Column(name = "MATCHING_DATE")
@@ -98,7 +92,6 @@ public class MatchingPost extends BaseEntity {
 
     @Builder
     public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Point position, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
-        this.completedMatchingCnt = 0;
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
         this.locationName = locationName;
@@ -110,7 +103,7 @@ public class MatchingPost extends BaseEntity {
         this.gender = gender;
         this.recruitmentType = recruitmentType;
         this.recruiterType = recruiterType;
-        this.matchingStatus = MatchingStatus.PENDING;
+        this.matchingStatus = MatchingStatus.COMPLETE;
         this.locationSelectionType = locationSelectionType;
         this.writer = writer;
         this.team = team;
@@ -118,5 +111,9 @@ public class MatchingPost extends BaseEntity {
 
     public void putAreaList(List<MatchingPostArea> matchingPostAreaList){
         this.areaList = matchingPostAreaList;
+    }
+
+    public void putArea(MatchingPostArea matchingPostArea){
+        areaList.add(matchingPostArea);
     }
 }
