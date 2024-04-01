@@ -103,6 +103,9 @@ spring:
   profiles:
     active: howang
 
+  jackson:
+    time-zone: Asia/Seoul
+
   datasource:
     url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
     username: ENC(ApmdwaV15BRKLL0WmZV9QA==)

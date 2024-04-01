@@ -24,7 +24,7 @@ public class AuthenticationController {
         String refreshToken = requestTokenDto.getRefreshToken();
         String accessToken = requestTokenDto.getAccessToken();
 
-        if (tokenService.isInvalidRefreshAndAccessToken(refreshToken, accessToken)){
+        if (tokenService.verifyRefreshAndAccessToken(refreshToken, accessToken)){
             if (tokenService.isExpiredRefreshAndAccessToken(refreshToken, accessToken)){
                 return ResponseEntity
                         .status(HttpStatus.FORBIDDEN)
@@ -37,23 +37,21 @@ public class AuthenticationController {
         }
 
         TokenDto.ResponseTokenDto.ResponseTokenDtoBuilder responseTokenDtoBuilder = TokenDto.ResponseTokenDto.builder();
-        if (tokenService.isInvalidAccessToken(refreshToken, accessToken)){
-            if (tokenService.isExpiredAccessToken(accessToken)){
-                String newAccessToken = tokenService.getAccessTokenByRefreshToken(refreshToken);
-                responseTokenDtoBuilder.accessToken(newAccessToken);
-            }
+        if (tokenService.verifyRefreshToken(refreshToken)) {
+            String newAccessToken = tokenService.createAccessTokenByRefreshToken(refreshToken);
+            responseTokenDtoBuilder.accessToken(newAccessToken);
+            responseTokenDtoBuilder.accessTokenExpiredTime(tokenService.getExpirationTime(newAccessToken));
 
-            if (tokenService.isExpiredAfter21Days(refreshToken)){
-                String newRefreshToken = tokenService.getAndPatchRefreshTokenInMember(refreshToken);
+
+            if (tokenService.isExpiredAfter21Days(refreshToken)) {
+                String newRefreshToken = tokenService.createAndPatchRefreshTokenInMember(refreshToken);
                 responseTokenDtoBuilder.refreshToken(newRefreshToken);
+                responseTokenDtoBuilder.refreshTokenExpiredTime(tokenService.getExpirationTime(newRefreshToken));
             }
         }
+
 
         TokenDto.ResponseTokenDto responseTokenDto = responseTokenDtoBuilder.build();
-
-        if (isActiveAccessToken(responseTokenDto.getAccessToken())){
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity
                 .ok(ResponseHandler.<TokenDto.ResponseTokenDto>builder()
@@ -63,10 +61,7 @@ public class AuthenticationController {
                 );
     }
 
-    private static boolean isActiveAccessToken(String accessToken){
-        return accessToken == null;
-    }
     private static String generateResponseMessage(TokenDto.ResponseTokenDto responseTokenDto){
-        return responseTokenDto.getRefreshToken() == null ? "Access Token이 재발급되었습니다." : "Refresh와 Access Token이 재발급되었습니다";
+        return responseTokenDto.getRefreshToken() == null ? "Reissuance Access Token Completed" : "Reissuance Refresh and Access Token completed";
     }
 }
