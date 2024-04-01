@@ -26,7 +26,7 @@ public class MatchingController {
 
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
-                        .responseMessage("matching posts retrieval successfully")
+                        .responseMessage("matching summary retrieval successfully")
                         .responseData(matchingSummaryInfo).build()
         );
     }
