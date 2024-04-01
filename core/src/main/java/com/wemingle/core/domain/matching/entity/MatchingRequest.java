@@ -1,8 +1,9 @@
 package com.wemingle.core.domain.matching.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
-import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -16,8 +17,12 @@ public class MatchingRequest extends BaseEntity {
     private Long pk;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TEAM_MEMBER")
-    private TeamMember teamMember;
+    @JoinColumn(name = "TEAM")
+    private Team team;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER")
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MATCHIN_POST")

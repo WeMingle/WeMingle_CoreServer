@@ -137,4 +137,51 @@ public class MatchingPostDto {
             return matchingPost;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseCompletedMatchingPost {
+        private LocalDate matchingDate;
+        private RecruiterType recruiterType;
+        private String teamName;
+        private int completedMatchingCnt;
+        private String content;
+        private List<AreaName> areaNames;
+        private boolean isLocationConsensusPossible;
+        private Ability ability;
+        private String profileImgUrl;
+        private String detailPostUrl;
+        private String matchingStatus;
+        private ScheduledRequest scheduledRequest;
+
+        @Builder
+        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, ScheduledRequest scheduledRequest) {
+            this.matchingDate = matchingDate;
+            this.recruiterType = recruiterType;
+            this.teamName = teamName;
+            this.completedMatchingCnt = completedMatchingCnt;
+            this.content = content;
+            this.areaNames = areaNames;
+            this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.ability = ability;
+            this.profileImgUrl = profileImgUrl;
+            this.detailPostUrl = detailPostUrl;
+            this.matchingStatus = matchingStatus;
+            this.scheduledRequest = scheduledRequest;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ScheduledRequest {
+        private String description;
+        private String requestApiUri;
+
+        public ScheduledRequest(String description, String requestApiUri) {
+            this.description = description;
+            this.requestApiUri = requestApiUri;
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.post.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -23,7 +22,6 @@ public class MatchingPostArea {
     @Column(name = "AREA_NAME")
     private AreaName areaName; // 지역시 이름
 
-    @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MATCHING_POST")
