@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Profile("jungwoo")
+@Profile("prod")
 @Component
 public class InitDatabase {
 
