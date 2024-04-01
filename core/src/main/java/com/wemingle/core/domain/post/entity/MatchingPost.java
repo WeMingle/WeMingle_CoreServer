@@ -103,7 +103,7 @@ public class MatchingPost extends BaseEntity {
         this.gender = gender;
         this.recruitmentType = recruitmentType;
         this.recruiterType = recruiterType;
-        this.matchingStatus = MatchingStatus.PENDING;
+        this.matchingStatus = MatchingStatus.COMPLETE;
         this.locationSelectionType = locationSelectionType;
         this.writer = writer;
         this.team = team;

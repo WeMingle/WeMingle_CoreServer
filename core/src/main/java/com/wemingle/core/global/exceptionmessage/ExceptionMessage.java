@@ -17,6 +17,7 @@ public enum ExceptionMessage {
     UNREGISTERED_MEMBER("가입되지 않은 사용자입니다."),
     UNSUPPORTED_EXTENSION("지원하지 않는 확장자입니다."),
     CANNOT_SAVE_IMG("사진을 저장못했습니다."),
-    NOT_VERIFIED_UNIV_EMAIL("이메일 인증을 완료하지 않은 사용자입니다.");
+    NOT_VERIFIED_UNIV_EMAIL("이메일 인증을 완료하지 않은 사용자입니다."),
+    INVALID_MATCHING_POST_STATUS("유효하지 않은 매칭 글 상태입니다");
     private final String exceptionMessage;
 }

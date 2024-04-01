@@ -2,10 +2,12 @@ package com.wemingle.core.domain.post.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import lombok.RequiredArgsConstructor;
@@ -84,15 +86,40 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     }
 
     @Override
-    public List<MatchingPost> findFilteredMatchingPostInMatchingFeed(Long nextIdx, RecruiterType recruiterType, boolean completeMatchesFilter, Pageable pageable) {
+    public List<MatchingPost> findCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, Member member, List<MatchingPost> matchingPostWithReview, Pageable pageable) {
         return jpaQueryFactory.selectFrom(matchingPost)
-                .join(matchingPost.team)
-//                .where(matchingPost.team)
+                .where(isTeamMemberInTeam(member))
                 .where(nextIdxLt(nextIdx))
                 .where(recruiterTypeEq(recruiterType))
+                .where(expiredMatchesFilter(excludeCompleteMatchesFilter, matchingPostWithReview))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(matchingPost.pk.desc())
+                .orderBy(matchingPost.createdTime.desc())
                 .fetch();
+    }
+
+    private BooleanExpression isTeamMemberInTeam(Member member){
+        return matchingPost.team.teamMembers.any().member.in(member);
+    }
+
+    private BooleanExpression expiredMatchesFilter(boolean excludeExpiredMatchesFilter, List<MatchingPost> matchingPostsWithReview){
+        return excludeExpiredMatchesFilter
+                ? isNotExpiredCompleteMatches(matchingPostsWithReview)
+                : allCompleteMatches();
+    }
+
+    private BooleanExpression isNotExpiredCompleteMatches(List<MatchingPost> matchingPostsWithReview) {
+        return matchingPostsWithReview.isEmpty()
+                ? (matchingPost.matchingDate.after(LocalDate.now()).and(matchingPost.matchingStatus.ne(MatchingStatus.PENDING)))
+                    .or(matchingPost.matchingDate.before(LocalDate.now()).and(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE)))
+                : matchingPost.notIn(matchingPostsWithReview)
+                    .and(
+                            ((matchingPost.matchingStatus.ne(MatchingStatus.PENDING)).and(matchingPost.matchingDate.after(LocalDate.now())))
+                            .or(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE).and(matchingPost.matchingDate.before(LocalDate.now())))
+                    );
+    }
+
+    private BooleanExpression allCompleteMatches(){
+        return matchingPost.matchingStatus.ne(MatchingStatus.PENDING);
     }
 }

@@ -37,7 +37,7 @@ public class TokenProvider {
         return createToken(new Date(new Date().getTime() + createExpiredAt(ACCESS_TOKEN)), memberId, role);
     }
 
-    protected long createExpiredAt(String tokenType){
+    private long createExpiredAt(String tokenType){
         if (tokenType.equals(REFRESH_TOKEN)){
             return Period.ofMonths(6).toTotalMonths() * Duration.ofDays(30L).toMillis();
         }else {
@@ -159,5 +159,10 @@ public class TokenProvider {
         Date expirationDate = claim.getExpiration();
 
         return Duration.ofMillis(expirationDate.getTime() - System.currentTimeMillis());
+    }
+
+    public Date getExpirationTime(String jwtToken){
+        Claims claim = getClaim(jwtToken);
+        return claim.getExpiration();
     }
 }

@@ -21,8 +21,6 @@ cloud:
 ##common setting
 spring:
   jpa:
-    hibernate:
-      ddl-auto: create
     defer-datasource-initialization: true
 
   mail:
@@ -41,6 +39,9 @@ spring:
   sql:
     init:
       mode: always
+
+wemingle:
+  ip: ENC(Xtb3qSACnMuBfHLCacz17TL1GTEQbFINe4khOzj2NU8WOEVgSU/i9g==)
 
 ---
 ## prod setting
@@ -94,7 +95,6 @@ logging:
         type:
           descriptor:
             sql: trace
-출처: https://haenny.tistory.com/379 [Haenny:티스토리]
 
 ---
 
@@ -102,6 +102,9 @@ logging:
 spring:
   profiles:
     active: howang
+
+  jackson:
+    time-zone: Asia/Seoul
 
   datasource:
     url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
@@ -115,3 +118,6 @@ spring:
       ddl-auto: create
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        default_batch_fetch_size: 1000

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -54,4 +55,17 @@ public class MatchingPostController {
         );
     }
 
+    @GetMapping("/completion")
+    public ResponseEntity<ResponseHandler<LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost>>> getCompletedMatchingPosts(@RequestParam(required = false) Long nextIdx,
+                                                                                                                                         @RequestParam(required = false) RecruiterType recruiterType,
+                                                                                                                                         @RequestParam boolean excludeCompleteMatchesFilter,
+                                                                                                                                         @AuthenticationPrincipal UserDetails userDetails) {
+        LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> completedMatchingPosts =
+                matchingPostService.getCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, userDetails.getUsername());
+
+        return ResponseEntity.ok(ResponseHandler.<LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost>>builder()
+                .responseMessage("completed matching posts retrieval successfully")
+                .responseData(completedMatchingPosts)
+                .build());
+    }
 }
