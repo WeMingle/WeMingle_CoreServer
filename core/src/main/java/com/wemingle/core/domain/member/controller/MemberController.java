@@ -82,6 +82,16 @@ public class MemberController {
         );
     }
 
+    @PatchMapping("/info")
+    ResponseEntity<ResponseHandler<Object>> setMyInfo(@RequestBody MemberInfoDto memberInfoDto, @AuthenticationPrincipal UserDetails userDetails) {
+        memberService.setMemberInfo(userDetails.getUsername(), memberInfoDto);
+
+        return ResponseEntity.ok().body(ResponseHandler.builder()
+                .responseMessage("member info update successfully")
+                .build()
+        );
+    }
+
     @GetMapping("/authentication")
     ResponseEntity<ResponseHandler<Object>> getAuthenticationInfo(@AuthenticationPrincipal UserDetails userDetails) {
         MemberAuthenticationInfoDto memberAuthenticationInfo = memberService.getMemberAuthenticationInfo(userDetails.getUsername());

@@ -108,12 +108,30 @@ public class MemberServiceImpl implements MemberService {
     public MemberInfoDto getMemberInfo(String memberId) {
         Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         return MemberInfoDto.builder().oneLineIntroduction(member.getOneLineIntroduction())
+                .nickname(member.getNickname())
+                .isAbilityPublic(member.isAbilityPublic())
                 .ability(member.getAbility())
                 .gender(member.getGender())
                 .numberOfMatches(member.getNumberOfMatches())
+                .isMajorActivityAreaPublic(member.isMajorActivityAreaPublic())
                 .majorActivityArea(member.getMajorActivityArea())
                 .oneLineIntroduction(member.getOneLineIntroduction())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void setMemberInfo(String memberId, MemberInfoDto memberInfoDto) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+
+        member.setNickname(memberInfoDto.getNickname());
+        member.setMajorActivityAreaPublic(memberInfoDto.isMajorActivityAreaPublic());
+        member.setMajorActivityArea(memberInfoDto.getMajorActivityArea());
+        member.setNumberOfMatches(memberInfoDto.getNumberOfMatches());
+        member.setAbilityPublic(memberInfoDto.isAbilityPublic());
+        member.setGender(memberInfoDto.getGender());
+        member.setOneLineIntroduction(memberInfoDto.getOneLineIntroduction());
+        member.setAbility(memberInfoDto.getAbility());
     }
 
     @Override

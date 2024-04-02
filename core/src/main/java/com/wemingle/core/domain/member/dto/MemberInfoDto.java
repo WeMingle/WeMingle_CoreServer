@@ -9,18 +9,25 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class MemberInfoDto {
+    private String nickname;
+    private boolean isMajorActivityAreaPublic;
     private String majorActivityArea;
     private int numberOfMatches;
     private Gender gender;
+    private boolean isAbilityPublic;
     private Ability ability;
     private String OneLineIntroduction;
 
     @Builder
-    public MemberInfoDto(String majorActivityArea, int numberOfMatches, Gender gender, Ability ability, String oneLineIntroduction) {
+
+    public MemberInfoDto(String nickname, boolean isMajorActivityAreaPublic, String majorActivityArea, int numberOfMatches, Gender gender, boolean isAbilityPublic, Ability ability, String oneLineIntroduction) {
+        this.nickname = nickname;
+        this.isMajorActivityAreaPublic = isMajorActivityAreaPublic;
         this.majorActivityArea = majorActivityArea;
         this.numberOfMatches = numberOfMatches;
         this.gender = gender;
+        this.isAbilityPublic = isAbilityPublic;
         this.ability = ability;
-        OneLineIntroduction = oneLineIntroduction;
+        this.OneLineIntroduction = oneLineIntroduction;
     }
 }

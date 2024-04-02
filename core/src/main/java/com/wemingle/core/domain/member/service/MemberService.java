@@ -19,5 +19,6 @@ public interface MemberService {
     void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports);
 
     MemberInfoDto getMemberInfo(String memberId);
+    void setMemberInfo(String memberId, MemberInfoDto memberInfoDto);
     MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId);
 }

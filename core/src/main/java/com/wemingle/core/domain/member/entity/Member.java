@@ -8,10 +8,7 @@ import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +18,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity implements UserDetails {
@@ -133,7 +131,7 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     @Builder
-    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, boolean notifyAllow, PolicyTerms policyTerms, Ability ability, int numberOfMatches, Gender gender, String majorActivityArea, String oneLineIntroduction) {
+    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, boolean notifyAllow, PolicyTerms policyTerms, Ability ability, int numberOfMatches, Gender gender, String majorActivityArea, String oneLineIntroduction, boolean isAbilityPublic, boolean isMajorActivityAreaPublic) {
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;
@@ -151,6 +149,8 @@ public class Member extends BaseEntity implements UserDetails {
         this.gender = gender;
         this.majorActivityArea = majorActivityArea;
         this.oneLineIntroduction = oneLineIntroduction;
+        this.isAbilityPublic = isAbilityPublic;
+        this.isMajorActivityAreaPublic = isMajorActivityAreaPublic;
     }
 
     @Override
