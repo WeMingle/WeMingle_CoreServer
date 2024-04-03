@@ -22,6 +22,7 @@ public class DSLMatchingRequestRepositoryImpl implements DSLMatchingRequestRepos
                 .from(matching)
                 .where(
                         matching.member.memberId.eq(memberId),
+                        matching.matchingPost.team.teamMembers.any().member.memberId.eq(memberId),
                         matching.matchingPost.matchingStatus.eq(MatchingStatus.PENDING)
                 )
                 .fetch();
