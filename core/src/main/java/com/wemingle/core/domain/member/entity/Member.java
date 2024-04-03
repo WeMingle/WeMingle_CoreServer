@@ -73,6 +73,7 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "GENDER", columnDefinition = "VARBINARY(50) NOT NULL")
     private Gender gender;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "ABILITY", columnDefinition = "VARBINARY(50) NOT NULL")
     private Ability ability;
 

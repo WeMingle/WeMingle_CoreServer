@@ -10,11 +10,13 @@ import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import static com.wemingle.core.domain.post.entity.QMatchingPost.matchingPost;
@@ -33,6 +35,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                                                        List<AreaName> areaList,
                                                        LocalDate currentDate,
                                                        LocalDate dateFilter,
+                                                       YearMonth monthFilter,
                                                        Pageable pageable) {
         return jpaQueryFactory.selectFrom(matchingPost)
                 .join(matchingPost.team).fetchJoin()
@@ -47,7 +50,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                         recruiterTypeEq(recruiterType),
                         areaListIn(areaList),
                         currentDateAfter(currentDate),
-                        dateFilterEq(dateFilter)
+                        dateFilterEq(dateFilter,monthFilter)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -81,8 +84,14 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
         return currentDate == null ? null : matchingPost.expiryDate.after(currentDate);
     }
 
-    private BooleanExpression dateFilterEq(LocalDate dateFilter) {
-        return dateFilter == null ? null : matchingPost.matchingDate.eq(dateFilter);
+    private BooleanExpression dateFilterEq(LocalDate dateFilter, YearMonth monthFilter) {
+        if (dateFilter != null && monthFilter != null) {
+            throw new RuntimeException(ExceptionMessage.DATE_MONTH_CANT_COEXIST.getExceptionMessage());
+        }
+        if (dateFilter == null && monthFilter == null) {
+            return null;
+        }
+        return dateFilter == null ? matchingPost.matchingDate.yearMonth().eq(monthFilter.getYear()*100+monthFilter.getMonthValue()) : matchingPost.matchingDate.eq(dateFilter);
     }
 
     @Override

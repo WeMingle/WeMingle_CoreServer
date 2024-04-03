@@ -18,6 +18,7 @@ public enum ExceptionMessage {
     UNSUPPORTED_EXTENSION("지원하지 않는 확장자입니다."),
     CANNOT_SAVE_IMG("사진을 저장못했습니다."),
     NOT_VERIFIED_UNIV_EMAIL("이메일 인증을 완료하지 않은 사용자입니다."),
-    INVALID_MATCHING_POST_STATUS("유효하지 않은 매칭 글 상태입니다");
+    INVALID_MATCHING_POST_STATUS("유효하지 않은 매칭 글 상태입니다"),
+    DATE_MONTH_CANT_COEXIST("일별 검색과 월별 검색 옵션이 모두 존재할 수 없습니다");
     private final String exceptionMessage;
 }

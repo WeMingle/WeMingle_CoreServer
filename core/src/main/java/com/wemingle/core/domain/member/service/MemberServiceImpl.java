@@ -116,6 +116,7 @@ public class MemberServiceImpl implements MemberService {
                 .isMajorActivityAreaPublic(member.isMajorActivityAreaPublic())
                 .majorActivityArea(member.getMajorActivityArea())
                 .oneLineIntroduction(member.getOneLineIntroduction())
+                .profilePicId(member.getProfileImgId())
                 .build();
     }
 

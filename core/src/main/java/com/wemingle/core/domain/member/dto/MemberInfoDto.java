@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @NoArgsConstructor
 public class MemberInfoDto {
@@ -17,10 +19,10 @@ public class MemberInfoDto {
     private boolean isAbilityPublic;
     private Ability ability;
     private String OneLineIntroduction;
+    private UUID profilePicId;
 
     @Builder
-
-    public MemberInfoDto(String nickname, boolean isMajorActivityAreaPublic, String majorActivityArea, int numberOfMatches, Gender gender, boolean isAbilityPublic, Ability ability, String oneLineIntroduction) {
+    public MemberInfoDto(String nickname, boolean isMajorActivityAreaPublic, String majorActivityArea, int numberOfMatches, Gender gender, boolean isAbilityPublic, Ability ability, String oneLineIntroduction, UUID profilePicId) {
         this.nickname = nickname;
         this.isMajorActivityAreaPublic = isMajorActivityAreaPublic;
         this.majorActivityArea = majorActivityArea;
@@ -29,5 +31,6 @@ public class MemberInfoDto {
         this.isAbilityPublic = isAbilityPublic;
         this.ability = ability;
         this.OneLineIntroduction = oneLineIntroduction;
+        this.profilePicId = profilePicId;
     }
 }

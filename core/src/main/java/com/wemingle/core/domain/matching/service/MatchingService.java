@@ -16,8 +16,8 @@ public class MatchingService {
 
     public LinkedHashMap<String, Integer> getMatchingSummaryInfo(String memberId) {
         Integer completeMatchingCnt = matchingRepository.findCompleteMatchingCnt(memberId, MatchingStatus.COMPLETE);
-        Integer scheduledMatchingCnt = matchingRepository.findScheduledMatchingCnt(memberId);
-        Integer requestedMatchingCnt = matchingRequestRepository.findRequestedMatchingCnt(memberId);
+        Integer scheduledMatchingCnt = matchingRepository.findScheduledMatchingCnt(memberId, MatchingStatus.COMPLETE);
+        Integer requestedMatchingCnt = matchingRequestRepository.findRequestedMatchingCnt(memberId, MatchingStatus.PENDING,MatchingStatus.PENDING);
         Integer receivedMatchingCnt = matchingRequestRepository.findReceivedMatchingCnt(memberId);
         LinkedHashMap<String, Integer> responseNode = new LinkedHashMap<>();
         responseNode.put("completeMatchingCnt", completeMatchingCnt);

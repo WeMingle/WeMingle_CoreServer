@@ -2,6 +2,7 @@ package com.wemingle.core.domain.matching.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wemingle.core.domain.post.entity.MatchingPost;
+import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -19,12 +20,17 @@ public class DSLMatchingRequestRepositoryImpl implements DSLMatchingRequestRepos
 
         List<MatchingPost> matchingPostList = jpaQueryFactory.select(matching.matchingPost)
                 .from(matching)
-                .where(matching.member.memberId.eq(memberId))
+                .where(
+                        matching.member.memberId.eq(memberId),
+                        matching.matchingPost.matchingStatus.eq(MatchingStatus.PENDING)
+                )
                 .fetch();
 
         Long cnt = jpaQueryFactory.select(matchingRequest.count())
                 .from(matchingRequest)
-                .where(matchingRequest.matchingPost.in(matchingPostList))
+                .where(
+                        matchingRequest.matchingPost.in(matchingPostList),
+                        matchingRequest.matchingRequestStatus.eq(MatchingStatus.PENDING))
                 .fetchOne();
 
         return cnt == null ? 0 : cnt.intValue();

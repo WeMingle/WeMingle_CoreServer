@@ -35,7 +35,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.time.YearMonth;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
 import static com.wemingle.core.global.matchingstatusdescription.MatchingStatusDescription.*;
@@ -74,8 +78,12 @@ public class MatchingPostService {
                                                     RecruiterType recruiterType,
                                                     List<AreaName> areaList,
                                                     LocalDate dateFilter,
+                                                    YearMonth monthFilter,
                                                     Boolean excludeExpired){
 
+        if (dateFilter != null && monthFilter != null) {
+            throw new RuntimeException(DATE_MONTH_CANT_COEXIST.getExceptionMessage());
+        }
 
         List<MatchingPost> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
                 nextIdx,
@@ -86,6 +94,7 @@ public class MatchingPostService {
                 areaList,
                 excludeExpired == null ? null : LocalDate.now(),
                 dateFilter,
+                monthFilter,
                 PageRequest.of(0, 30)
         );
 
