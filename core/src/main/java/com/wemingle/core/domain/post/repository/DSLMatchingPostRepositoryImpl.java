@@ -58,6 +58,24 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                 .fetch();
     }
 
+    @Override
+    public Integer findFilteredMatchingPostCnt(Long nextIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, Pageable pageable) {
+        Long cnt = jpaQueryFactory.select(matchingPost.count())
+                .from(matchingPost)
+                .where(
+                        nextIdxLt(nextIdx),
+                        recruitmentTypeEq(recruitmentType),
+                        abilityEq(ability),
+                        genderEq(gender),
+                        recruiterTypeEq(recruiterType),
+                        areaListIn(areaList),
+                        currentDateAfter(currentDate),
+                        dateFilterEq(dateFilter, monthFilter)
+                ).fetchOne();
+
+        return cnt == null ? 0 : cnt.intValue();
+    }
+
     private BooleanExpression nextIdxLt(Long nextIdx) {
         return nextIdx == null ? null : matchingPost.pk.loe(nextIdx);
     }

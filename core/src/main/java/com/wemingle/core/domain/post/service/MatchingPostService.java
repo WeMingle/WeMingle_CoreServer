@@ -70,16 +70,44 @@ public class MatchingPostService {
                 .orElseThrow(()->new NoSuchElementException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
     }
 
+    public Integer getFilteredMatchingPostCnt(String memberId,
+                                              Long nextIdx,
+                                              RecruitmentType recruitmentType,
+                                              Ability ability,
+                                              Gender gender,
+                                              RecruiterType recruiterType,
+                                              List<AreaName> areaList,
+                                              LocalDate dateFilter,
+                                              YearMonth monthFilter,
+                                              Boolean excludeExpired) {
+        if (dateFilter != null && monthFilter != null) {
+            throw new RuntimeException(DATE_MONTH_CANT_COEXIST.getExceptionMessage());
+        }
+
+        return matchingPostRepository.findFilteredMatchingPostCnt(
+                nextIdx,
+                recruitmentType,
+                ability,
+                gender,
+                recruiterType,
+                areaList,
+                excludeExpired == null ? null : LocalDate.now(),
+                dateFilter,
+                monthFilter,
+                PageRequest.of(0, 30)
+        );
+    }
+
     public HashMap<Long, Object> getFilteredMatchingPost(String memberId,
-                                                    Long nextIdx,
-                                                    RecruitmentType recruitmentType,
-                                                    Ability ability,
-                                                    Gender gender,
-                                                    RecruiterType recruiterType,
-                                                    List<AreaName> areaList,
-                                                    LocalDate dateFilter,
-                                                    YearMonth monthFilter,
-                                                    Boolean excludeExpired){
+                                                         Long nextIdx,
+                                                         RecruitmentType recruitmentType,
+                                                         Ability ability,
+                                                         Gender gender,
+                                                         RecruiterType recruiterType,
+                                                         List<AreaName> areaList,
+                                                         LocalDate dateFilter,
+                                                         YearMonth monthFilter,
+                                                         Boolean excludeExpired){
 
         if (dateFilter != null && monthFilter != null) {
             throw new RuntimeException(DATE_MONTH_CANT_COEXIST.getExceptionMessage());

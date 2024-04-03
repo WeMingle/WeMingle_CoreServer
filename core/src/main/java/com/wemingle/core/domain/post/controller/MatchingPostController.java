@@ -58,6 +58,26 @@ public class MatchingPostController {
         );
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalenderCnt(@RequestParam(required = false) Long nextIdx,
+                                                                                @RequestParam(required = false) RecruitmentType recruitmentType,
+                                                                                @RequestParam(required = false) Ability ability,
+                                                                                @RequestParam(required = false) Gender gender,
+                                                                                @RequestParam(required = false) RecruiterType recruiterType,
+                                                                                @RequestParam(required = false) List<AreaName> areaList,
+                                                                                @RequestParam(required = false) LocalDate dateFilter,
+                                                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
+                                                                                @RequestParam(required = false) Boolean excludeExpired,
+                                                                                @AuthenticationPrincipal UserDetails userDetails){
+        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(userDetails.getUsername(), nextIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired);
+
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .responseMessage("total matching post count retrieval successfully")
+                        .responseData(filteredMatchingPostCnt).build()
+        );
+    }
+
     @GetMapping("/completion")
     public ResponseEntity<ResponseHandler<LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost>>> getCompletedMatchingPosts(@RequestParam(required = false) Long nextIdx,
                                                                                                                                          @RequestParam(required = false) RecruiterType recruiterType,
