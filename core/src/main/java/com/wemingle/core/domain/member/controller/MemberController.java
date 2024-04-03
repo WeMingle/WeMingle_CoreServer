@@ -2,6 +2,8 @@ package com.wemingle.core.domain.member.controller;
 
 import com.wemingle.core.domain.authentication.dto.TokenDto;
 import com.wemingle.core.domain.authentication.service.TokenService;
+import com.wemingle.core.domain.member.dto.MemberAuthenticationInfoDto;
+import com.wemingle.core.domain.member.dto.MemberInfoDto;
 import com.wemingle.core.domain.member.dto.SetMemberProfileDto;
 import com.wemingle.core.domain.member.dto.SignUpDto;
 import com.wemingle.core.domain.member.service.MemberService;
@@ -69,4 +71,35 @@ public class MemberController {
                         .build()
         );
     }
+
+    @GetMapping("/info")
+    ResponseEntity<ResponseHandler<Object>> getMyInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        MemberInfoDto memberInfo = memberService.getMemberInfo(userDetails.getUsername());
+
+        return ResponseEntity.ok().body(ResponseHandler.builder()
+                .responseMessage("member info retrieval successfully")
+                .responseData(memberInfo).build()
+        );
+    }
+
+    @PatchMapping("/info")
+    ResponseEntity<ResponseHandler<Object>> setMyInfo(@RequestBody MemberInfoDto memberInfoDto, @AuthenticationPrincipal UserDetails userDetails) {
+        memberService.setMemberInfo(userDetails.getUsername(), memberInfoDto);
+
+        return ResponseEntity.ok().body(ResponseHandler.builder()
+                .responseMessage("member info update successfully")
+                .build()
+        );
+    }
+
+    @GetMapping("/authentication")
+    ResponseEntity<ResponseHandler<Object>> getAuthenticationInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        MemberAuthenticationInfoDto memberAuthenticationInfo = memberService.getMemberAuthenticationInfo(userDetails.getUsername());
+
+        return ResponseEntity.ok().body(ResponseHandler.builder()
+                .responseMessage("member authentication info retrieval successfully")
+                .responseData(memberAuthenticationInfo).build()
+        );
+    }
+
 }

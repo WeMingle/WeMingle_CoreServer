@@ -99,7 +99,7 @@ public class MatchingPostService {
                     objectNode.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
                             .writer(post.getWriter().getTeam().getTeamName())
                             .matchingDate(post.getMatchingDate())
-                            .areaList(post.getAreaList())
+                            .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
                             .ability(post.getAbility())
                             .isLocationConsensusPossible(post.isLocationConsensusPossible())
                             .contents(post.getContent())

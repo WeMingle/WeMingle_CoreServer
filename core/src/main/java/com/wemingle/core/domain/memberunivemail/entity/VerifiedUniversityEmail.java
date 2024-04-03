@@ -6,8 +6,10 @@ import com.wemingle.core.domain.univ.entity.UnivEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
