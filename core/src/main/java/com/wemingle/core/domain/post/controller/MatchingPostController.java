@@ -9,12 +9,14 @@ import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,15 +40,16 @@ public class MatchingPostController {
 
     @GetMapping("/calendar")
     public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalender(@RequestParam(required = false) Long nextIdx,
-                                                                                       @RequestParam(required = false) RecruitmentType recruitmentType,
-                                                                                       @RequestParam(required = false) Ability ability,
-                                                                                       @RequestParam(required = false) Gender gender,
-                                                                                       @RequestParam(required = false) RecruiterType recruiterType,
-                                                                                       @RequestParam(required = false) List<AreaName> areaList,
-                                                                                       @RequestParam(required = false) LocalDate dateFilter,
-                                                                                       @RequestParam(required = false) Boolean excludeExpired,
-                                                                                       @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPost(userDetails.getUsername(), nextIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, excludeExpired);
+                                                                             @RequestParam(required = false) RecruitmentType recruitmentType,
+                                                                             @RequestParam(required = false) Ability ability,
+                                                                             @RequestParam(required = false) Gender gender,
+                                                                             @RequestParam(required = false) RecruiterType recruiterType,
+                                                                             @RequestParam(required = false) List<AreaName> areaList,
+                                                                             @RequestParam(required = false) LocalDate dateFilter,
+                                                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
+                                                                             @RequestParam(required = false) Boolean excludeExpired,
+                                                                             @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPost(userDetails.getUsername(), nextIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
