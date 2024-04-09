@@ -55,16 +55,4 @@ public class MatchingRequest extends BaseEntity {
     public void completeRequest(){
         this.matchingRequestStatus = MatchingStatus.COMPLETE;
     }
-
-    @Override
-    public String toString() {
-        return "MatchingRequest{" +
-                "pk=" + pk +
-                ", content='" + content + '\'' +
-                ", team=" + team.getPk() +
-                ", member=" + member.getPk() +
-                ", matchingPost=" + matchingPost.getPk() +
-                ", matchingRequestStatus=" + matchingRequestStatus +
-                '}';
-    }
 }

@@ -48,11 +48,9 @@ public class MatchingRequestService {
         Member findMember = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         List<MatchingPost> myMatchingPost = matchingPostRepository.findByWriter_Member(findMember);
-        log.info("my matchingPost {}", myMatchingPost.toString());
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         List<MatchingRequest> matchingRequestHistories = matchingRepository.findMatchingRequestHistories(nextIdx, requestType, recruiterType, excludeCompleteMatchesFilter, findMember, myMatchingPost, pageRequest);
-        log.info("matching Histories {}", matchingRequestHistories.toString());
 
         return matchingRequestHistories.stream().map(matchingRequest -> MatchingRequestDto.ResponseMatchingRequestHistory.builder()
                         .titleInfo(createTitleInfo(matchingRequest, myMatchingPost, findMember))

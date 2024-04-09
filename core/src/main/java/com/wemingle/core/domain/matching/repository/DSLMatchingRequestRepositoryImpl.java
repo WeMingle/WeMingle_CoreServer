@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.INVALID
 @Slf4j
 @Repository
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DSLMatchingRequestRepositoryImpl implements DSLMatchingRequestRepository{
     private final JPAQueryFactory jpaQueryFactory;
     @Override
@@ -55,9 +57,6 @@ public class DSLMatchingRequestRepositoryImpl implements DSLMatchingRequestRepos
                                                               List<MatchingPost> myMatchingPosts,
                                                               Pageable pageable) {
       return jpaQueryFactory.selectFrom(matchingRequest)
-              .join(matchingRequest.matchingPost)
-              .join(matchingRequest.matchingPost.team)
-              .join(matchingRequest.team)
               .where(
                       nextIdxLt(nextIdx),
                       recruiterTypeEq(recruiterType),
@@ -116,16 +115,4 @@ public class DSLMatchingRequestRepositoryImpl implements DSLMatchingRequestRepos
     private BooleanExpression teamOwnerFilter(){
         return matchingRequest.member.eq(matchingRequest.team.teamOwner);
     }
-
-//    private BooleanBuilder teamOwnerFilter(){
-//        return nullSafer(() -> matchingRequest.member.eq(matchingRequest.matchingPost.writer.member));
-//    }
-//
-//    private BooleanBuilder nullSafer(Supplier<BooleanExpression> f){
-//        try {
-//            return new BooleanBuilder(f.get());
-//        } catch (Exception e){
-//            return new BooleanBuilder();
-//        }
-//    }
 }
