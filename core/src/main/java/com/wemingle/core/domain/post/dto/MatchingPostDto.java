@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.dto;
 
+import com.wemingle.core.domain.post.dto.historystatus.HistoryStatus;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
@@ -184,4 +185,5 @@ public class MatchingPostDto {
             this.requestApiUri = requestApiUri;
         }
     }
+
 }

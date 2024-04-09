@@ -116,4 +116,26 @@ public class MatchingPost extends BaseEntity {
     public void putArea(MatchingPostArea matchingPostArea){
         areaList.add(matchingPostArea);
     }
+
+    @Override
+    public String toString() {
+        return "MatchingPost{" +
+                "pk=" + pk +
+                ", matchingDate=" + matchingDate +
+                ", expiryDate=" + expiryDate +
+                ", locationName='" + locationName + '\'' +
+                ", position=" + position +
+                ", content='" + content + '\'' +
+                ", capacityLimit=" + capacityLimit +
+                ", isLocationConsensusPossible=" + isLocationConsensusPossible +
+                ", ability=" + ability +
+                ", gender=" + gender +
+                ", recruitmentType=" + recruitmentType +
+                ", recruiterType=" + recruiterType +
+                ", matchingStatus=" + matchingStatus +
+                ", locationSelectionType=" + locationSelectionType +
+                ", writer=" + writer.getPk() +
+                ", team=" + team.getPk() +
+                '}';
+    }
 }
