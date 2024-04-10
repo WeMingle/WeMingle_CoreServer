@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.post.controller;
 
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
+import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -9,6 +10,7 @@ import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/post/match")
@@ -90,5 +93,16 @@ public class MatchingPostController {
                 .responseMessage("completed matching posts retrieval successfully")
                 .responseData(completedMatchingPosts)
                 .build());
+    }
+
+    @GetMapping("/map")
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMap(@RequestParam("topLat") double topLat,
+                                                                        @RequestParam("bottomLat") double bottomLat,
+                                                                        @RequestParam("leftLon") double leftLon,
+                                                                        @RequestParam("rightLon") double rightLon,
+                                                                        @RequestParam("heightTileCnt") int heightTileCnt,
+                                                                        @RequestParam("widthTileCnt") int widthTileCnt) {
+        List<MatchingPostMapDto> matchingPostByMap = matchingPostService.getMatchingPostByMap(topLat, bottomLat, leftLon, rightLon, heightTileCnt, widthTileCnt);
+        return ResponseEntity.ok(ResponseHandler.builder().responseMessage("completed location data clustering successfully").responseData(matchingPostByMap).build());
     }
 }
