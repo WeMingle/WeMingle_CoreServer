@@ -12,6 +12,7 @@ import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +22,7 @@ import java.util.List;
 
 import static com.wemingle.core.domain.post.entity.QMatchingPost.matchingPost;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
@@ -122,6 +124,15 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(matchingPost.createdTime.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<MatchingPost> findMatchingPostInMap(double topLat, double bottomLat, double leftLon, double rightLon) {
+
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .where(matchingPost.lat.between(bottomLat,topLat).and(matchingPost.lon.between(leftLon,rightLon))
+                )
                 .fetch();
     }
 

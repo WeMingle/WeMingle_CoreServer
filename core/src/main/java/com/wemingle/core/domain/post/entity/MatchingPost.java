@@ -12,7 +12,6 @@ import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -40,8 +39,12 @@ public class MatchingPost extends BaseEntity {
     private String locationName; // 매칭 장소 이름
 
     @NotNull
-    @Column(name = "POSITION")
-    private Point position;
+    @Column(name = "LAT")
+    private Double lat;
+
+    @NotNull
+    @Column(name = "LON")
+    private Double lon;
 
     @NotNull
     @Column(name = "CONTENT", length = 3000)
@@ -91,11 +94,12 @@ public class MatchingPost extends BaseEntity {
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
-    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Point position, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
+    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
         this.locationName = locationName;
-        this.position = position;
+        this.lat = lat;
+        this.lon = lon;
         this.content = content;
         this.capacityLimit = capacityLimit;
         this.isLocationConsensusPossible = isLocationConsensusPossible;

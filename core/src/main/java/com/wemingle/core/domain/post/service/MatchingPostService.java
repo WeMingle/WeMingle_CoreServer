@@ -8,6 +8,7 @@ import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
+import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
@@ -36,10 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.stream.IntStream;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
 import static com.wemingle.core.global.matchingstatusdescription.MatchingStatusDescription.*;
@@ -300,5 +299,41 @@ public class MatchingPostService {
 
     private boolean isExistTeamParticipant(RecruiterType recruiterType, List<String> participantsPk) {
         return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty();
+    }
+
+    public List<MatchingPostMapDto> getMatchingPostByMap(double topLat,
+                                     double bottomLat,
+                                     double leftLon,
+                                     double rightLon,
+                                     int heightTileCnt,
+                                     int widthTileCnt) {
+        List<MatchingPost> matchingPostInMap = matchingPostRepository.findMatchingPostInMap(topLat, bottomLat, leftLon, rightLon);
+
+        double latTileRange = (topLat - bottomLat) / heightTileCnt;
+        double lonTileRange = (rightLon - leftLon) / widthTileCnt;
+
+        List<MatchingPostMapDto> clusterData = new LinkedList<>();
+
+        IntStream.rangeClosed(1,heightTileCnt)
+                .forEach(hIdx->
+                    IntStream.rangeClosed(1,widthTileCnt)
+                            .forEach(wIdx->{
+                                List<MatchingPost> matchingPosts = matchingPostInMap.stream()
+                                        .filter(matchingPost ->
+                                                matchingPost.getLat() <= (topLat - latTileRange * (wIdx - 1)) &&
+                                                        matchingPost.getLat() >= (topLat - latTileRange * wIdx) &&
+                                                        matchingPost.getLon() >= (leftLon + lonTileRange * (hIdx - 1)) &&
+                                                        matchingPost.getLon() <= (leftLon + lonTileRange * hIdx)
+                                        ).toList();
+                                        if (!matchingPosts.isEmpty()) {
+                                            clusterData.add(MatchingPostMapDto.builder()
+                                                    .lat(matchingPosts.get(0).getLat())
+                                                    .lon(matchingPosts.get(0).getLon())
+                                                    .cnt(matchingPosts.size()).build());
+                                        }
+                                }
+                            )
+                );
+        return clusterData;
     }
 }

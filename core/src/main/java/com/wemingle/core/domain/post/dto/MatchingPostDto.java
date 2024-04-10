@@ -14,9 +14,6 @@ import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -110,15 +107,13 @@ public class MatchingPostDto {
         }
 
         public MatchingPost of(Team team, TeamMember writer){
-            GeometryFactory geometryFactory = new GeometryFactory();
-            Coordinate coordinate = new Coordinate(longitude, latitude);
-            Point position = geometryFactory.createPoint(coordinate);
 
             MatchingPost matchingPost = MatchingPost.builder()
                     .matchingDate(matchingDate)
                     .expiryDate(expiryDate)
                     .locationName(locationName)
-                    .position(position)
+                    .lat(latitude)
+                    .lon(longitude)
                     .content(content)
                     .capacityLimit(capacityLimit)
                     .isLocationConsensusPossible(isLocationConsensusPossible)
