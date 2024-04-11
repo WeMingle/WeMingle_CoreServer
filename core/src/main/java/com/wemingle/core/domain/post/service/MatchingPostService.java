@@ -8,6 +8,7 @@ import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
+import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
@@ -36,10 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.stream.IntStream;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
 import static com.wemingle.core.global.matchingstatusdescription.MatchingStatusDescription.*;
@@ -171,9 +170,9 @@ public class MatchingPostService {
                 .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
                 .ability(matchingPost.getAbility())
                 .profileImgUrl(getProfileImgUrl(matchingPost))
-                .detailPostUrl(serverIp + DETAIL_POST_URL.getRequestUrl() + matchingPost.getPk())
+                .detailPostUrl(serverIp + "/post/match/" + matchingPost.getPk())
                 .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate()))
-                .scheduledRequest(getScheduledRequest(matchingPost, member, matchingPostWithMemberId))
+                .scheduledRequestDescription(getScheduledRequest(matchingPost, member, matchingPostWithMemberId))
                 .build()));
 
         return responseHashMap;
@@ -209,32 +208,31 @@ public class MatchingPostService {
         }
     }
 
-    private MatchingPostDto.ScheduledRequest getScheduledRequest(MatchingPost matchingPost, Member member, List<MatchingPost> matchingPostWithMemberId) {
+    private String getScheduledRequest(MatchingPost matchingPost, Member member, List<MatchingPost> matchingPostWithMemberId) {
         return isTeamOwner(matchingPost, member)
-                ? scheduledRequestFactoryWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWithMemberId)
-                : scheduledRequestFactoryWithMember();
+                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWithMemberId)
+                : createScheduledRequestWithMember();
     }
 
     private static boolean isTeamOwner(MatchingPost matchingPost, Member member) {
         return matchingPost.getTeam().getTeamOwner().equals(member);
     }
 
-    private MatchingPostDto.ScheduledRequest scheduledRequestFactoryWithOwner(MatchingStatus matchingStatus,
-                                                                              LocalDate matchingDate,
-                                                                              MatchingPost matchingPost,
-                                                                              List<MatchingPost> matchingPostWithMemberId) {
+    private String createScheduledRequestWithOwner(MatchingStatus matchingStatus,
+                                                   LocalDate matchingDate,
+                                                   MatchingPost matchingPost,
+                                                   List<MatchingPost> matchingPostWithMemberId) {
         switch (matchingStatus) {
             case CANCEL -> {
-                return new MatchingPostDto.ScheduledRequest(RENEW_MATCHING_POST.getDescription(), serverIp + RENEW_MATCHING_POST.getRequestUrl());
+                return RENEW_MATCHING_POST.getDescription();
             }
             case COMPLETE -> {
                 long remainDays = Duration.between(LocalDate.now().atStartOfDay(), matchingDate.atStartOfDay()).toDays();
 
                 if (remainDays >= PERMIT_CANCEL_DURATION) {
-                    //todo 채팅 기능 구현되면 requestUrl 변경하기
-                    return new MatchingPostDto.ScheduledRequest(CANCEL_BY_CHAT.getDescription(), CANCEL_BY_CHAT.getRequestUrl());
+                    return CANCEL_BY_CHAT.getDescription();
                 } else if (remainDays >= 0) {
-                    return new MatchingPostDto.ScheduledRequest(CANCEL_NOT_PERMITTED_DURATION.getDescription(), CANCEL_NOT_PERMITTED_DURATION.getRequestUrl());
+                    return CANCEL_NOT_PERMITTED_DURATION.getDescription();
                 } else {
                     return checkReviewWrittenPost(matchingPost, matchingPostWithMemberId);
                 }
@@ -243,16 +241,16 @@ public class MatchingPostService {
         }
     }
 
-    private static MatchingPostDto.ScheduledRequest checkReviewWrittenPost(MatchingPost matchingPost, List<MatchingPost> matchingPostWithMemberId) {
+    private String checkReviewWrittenPost(MatchingPost matchingPost, List<MatchingPost> matchingPostWithMemberId) {
         if (matchingPostWithMemberId.contains(matchingPost)) {
-            return new MatchingPostDto.ScheduledRequest(AFTER_WRITE_REVIEW.getDescription(), AFTER_WRITE_REVIEW.getRequestUrl());
+            return AFTER_WRITE_REVIEW.getDescription();
         } else {
-            return new MatchingPostDto.ScheduledRequest(BEFORE_WRITE_REVIEW.getDescription(), BEFORE_WRITE_REVIEW.getRequestUrl());
+            return BEFORE_WRITE_REVIEW.getDescription();
         }
     }
 
-    private MatchingPostDto.ScheduledRequest scheduledRequestFactoryWithMember() {
-        return new MatchingPostDto.ScheduledRequest(NO_PERMISSION.getDescription(), NO_PERMISSION.getRequestUrl());
+    private String createScheduledRequestWithMember() {
+        return NO_PERMISSION.getDescription();
     }
 
     @Transactional
@@ -302,4 +300,39 @@ public class MatchingPostService {
         return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty();
     }
 
+    public List<MatchingPostMapDto> getMatchingPostByMap(double topLat,
+                                     double bottomLat,
+                                     double leftLon,
+                                     double rightLon,
+                                     int heightTileCnt,
+                                     int widthTileCnt) {
+        List<MatchingPost> matchingPostInMap = matchingPostRepository.findMatchingPostInMap(topLat, bottomLat, leftLon, rightLon);
+
+        double latTileRange = (topLat - bottomLat) / heightTileCnt;
+        double lonTileRange = (rightLon - leftLon) / widthTileCnt;
+
+        List<MatchingPostMapDto> clusterData = new LinkedList<>();
+
+        IntStream.rangeClosed(1,heightTileCnt)
+                .forEach(hIdx->
+                    IntStream.rangeClosed(1,widthTileCnt)
+                            .forEach(wIdx->{
+                                List<MatchingPost> matchingPosts = matchingPostInMap.stream()
+                                        .filter(matchingPost ->
+                                                matchingPost.getLat() <= (topLat - latTileRange * (wIdx - 1)) &&
+                                                        matchingPost.getLat() >= (topLat - latTileRange * wIdx) &&
+                                                        matchingPost.getLon() >= (leftLon + lonTileRange * (hIdx - 1)) &&
+                                                        matchingPost.getLon() <= (leftLon + lonTileRange * hIdx)
+                                        ).toList();
+                                        if (!matchingPosts.isEmpty()) {
+                                            clusterData.add(MatchingPostMapDto.builder()
+                                                    .lat(matchingPosts.get(0).getLat())
+                                                    .lon(matchingPosts.get(0).getLon())
+                                                    .cnt(matchingPosts.size()).build());
+                                        }
+                                }
+                            )
+                );
+        return clusterData;
+    }
 }

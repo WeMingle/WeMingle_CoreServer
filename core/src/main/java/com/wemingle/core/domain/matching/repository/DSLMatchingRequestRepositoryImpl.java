@@ -43,6 +43,7 @@ public class DSLMatchingRequestRepositoryImpl implements DSLMatchingRequestRepos
                 .where(
                         matchingRequest.matchingPost.in(matchingPostList),
                         matchingRequest.matchingRequestStatus.eq(MatchingStatus.PENDING))
+                .groupBy(matchingRequest.team)
                 .fetchOne();
 
         return cnt == null ? 0 : cnt.intValue();

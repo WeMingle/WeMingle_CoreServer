@@ -29,9 +29,6 @@ import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -41,6 +38,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -76,7 +74,7 @@ public class InitDatabase {
         }
         List<Team> teamList = teamRepository.saveAll(teams);
         List<TeamMember> teamMemberRepositoryAll = teamMemberRepository.findAll();
-        ArrayList<MatchingPost> matchingPost = createMatchingPost(10, teamMemberRepositoryAll, teamList);
+        ArrayList<MatchingPost> matchingPost = createMatchingPost(10000, teamMemberRepositoryAll, teamList);
         List<MatchingPostArea> matchingPostArea = createMatchingPostArea(matchingPost);
         for (int i = 0; i < 10; i++) {
             matchingPost.get(i).putArea(matchingPostArea.get(i));
@@ -128,16 +126,14 @@ public class InitDatabase {
     }
 
     private ArrayList<MatchingPost> createMatchingPost(int amount, List<TeamMember> memberList, List<Team> teams) {
-        GeometryFactory geometryFactory = new GeometryFactory();
-        Coordinate coordinate = new Coordinate(12.123, 123.123);
-        Point point = geometryFactory.createPoint(coordinate);
         ArrayList<MatchingPost> matchingPosts = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             matchingPosts.add(MatchingPost.builder()
                     .matchingDate(LocalDate.of(2024, 3, 29))
                     .expiryDate(LocalDate.of(2024, 3, 29))
                     .locationName("jacob house")
-                    .position(point)
+                    .lat(new Random().nextDouble(90))
+                    .lon(new Random().nextDouble(180))
                     .content("msg")
                     .capacityLimit(10)
                     .isLocationConsensusPossible(true)
@@ -146,8 +142,8 @@ public class InitDatabase {
                     .recruiterType(RecruiterType.INDIVIDUAL)
                     .recruitmentType(RecruitmentType.APPROVAL_BASED)
                     .locationSelectionType(LocationSelectionType.SELECT_BASED)
-                    .writer(memberList.get(i))
-                    .team(teams.get(i))
+                    .writer(memberList.get(amount%10))
+                    .team(teams.get(amount%10))
                     .build());
         }
         return matchingPosts;

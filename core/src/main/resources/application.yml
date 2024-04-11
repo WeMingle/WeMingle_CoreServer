@@ -22,6 +22,9 @@ cloud:
 spring:
   jpa:
     defer-datasource-initialization: true
+    properties:
+      hibernate:
+        default_batch_fetch_size: 1000
 
   mail:
     host: smtp.gmail.com

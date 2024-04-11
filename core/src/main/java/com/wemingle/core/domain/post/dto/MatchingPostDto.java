@@ -15,9 +15,6 @@ import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -111,15 +108,13 @@ public class MatchingPostDto {
         }
 
         public MatchingPost of(Team team, TeamMember writer){
-            GeometryFactory geometryFactory = new GeometryFactory();
-            Coordinate coordinate = new Coordinate(longitude, latitude);
-            Point position = geometryFactory.createPoint(coordinate);
 
             MatchingPost matchingPost = MatchingPost.builder()
                     .matchingDate(matchingDate)
                     .expiryDate(expiryDate)
                     .locationName(locationName)
-                    .position(position)
+                    .lat(latitude)
+                    .lon(longitude)
                     .content(content)
                     .capacityLimit(capacityLimit)
                     .isLocationConsensusPossible(isLocationConsensusPossible)
@@ -154,10 +149,10 @@ public class MatchingPostDto {
         private String profileImgUrl;
         private String detailPostUrl;
         private String matchingStatus;
-        private ScheduledRequest scheduledRequest;
+        private String scheduledRequestDescription;
 
         @Builder
-        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, ScheduledRequest scheduledRequest) {
+        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, String scheduledRequestDescription) {
             this.matchingDate = matchingDate;
             this.recruiterType = recruiterType;
             this.teamName = teamName;
@@ -169,20 +164,7 @@ public class MatchingPostDto {
             this.profileImgUrl = profileImgUrl;
             this.detailPostUrl = detailPostUrl;
             this.matchingStatus = matchingStatus;
-            this.scheduledRequest = scheduledRequest;
-        }
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class ScheduledRequest {
-        private String description;
-        private String requestApiUri;
-
-        public ScheduledRequest(String description, String requestApiUri) {
-            this.description = description;
-            this.requestApiUri = requestApiUri;
+            this.scheduledRequestDescription = scheduledRequestDescription;
         }
     }
 
