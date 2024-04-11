@@ -1,6 +1,8 @@
 package com.wemingle.core.global.initdb;
 
 
+import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
+import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
 import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
@@ -60,6 +62,8 @@ public class InitDatabase {
     MatchingPostAreaRepository matchingPostAreaRepository;
     @Autowired
     SportsCategoryRepository sportsCategoryRepository;
+    @Autowired
+    BookmarkRepository bookmarkRepository;
 
     @PostConstruct
     public void InitDatabase() throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -79,7 +83,24 @@ public class InitDatabase {
         for (int i = 0; i < 10; i++) {
             matchingPost.get(i).putArea(matchingPostArea.get(i));
         }
-        matchingPostRepository.saveAll(matchingPost);
+        List<MatchingPost> matchingPosts = matchingPostRepository.saveAll(matchingPost);
+
+        bookmarkRepository.saveAll(createBookmark(10000, matchingPosts, memberRepositoryAll));
+
+    }
+
+    private List<BookmarkedMatchingPost> createBookmark(int amount, List<MatchingPost> matchingPosts, List<Member> members) {
+        List<BookmarkedMatchingPost> returnBookmark = new ArrayList<>();
+        for (int i = 0; i < amount; i++) {
+            BookmarkedMatchingPost bookmarkedMatchingPost = BookmarkedMatchingPost.builder()
+                    .matchingPost(matchingPosts.get(i))
+                    .member(members.get(i%10))
+                    .build();
+
+            returnBookmark.add(bookmarkedMatchingPost);
+        }
+
+        return returnBookmark;
     }
 
     private List<MatchingPostArea> createMatchingPostArea(ArrayList<MatchingPost> matchingPosts) {
@@ -142,15 +163,15 @@ public class InitDatabase {
                     .recruiterType(RecruiterType.INDIVIDUAL)
                     .recruitmentType(RecruitmentType.APPROVAL_BASED)
                     .locationSelectionType(LocationSelectionType.SELECT_BASED)
-                    .writer(memberList.get(amount%10))
-                    .team(teams.get(amount%10))
+                    .writer(memberList.get(i%10))
+                    .team(teams.get(i%10))
                     .build());
         }
         return matchingPosts;
     }
 
     private void createMember(int amount) {
-        for (int i = 0; i < amount; i++) {
+        for (int i = 0; i < amount-1; i++) {
             memberRepository.save(Member.builder()
                     .memberId("memberId" + i)
                     .ability(Ability.MEDIUM)
@@ -169,6 +190,23 @@ public class InitDatabase {
                     .policyTerms(policyTermsRepository.save(new PolicyTerms(true, true)))
                     .build());
         }
+        memberRepository.save(Member.builder()
+                .memberId("wemingle@gmail.com")
+                .ability(Ability.MEDIUM)
+                .gender(Gender.MALE)
+                .majorActivityArea("강남")
+                .oneLineIntroduction("안녕")
+                .password("password")
+                .nickname("leeking")
+                .profileImgId(UUID.randomUUID())
+                .phoneType(PhoneType.AOS)
+                .signupPlatform(SignupPlatform.APPLE)
+                .refreshToken("token")
+                .firebaseToken("fire")
+                .role(Role.USER)
+                .notifyAllow(true)
+                .policyTerms(policyTermsRepository.save(new PolicyTerms(true, true)))
+                .build());
     }
 
 
