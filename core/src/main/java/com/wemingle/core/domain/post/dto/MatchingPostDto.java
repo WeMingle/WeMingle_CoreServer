@@ -148,10 +148,10 @@ public class MatchingPostDto {
         private String profileImgUrl;
         private String detailPostUrl;
         private String matchingStatus;
-        private ScheduledRequest scheduledRequest;
+        private String scheduledRequestDescription;
 
         @Builder
-        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, ScheduledRequest scheduledRequest) {
+        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, String scheduledRequestDescription) {
             this.matchingDate = matchingDate;
             this.recruiterType = recruiterType;
             this.teamName = teamName;
@@ -163,20 +163,7 @@ public class MatchingPostDto {
             this.profileImgUrl = profileImgUrl;
             this.detailPostUrl = detailPostUrl;
             this.matchingStatus = matchingStatus;
-            this.scheduledRequest = scheduledRequest;
-        }
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class ScheduledRequest {
-        private String description;
-        private String requestApiUri;
-
-        public ScheduledRequest(String description, String requestApiUri) {
-            this.description = description;
-            this.requestApiUri = requestApiUri;
+            this.scheduledRequestDescription = scheduledRequestDescription;
         }
     }
 }
