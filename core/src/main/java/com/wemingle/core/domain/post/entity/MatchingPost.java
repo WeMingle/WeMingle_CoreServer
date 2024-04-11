@@ -11,9 +11,13 @@ import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,5 +123,9 @@ public class MatchingPost extends BaseEntity {
 
     public void putArea(MatchingPostArea matchingPostArea){
         areaList.add(matchingPostArea);
+    }
+    public void updateForRePost(){
+        setCreatedTime(LocalDateTime.now());
+        this.matchingStatus = MatchingStatus.PENDING;
     }
 }

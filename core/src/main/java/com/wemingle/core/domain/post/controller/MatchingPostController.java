@@ -1,7 +1,10 @@
 package com.wemingle.core.domain.post.controller;
 
+import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
+import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -12,6 +15,7 @@ import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +33,7 @@ import java.util.List;
 @RequestMapping("/post/match")
 public class MatchingPostController {
     private final MatchingPostService matchingPostService;
+    private final MemberService memberService;
     @PostMapping
     ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody MatchingPostDto.CreateMatchingPostDto matchingPostDto,
                                                                @AuthenticationPrincipal UserDetails userDetails) {
@@ -104,5 +109,23 @@ public class MatchingPostController {
                                                                         @RequestParam("widthTileCnt") int widthTileCnt) {
         List<MatchingPostMapDto> matchingPostByMap = matchingPostService.getMatchingPostByMap(topLat, bottomLat, leftLon, rightLon, heightTileCnt, widthTileCnt);
         return ResponseEntity.ok(ResponseHandler.builder().responseMessage("completed location data clustering successfully").responseData(matchingPostByMap).build());
+    }
+
+    @PatchMapping("/re/{matchingPostPk}")
+    public ResponseEntity<?> rePostMatchingPost(@PathVariable Long matchingPostPk,
+                                                @AuthenticationPrincipal UserDetails userDetails){
+        Member member = memberService.findByMemberId(userDetails.getUsername());
+        MatchingPost matchingPost = matchingPostService.getMatchingPostByPostId(matchingPostPk);
+
+        if (!matchingPost.getWriter().getMember().equals(member)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("RePost is only available for writer")
+                            .build());
+        }
+
+        matchingPostService.rePostMatchingPost(matchingPost);
+
+        return ResponseEntity.noContent().build();
     }
 }
