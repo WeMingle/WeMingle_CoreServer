@@ -40,10 +40,6 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                                                        YearMonth monthFilter,
                                                        Pageable pageable) {
         return jpaQueryFactory.selectFrom(matchingPost)
-                .join(matchingPost.team).fetchJoin()
-                .join(matchingPost.writer).fetchJoin()
-                .join(matchingPost.writer.team).fetchJoin()
-                .join(matchingPost.areaList).fetchJoin()
                 .where(
                         nextIdxLt(nextIdx),
                         recruitmentTypeEq(recruitmentType),

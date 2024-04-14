@@ -21,6 +21,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MatchingPostDto {
+    @Setter
+    @Getter
+    public static class ResponseMyBookmarkDto {
+        private Long pk;
+        private String profilePicUrl;
+        private String writer;
+        private String contents;
+        private List<AreaName> areaList;
+        private int matchingCnt;
+        private LocalDate matchingDate;
+        private RecruiterType recruiterType;
+        private Ability ability;
+        private boolean isLocationConsensusPossible;
+        private boolean isBookmarked;
+
+        @Builder
+        public ResponseMyBookmarkDto(Long pk, String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
+            this.pk = pk;
+            this.profilePicUrl = profilePicUrl;
+            this.writer = writer;
+            this.contents = contents;
+            this.areaList = areaList;
+            this.matchingCnt = matchingCnt;
+            this.matchingDate = matchingDate;
+            this.recruiterType = recruiterType;
+            this.ability = ability;
+            this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.isBookmarked = isBookmarked;
+        }
+    }
     @ToString
     @Setter
     @Getter
