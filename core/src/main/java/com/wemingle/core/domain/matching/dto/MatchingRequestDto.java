@@ -4,13 +4,11 @@ import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStat
 import com.wemingle.core.domain.matching.vo.TitleInfo;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class MatchingRequestDto {
 
@@ -108,5 +106,13 @@ public class MatchingRequestDto {
             this.teamMemberCnt = teamMemberCnt;
             this.teamRating = teamRating;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MatchingRequestComplete {
+        List<Long> matchingRequests;
     }
 }

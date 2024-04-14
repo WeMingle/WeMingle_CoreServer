@@ -4,6 +4,7 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.controller.requesttype.RequestType;
 import com.wemingle.core.domain.matching.dto.MatchingRequestDto;
 import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStatus;
+import com.wemingle.core.domain.matching.entity.Matching;
 import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
@@ -24,8 +25,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
@@ -50,10 +54,10 @@ public class MatchingRequestService {
     private static final int PAGE_SIZE = 30;
 
     public List<MatchingRequestDto.ResponseMatchingRequestHistory> getMatchingRequestHistories(Long nextIdx,
-                                                                                         RequestType requestType,
-                                                                                         RecruiterType recruiterType,
-                                                                                         boolean excludeCompleteMatchesFilter,
-                                                                                         String memberId){
+                                                                                               RequestType requestType,
+                                                                                               RecruiterType recruiterType,
+                                                                                               boolean excludeCompleteMatchesFilter,
+                                                                                               String memberId){
         Member findMember = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         List<MatchingPost> myMatchingPost = matchingPostRepository.findByWriter_Member(findMember);
