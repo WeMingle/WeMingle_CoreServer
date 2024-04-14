@@ -145,4 +145,22 @@ public class MatchingRequestService {
                 .map(TeamRating::getTotalRating)
                 .orElse(0.0);
     }
+
+    @Transactional
+    public void approveMatchingRequests(MatchingRequestDto.MatchingRequestComplete matchingRequestComplete){
+        List<Long> matchingRequestsPk = matchingRequestComplete.getMatchingRequests();
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findByPkIn(matchingRequestsPk);
+        Set<Team> teams = matchingRequests.stream().map(MatchingRequest::getTeam).collect(Collectors.toSet());
+        MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        List<MatchingRequest> matchingAllRequest = matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
+        ArrayList<Matching> saveMatching = new ArrayList<>();
+
+        matchingAllRequest.forEach(matchingRequest -> {
+            matchingRequest.completeRequest();
+            saveMatching.add(matchingRequest.of(matchingRequest));
+        });
+
+        matchingRepository.saveAll(saveMatching);
+    }
 }
