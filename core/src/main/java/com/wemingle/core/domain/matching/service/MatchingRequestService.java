@@ -4,6 +4,7 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.controller.requesttype.RequestType;
 import com.wemingle.core.domain.matching.dto.MatchingRequestDto;
 import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStatus;
+import com.wemingle.core.domain.matching.entity.Matching;
 import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
@@ -24,8 +25,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
@@ -144,5 +148,23 @@ public class MatchingRequestService {
                 .findFirst()
                 .map(TeamRating::getTotalRating)
                 .orElse(0.0);
+    }
+
+    @Transactional
+    public void completeMatchingRequests(MatchingRequestDto.MatchingRequestComplete matchingRequestComplete){
+        List<Long> matchingRequestsPk = matchingRequestComplete.getMatchingRequests();
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findByPkIn(matchingRequestsPk);
+        Set<Team> teams = matchingRequests.stream().map(MatchingRequest::getTeam).collect(Collectors.toSet());
+        MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        List<MatchingRequest> matchingAllRequest = matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
+        ArrayList<Matching> saveMatching = new ArrayList<>();
+
+        matchingAllRequest.forEach(matchingRequest -> {
+            matchingRequest.completeRequest();
+            saveMatching.add(matchingRequest.of(matchingRequest));
+        });
+
+        matchingRepository.saveAll(saveMatching);
     }
 }
