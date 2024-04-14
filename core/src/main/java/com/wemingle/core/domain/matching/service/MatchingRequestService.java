@@ -87,15 +87,25 @@ public class MatchingRequestService {
             }
             case PENDING -> {
                 if (myMatchingPost.contains(matchingRequest.getMatchingPost())){
-                    return new TitleInfo(teamName + RECEIVE_SUFFIX, RequestTitleStatus.RECEIVE);
+                    return getTitleInfoWithRecruiterType(matchingRequest, teamName);
                 }
 
-                return matchingRequest.getTeam().getTeamOwner().equals(findMember)
-                        ? new TitleInfo(teamName + IS_OWNER_SENT_SUFFIX, RequestTitleStatus.SENT_BY_ME)
-                        : new TitleInfo(IS_PARTICIPANT_TITLE_PREFIX + teamName + IS_PARTICIPANT_SENT_SUFFIX, RequestTitleStatus.SENT_BY_OWNER);
+                return getTitleInfoWithSender(matchingRequest, findMember, teamName);
             }
             default -> throw new RuntimeException(ExceptionMessage.INVALID_MATCHING_REQUEST_STATUS.getExceptionMessage());
         }
+    }
+
+    private static TitleInfo getTitleInfoWithRecruiterType(MatchingRequest matchingRequest, String teamName) {
+        return matchingRequest.getMatchingPost().getRecruiterType().equals(RecruiterType.TEAM)
+                ? new TitleInfo(teamName + RECEIVE_SUFFIX, RequestTitleStatus.RECEIVE_BY_TEAM)
+                : new TitleInfo(teamName + RECEIVE_SUFFIX, RequestTitleStatus.RECEIVE_BY_INDIVIDUAL);
+    }
+
+    private static TitleInfo getTitleInfoWithSender(MatchingRequest matchingRequest, Member findMember, String teamName) {
+        return matchingRequest.getTeam().getTeamOwner().equals(findMember)
+                ? new TitleInfo(teamName + IS_OWNER_SENT_SUFFIX, RequestTitleStatus.SENT_BY_ME)
+                : new TitleInfo(IS_PARTICIPANT_TITLE_PREFIX + teamName + IS_PARTICIPANT_SENT_SUFFIX, RequestTitleStatus.SENT_BY_OWNER);
     }
 
     public MatchingRequestDto.ResponsePendingRequestsByIndividual getPendingRequestsByIndividual(Long matchingPostPk){
