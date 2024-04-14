@@ -151,13 +151,8 @@ public class MatchingRequestService {
     }
 
     @Transactional
-    public void approveMatchingRequests(MatchingRequestDto.MatchingRequestComplete matchingRequestComplete){
-        List<Long> matchingRequestsPk = matchingRequestComplete.getMatchingRequests();
-        List<MatchingRequest> matchingRequests = matchingRequestRepository.findByPkIn(matchingRequestsPk);
-        Set<Team> teams = matchingRequests.stream().map(MatchingRequest::getTeam).collect(Collectors.toSet());
-        MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
-        List<MatchingRequest> matchingAllRequest = matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
+    public void approveMatchingRequests(MatchingRequestDto.MatchingRequestApprove matchingRequestApprove){
+        List<MatchingRequest> matchingAllRequest = getAllMatchingRequests(matchingRequestApprove.getMatchingRequests());
         ArrayList<Matching> saveMatching = new ArrayList<>();
 
         matchingAllRequest.forEach(matchingRequest -> {
@@ -166,5 +161,20 @@ public class MatchingRequestService {
         });
 
         matchingRepository.saveAll(saveMatching);
+    }
+
+    @Transactional
+    public void deleteMatchingRequests(MatchingRequestDto.MatchingRequestDelete matchingRequestDelete){
+        List<MatchingRequest> matchingAllRequests = getAllMatchingRequests(matchingRequestDelete.getMatchingRequests());
+
+        matchingRequestRepository.deleteAllInBatch(matchingAllRequests);
+    }
+
+    private List<MatchingRequest> getAllMatchingRequests(List<Long> matchingRequestsPk) {
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findByPkIn(matchingRequestsPk);
+        Set<Team> teams = matchingRequests.stream().map(MatchingRequest::getTeam).collect(Collectors.toSet());
+        MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        return matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
     }
 }
