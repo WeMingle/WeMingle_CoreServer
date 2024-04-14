@@ -151,7 +151,7 @@ public class MatchingRequestService {
     }
 
     @Transactional
-    public void completeMatchingRequests(MatchingRequestDto.MatchingRequestComplete matchingRequestComplete){
+    public void approveMatchingRequests(MatchingRequestDto.MatchingRequestComplete matchingRequestComplete){
         List<Long> matchingRequestsPk = matchingRequestComplete.getMatchingRequests();
         List<MatchingRequest> matchingRequests = matchingRequestRepository.findByPkIn(matchingRequestsPk);
         Set<Team> teams = matchingRequests.stream().map(MatchingRequest::getTeam).collect(Collectors.toSet());

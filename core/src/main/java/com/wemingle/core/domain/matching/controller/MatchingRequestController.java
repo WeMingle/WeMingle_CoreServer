@@ -56,8 +56,8 @@ public class MatchingRequestController {
     }
 
     @PatchMapping
-    public ResponseEntity<Object> completeMatchingRequests(@RequestBody MatchingRequestDto.MatchingRequestComplete matchingRequestComplete){
-        matchingRequestService.completeMatchingRequests(matchingRequestComplete);
+    public ResponseEntity<Object> approveMatchingRequests(@RequestBody MatchingRequestDto.MatchingRequestComplete matchingRequestComplete){
+        matchingRequestService.approveMatchingRequests(matchingRequestComplete);
 
         return ResponseEntity.noContent().build();
     }
