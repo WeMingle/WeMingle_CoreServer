@@ -335,4 +335,9 @@ public class MatchingPostService {
                 );
         return clusterData;
     }
+
+    @Transactional
+    public void rePostMatchingPost(MatchingPost matchingPost){
+        matchingPost.updateForRePost();
+    }
 }
