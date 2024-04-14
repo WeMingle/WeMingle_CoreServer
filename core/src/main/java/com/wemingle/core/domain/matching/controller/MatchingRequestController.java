@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -34,6 +31,26 @@ public class MatchingRequestController {
 
         return ResponseEntity.ok(ResponseHandler.<List<MatchingRequestDto.ResponseMatchingRequestHistory>>builder()
                 .responseMessage("Matching Request Histories retrieval successfully")
+                .responseData(responseData)
+                .build());
+    }
+
+    @GetMapping("/team/{matchingPostPk}")
+    public ResponseEntity<ResponseHandler<MatchingRequestDto.ResponsePendingRequestsByTeam>> getPendingMatchingRequestByTeam(@PathVariable Long matchingPostPk){
+
+        MatchingRequestDto.ResponsePendingRequestsByTeam responseData = matchingRequestService.getPendingRequestsByTeam(matchingPostPk);
+        return ResponseEntity.ok(ResponseHandler.<MatchingRequestDto.ResponsePendingRequestsByTeam>builder()
+                .responseMessage("Pending Matching Request By Team retrieval successfully")
+                .responseData(responseData)
+                .build());
+    }
+
+    @GetMapping("/individual/{matchingPostPk}")
+    public ResponseEntity<ResponseHandler<MatchingRequestDto.ResponsePendingRequestsByIndividual>> getPendingMatchingRequestByIndividual(@PathVariable Long matchingPostPk){
+
+        MatchingRequestDto.ResponsePendingRequestsByIndividual responseData = matchingRequestService.getPendingRequestsByIndividual(matchingPostPk);
+        return ResponseEntity.ok(ResponseHandler.<MatchingRequestDto.ResponsePendingRequestsByIndividual>builder()
+                .responseMessage("Pending Matching Request By Individual retrieval successfully")
                 .responseData(responseData)
                 .build());
     }

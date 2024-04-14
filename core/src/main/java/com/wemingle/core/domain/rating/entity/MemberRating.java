@@ -5,8 +5,6 @@ import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
-import java.math.BigDecimal;
-
 @Entity
 public class MemberRating extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +13,7 @@ public class MemberRating extends BaseEntity {
 
     @NotNull
     @Column(name = "TOTAL_RATING")
-    private BigDecimal totalRating;
+    private Double totalRating;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,16 +1,21 @@
 package com.wemingle.core.domain.matching.service;
 
+import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.controller.requesttype.RequestType;
 import com.wemingle.core.domain.matching.dto.MatchingRequestDto;
 import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStatus;
 import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
+import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
 import com.wemingle.core.domain.matching.vo.TitleInfo;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
+import com.wemingle.core.domain.rating.entity.TeamRating;
+import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
+import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
@@ -31,6 +37,9 @@ public class MatchingRequestService {
     private final MatchingRepository matchingRepository;
     private final MatchingPostRepository matchingPostRepository;
     private final MemberRepository memberRepository;
+    private final MatchingRequestRepository matchingRequestRepository;
+    private final S3ImgService s3ImgService;
+    private final TeamRatingRepository teamRatingRepository;
 
     private static final String IS_OWNER_SENT_SUFFIX = "에 매칭 신청을 보냈습니다.";
     private static final String IS_PARTICIPANT_TITLE_PREFIX = "내가 속한 ";
@@ -50,7 +59,7 @@ public class MatchingRequestService {
         List<MatchingPost> myMatchingPost = matchingPostRepository.findByWriter_Member(findMember);
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
-        List<MatchingRequest> matchingRequestHistories = matchingRepository.findMatchingRequestHistories(nextIdx, requestType, recruiterType, excludeCompleteMatchesFilter, findMember, myMatchingPost, pageRequest);
+        List<MatchingRequest> matchingRequestHistories = matchingRequestRepository.findMatchingRequestHistories(nextIdx, requestType, recruiterType, excludeCompleteMatchesFilter, findMember, myMatchingPost, pageRequest);
 
         return matchingRequestHistories.stream().map(matchingRequest -> MatchingRequestDto.ResponseMatchingRequestHistory.builder()
                         .titleInfo(createTitleInfo(matchingRequest, myMatchingPost, findMember))
@@ -83,5 +92,57 @@ public class MatchingRequestService {
             }
             default -> throw new RuntimeException(ExceptionMessage.INVALID_MATCHING_REQUEST_STATUS.getExceptionMessage());
         }
+    }
+
+    public MatchingRequestDto.ResponsePendingRequestsByIndividual getPendingRequestsByIndividual(Long matchingPostPk){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findIndividualRequests(matchingPost);
+
+        LinkedHashMap<Long, MatchingRequestDto.RequestInfoByIndividual> requestsInfo = new LinkedHashMap<>();
+        matchingRequests.forEach(matchingRequest -> requestsInfo.put(matchingRequest.getPk(), MatchingRequestDto.RequestInfoByIndividual.builder()
+                .profileImg(s3ImgService.getMemberProfilePicUrl(matchingRequest.getMember().getProfileImgId()))
+                .nickname(matchingRequest.getMember().getNickname())
+                .content(matchingRequest.getContent())
+                .completedMatchingCnt(matchingRequest.getTeam().getCompletedMatchingCnt())
+                .majorActivityArea(matchingRequest.getMember().getMajorActivityArea())
+                .ability(matchingRequest.getMember().getAbility()) //todo 카테고리별 ability로 수정
+                .build()));
+
+        return MatchingRequestDto.ResponsePendingRequestsByIndividual.builder()
+                .title(matchingPost.getContent())
+                .requestsInfo(requestsInfo)
+                .build();
+    }
+
+    public MatchingRequestDto.ResponsePendingRequestsByTeam getPendingRequestsByTeam(Long matchingPostPk){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findTeamRequestsIsOwner(matchingPost);
+        List<Team> teamsInRequests = matchingRequests.stream().map(MatchingRequest::getTeam).toList();
+        List<TeamRating> teamRatings = teamRatingRepository.findTeamRatingInPk(teamsInRequests);
+
+        LinkedHashMap<Long, MatchingRequestDto.RequestInfoByTeam> requestsInfo = new LinkedHashMap<>();
+        matchingRequests.forEach(matchingRequest -> requestsInfo.put(matchingRequest.getPk(), MatchingRequestDto.RequestInfoByTeam.builder()
+                .profileImg(s3ImgService.getGroupProfilePicUrl(matchingRequest.getTeam().getProfileImgId()))
+                .teamName(matchingRequest.getTeam().getTeamName())
+                .content(matchingRequest.getContent())
+                .completedMatchingCnt(matchingRequest.getTeam().getCompletedMatchingCnt())
+                .teamMemberCnt(matchingRequest.getTeam().getTeamMembers().size())
+                .teamRating(getTeamRating(teamRatings, matchingRequest.getTeam()))
+                .build()));
+
+        return MatchingRequestDto.ResponsePendingRequestsByTeam.builder()
+                .title(matchingPost.getContent())
+                .requestsInfo(requestsInfo)
+                .build();
+    }
+
+    private double getTeamRating(List<TeamRating> teamRatings, Team team) {
+        return teamRatings.stream()
+                .filter(teamRating -> teamRating.getTeam().equals(team))
+                .findFirst()
+                .map(TeamRating::getTotalRating)
+                .orElse(0.0);
     }
 }
