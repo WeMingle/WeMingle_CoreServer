@@ -55,12 +55,4 @@ public class MatchingRequest extends BaseEntity {
     public void completeRequest(){
         this.matchingRequestStatus = MatchingStatus.COMPLETE;
     }
-
-    public Matching of(MatchingRequest matchingRequest){
-        return Matching.builder()
-                .matchingPost(matchingRequest.getMatchingPost())
-                .member(matchingRequest.getMember())
-                .team(matchingRequest.getTeam())
-                .build();
-    }
 }
