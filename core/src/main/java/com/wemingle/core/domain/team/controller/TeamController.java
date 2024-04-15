@@ -5,8 +5,6 @@ import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.domain.team.service.TeamService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -75,7 +73,7 @@ public class TeamController {
 
     @GetMapping
     public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamInfoByName>> getTeamsByTeamName(@RequestParam(required = false) Long nextIdx,
-                                                                                              @RequestParam @NotNull @NotEmpty @NotBlank String teamName){
+                                                                                              @RequestParam @NotBlank String teamName){
         TeamDto.ResponseTeamInfoByName responseData = teamService.getTeamByName(nextIdx, teamName);
 
         return ResponseEntity.ok(
