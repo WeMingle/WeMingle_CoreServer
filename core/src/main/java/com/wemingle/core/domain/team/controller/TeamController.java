@@ -44,4 +44,16 @@ public class TeamController {
                         .build()
         );
     }
+
+    @GetMapping("/existence")
+    public ResponseEntity<ResponseHandler<Object>> isPresentTeamWithMe(@AuthenticationPrincipal UserDetails userDetails){
+        boolean isPresentTeam = teamService.isPresentTeamWithMe(userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .responseMessage("Check existence of my team successfully")
+                        .responseData(isPresentTeam)
+                        .build()
+        );
+    }
 }
