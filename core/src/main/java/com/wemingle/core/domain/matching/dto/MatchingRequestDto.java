@@ -112,7 +112,15 @@ public class MatchingRequestDto {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class MatchingRequestComplete {
+    public static class MatchingRequestApprove {
+        List<Long> matchingRequests;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MatchingRequestDelete {
         List<Long> matchingRequests;
     }
 }
