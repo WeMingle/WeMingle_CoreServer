@@ -44,7 +44,7 @@ import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
-@Profile("howang")
+@Profile("jungwoo")
 @Component
 public class InitDatabase {
 

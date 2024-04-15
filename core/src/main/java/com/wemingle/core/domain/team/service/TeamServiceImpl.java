@@ -10,11 +10,14 @@ import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -66,5 +69,37 @@ public class TeamServiceImpl implements TeamService{
                  .build()));
 
          return responseHashMap;
+    }
+
+    @Override
+    public TeamDto.ResponseTeamInfoByName getTeamByName(Long nextIdx, String teamName) {
+        PageRequest pageRequest = PageRequest.of(0, 4);
+        List<Team> teams = teamRepository.getTeamByTeamName(nextIdx, teamName, pageRequest);
+
+        LinkedHashMap<Long, TeamDto.TeamInfoInSearch> teamInfoHashMap = new LinkedHashMap<>();
+        teams.forEach(team -> teamInfoHashMap.put(team.getPk(), TeamDto.TeamInfoInSearch.builder()
+                .teamName(team.getTeamName())
+                .content(team.getContent())
+                .recruitmentType(team.getRecruitmentType())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .build()
+        ));
+
+        boolean hasNextTeam = isExistedNextTeam(teams);
+
+        return TeamDto.ResponseTeamInfoByName.builder()
+                .teamsInfo(teamInfoHashMap)
+                .hasNextTeam(hasNextTeam)
+                .build();
+    }
+
+    private boolean isExistedNextTeam(List<Team> teams) {
+        Optional<Long> minPk = teams.stream().map(Team::getPk).min(Long::compareTo);
+        boolean hasNextData = false;
+        if (minPk.isPresent()) {
+            hasNextData = teamRepository.existsByPkLessThan(minPk.get());
+        }
+
+        return hasNextData;
     }
 }

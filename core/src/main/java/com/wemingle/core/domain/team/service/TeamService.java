@@ -8,4 +8,5 @@ public interface TeamService {
     HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithMemberId(String memberId);
     boolean isPresentTeamWithMe(String memberId);
     HashMap<Long, TeamDto.ResponseRandomTeamInfo> getRandomTeam();
+    TeamDto.ResponseTeamInfoByName getTeamByName(Long nextIdx, String teamName);
 }
