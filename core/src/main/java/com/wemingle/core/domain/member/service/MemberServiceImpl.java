@@ -3,7 +3,9 @@ package com.wemingle.core.domain.member.service;
 import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
+import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.dto.MemberAuthenticationInfoDto;
+import com.wemingle.core.domain.member.dto.MemberDto;
 import com.wemingle.core.domain.member.dto.MemberInfoDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.MemberPreferenceSports;
@@ -17,12 +19,15 @@ import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
@@ -36,6 +41,7 @@ public class MemberServiceImpl implements MemberService {
     private final SportsCategoryRepository sportsCategoryRepository;
     private final MemberPreferenceSportsRepository memberPreferenceSportsRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
+    private final S3ImgService s3ImgService;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
@@ -148,5 +154,35 @@ public class MemberServiceImpl implements MemberService {
                 .memberId(member.getMemberId())
                 .univEmail(verifiedUniversityEmail.getUnivEmailAddress())
                 .build();
+    }
+
+    @Override
+    public MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname) {
+        PageRequest pageRequest = PageRequest.of(0, 3);
+        List<Member> members = memberRepository.getMemberByNickname(nextIdx, nickname, pageRequest);
+
+        LinkedHashMap<Long, MemberDto.MemberInfoInSearch> membersInfoHashMap = new LinkedHashMap<>();
+        members.forEach(member -> membersInfoHashMap.put(member.getPk(), MemberDto.MemberInfoInSearch.builder()
+                .nickname(member.getNickname())
+                .profileImg(s3ImgService.getMemberProfilePicUrl(member.getProfileImgId()))
+                .build()
+        ));
+
+        boolean hasNextMember = isExistedNextMember(members, nickname);
+
+        return MemberDto.ResponseMemberInfo.builder()
+                .membersInfo(membersInfoHashMap)
+                .hasNextMember(hasNextMember)
+                .build();
+    }
+
+    private boolean isExistedNextMember(List<Member> members, String nickname) {
+        Optional<Long> minPk = members.stream().map(Member::getPk).min(Long::compareTo);
+        boolean hasNextData = false;
+        if (minPk.isPresent()) {
+            hasNextData = memberRepository.existsByPkLessThanAndNicknameContains(minPk.get(), nickname);
+        }
+
+        return hasNextData;
     }
 }

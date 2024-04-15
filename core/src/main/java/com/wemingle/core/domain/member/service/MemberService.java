@@ -2,6 +2,7 @@ package com.wemingle.core.domain.member.service;
 
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.member.dto.MemberAuthenticationInfoDto;
+import com.wemingle.core.domain.member.dto.MemberDto;
 import com.wemingle.core.domain.member.dto.MemberInfoDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
@@ -21,4 +22,5 @@ public interface MemberService {
     MemberInfoDto getMemberInfo(String memberId);
     void setMemberInfo(String memberId, MemberInfoDto memberInfoDto);
     MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId);
+    MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname);
 }
