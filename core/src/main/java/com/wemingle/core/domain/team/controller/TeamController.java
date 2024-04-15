@@ -56,4 +56,16 @@ public class TeamController {
                         .build()
         );
     }
+
+    @GetMapping("/random")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRandomTeamInfo>>> getRandomTeams(){
+        HashMap<Long, TeamDto.ResponseRandomTeamInfo> randomTeams = teamService.getRandomTeam();
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseRandomTeamInfo>>builder()
+                        .responseMessage("Random teams retrieval successfully")
+                        .responseData(randomTeams)
+                        .build()
+        );
+    }
 }

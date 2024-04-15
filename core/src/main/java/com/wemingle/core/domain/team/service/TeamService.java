@@ -7,4 +7,5 @@ import java.util.HashMap;
 public interface TeamService {
     HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithMemberId(String memberId);
     boolean isPresentTeamWithMe(String memberId);
+    HashMap<Long, TeamDto.ResponseRandomTeamInfo> getRandomTeam();
 }

@@ -52,4 +52,19 @@ public class TeamServiceImpl implements TeamService{
 
         return teamMemberRepository.existsByMember(member);
     }
+
+    @Override
+    public HashMap<Long, TeamDto.ResponseRandomTeamInfo> getRandomTeam() {
+        List<Team> randomTeams = teamRepository.getRandomTeam();
+        HashMap<Long, TeamDto.ResponseRandomTeamInfo> responseHashMap = new HashMap<>();
+
+         randomTeams.forEach(randomTeam -> responseHashMap.put(randomTeam.getPk(), TeamDto.ResponseRandomTeamInfo.builder()
+                 .teamName(randomTeam.getTeamName())
+                 .content(randomTeam.getContent())
+                 .recruitmentType(randomTeam.getRecruitmentType())
+                 .teamImgUrl(s3ImgService.getGroupProfilePicUrl(randomTeam.getProfileImgId()))
+                 .build()));
+
+         return responseHashMap;
+    }
 }
