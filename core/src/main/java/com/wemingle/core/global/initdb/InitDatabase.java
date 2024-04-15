@@ -44,7 +44,7 @@ import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
-@Profile("jungwoo")
+@Profile("howang")
 @Component
 public class InitDatabase {
 
@@ -135,6 +135,8 @@ public class InitDatabase {
                     .teamName("teamname" + i)
                     .capacityLimit(100)
                     .profileImgId(UUID.randomUUID())
+                    .content("teamname" + i)
+                    .recruitmentType(RecruitmentType.FIRST_SERVED_BASED)
                     .teamOwner(memberList.get(i))
                     .teamType(TeamType.TEAM)
                     .sportsCategory(createSportsCategory())

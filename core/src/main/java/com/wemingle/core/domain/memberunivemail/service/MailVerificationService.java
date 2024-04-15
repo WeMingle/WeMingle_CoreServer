@@ -7,6 +7,7 @@ import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
@@ -93,6 +94,8 @@ public class MailVerificationService {
                 .teamOwner(member)
                 .teamType(TeamType.INDIVIDUAL)
                 .profileImgId(member.getProfileImgId())
+                .content(member.getMemberId())
+                .recruitmentType(RecruitmentType.FIRST_SERVED_BASED)
                 .sportsCategory(sportsCategoryRepository.findBySportsType(SportsType.OTHER))
                 .capacityLimit(1)
                 .build();
