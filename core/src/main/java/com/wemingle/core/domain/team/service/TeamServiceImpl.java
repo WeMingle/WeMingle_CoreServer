@@ -85,7 +85,7 @@ public class TeamServiceImpl implements TeamService{
                 .build()
         ));
 
-        boolean hasNextTeam = isExistedNextTeam(teams);
+        boolean hasNextTeam = isExistedNextTeam(teams, teamName);
 
         return TeamDto.ResponseTeamInfoByName.builder()
                 .teamsInfo(teamInfoHashMap)
@@ -93,11 +93,11 @@ public class TeamServiceImpl implements TeamService{
                 .build();
     }
 
-    private boolean isExistedNextTeam(List<Team> teams) {
+    private boolean isExistedNextTeam(List<Team> teams, String teamName) {
         Optional<Long> minPk = teams.stream().map(Team::getPk).min(Long::compareTo);
         boolean hasNextData = false;
         if (minPk.isPresent()) {
-            hasNextData = teamRepository.existsByPkLessThan(minPk.get());
+            hasNextData = teamRepository.existsByPkLessThanAndTeamNameContains(minPk.get(), teamName);
         }
 
         return hasNextData;

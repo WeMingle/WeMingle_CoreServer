@@ -10,5 +10,5 @@ public interface TeamRepository extends JpaRepository<Team, Long>, DSLTeamReposi
     List<Team> findByTeamOwner_MemberId(String memberId);
     @Query(value = "select * from Team order by RAND() limit 4",nativeQuery = true)
     List<Team> getRandomTeam();
-    boolean existsByPkLessThan(Long teamPk);
+    boolean existsByPkLessThanAndTeamNameContains(Long teamPk, String teamName);
 }
