@@ -9,4 +9,8 @@ public interface DSLTeamRepository {
     List<Team> getTeamByTeamName(Long nextIdx,
                                  String teamName,
                                  Pageable pageable);
+    List<Team> getRecommendationTeams(Long nextIdx,
+                                      List<Team> excludeTeams,
+                                      Long remainNum,
+                                      Pageable pageable);
 }

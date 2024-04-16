@@ -34,7 +34,27 @@ public class DSLTeamRepositoryImpl implements DSLTeamRepository{
                 .fetch();
     }
 
+    @Override
+    public List<Team> getRecommendationTeams(Long nextIdx, List<Team> myTeams, Long remainNum, Pageable pageable) {
+        return jpaQueryFactory.selectFrom(team)
+                .where(
+                        nextIdxLt(nextIdx),
+                        notInTeams(myTeams),
+                        randomTeamPkEq(remainNum))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(team.pk.desc())
+                .fetch();
+    }
+
+    private BooleanExpression randomTeamPkEq(Long remainNum) {
+        return team.pk.mod(2L).eq(remainNum);
+    }
+
     private BooleanExpression nextIdxLt(Long nextIdx) {
         return nextIdx == null ? null : team.pk.loe(nextIdx);
+    }
+    private BooleanExpression notInTeams(List<Team> myTeams) {
+        return myTeams.isEmpty() ? null : team.notIn(myTeams);
     }
 }

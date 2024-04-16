@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -64,9 +65,13 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public HashMap<Long, TeamDto.ResponseRandomTeamInfo> getRandomTeam() {
-        List<Team> randomTeams = teamRepository.getRandomTeam();
-        HashMap<Long, TeamDto.ResponseRandomTeamInfo> responseHashMap = new HashMap<>();
+    public HashMap<Long, TeamDto.ResponseRandomTeamInfo> getRecommendTeams(Long nextIdx, String memberId) {
+        Long remainNum = getRemainNum();
+        PageRequest pageRequest = PageRequest.of(0, 4);
+        List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
+
+        List<Team> randomTeams = teamRepository.getRecommendationTeams(nextIdx, myTeams, remainNum, pageRequest);
+        LinkedHashMap<Long, TeamDto.ResponseRandomTeamInfo> responseHashMap = new LinkedHashMap<>();
 
          randomTeams.forEach(randomTeam -> responseHashMap.put(randomTeam.getPk(), TeamDto.ResponseRandomTeamInfo.builder()
                  .teamName(randomTeam.getTeamName())
@@ -76,6 +81,10 @@ public class TeamServiceImpl implements TeamService{
                  .build()));
 
          return responseHashMap;
+    }
+
+    protected long getRemainNum() {
+        return LocalDateTime.now().getSecond() % 2;
     }
 
     @Override

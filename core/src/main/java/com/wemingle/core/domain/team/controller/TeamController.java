@@ -61,9 +61,10 @@ public class TeamController {
         );
     }
 
-    @GetMapping("/random")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRandomTeamInfo>>> getRandomTeams(){
-        HashMap<Long, TeamDto.ResponseRandomTeamInfo> randomTeams = teamService.getRandomTeam();
+    @GetMapping("/recommendation")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRandomTeamInfo>>> getRecommendTeams(@RequestParam(required = false) Long nextIdx,
+                                                                                                            @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseRandomTeamInfo> randomTeams = teamService.getRecommendTeams(nextIdx, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseRandomTeamInfo>>builder()
