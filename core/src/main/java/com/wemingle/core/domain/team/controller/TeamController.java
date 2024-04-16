@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.team.controller;
 
+import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.domain.team.service.TeamService;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 public class TeamController {
     private final TeamService teamService;
     private final TeamMemberService teamMemberService;
+    private final MemberService memberService;
 
     @GetMapping("/post")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
@@ -47,14 +49,14 @@ public class TeamController {
         );
     }
 
-    @GetMapping("/existence")
-    public ResponseEntity<ResponseHandler<Object>> isPresentTeamWithMe(@AuthenticationPrincipal UserDetails userDetails){
-        boolean isPresentTeam = teamService.isPresentTeamWithMe(userDetails.getUsername());
+    @GetMapping("/home/condition")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamHomeConditions>> verifyTeamHomeConditions(@AuthenticationPrincipal UserDetails userDetails){
+        TeamDto.ResponseTeamHomeConditions teamHomeConditions = teamService.getTeamHomeConditions(userDetails.getUsername());
 
         return ResponseEntity.ok(
-                ResponseHandler.builder()
+                ResponseHandler.<TeamDto.ResponseTeamHomeConditions>builder()
                         .responseMessage("Check existence of my team successfully")
-                        .responseData(isPresentTeam)
+                        .responseData(teamHomeConditions)
                         .build()
         );
     }

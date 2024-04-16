@@ -49,10 +49,17 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public boolean isPresentTeamWithMe(String memberId) {
+    public TeamDto.ResponseTeamHomeConditions getTeamHomeConditions(String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
 
+        return TeamDto.ResponseTeamHomeConditions.builder()
+                .isExistMyTeam(isPresentTeamWithMe(member))
+                .isUnivVerifiedMember(member.isVerifiedMember())
+                .build();
+    }
+
+    private boolean isPresentTeamWithMe(Member member) {
         return teamMemberRepository.existsByMember(member);
     }
 

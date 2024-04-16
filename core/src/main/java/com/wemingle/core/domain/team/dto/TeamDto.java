@@ -67,4 +67,17 @@ public class TeamDto {
             this.recruitmentType = recruitmentType;
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseTeamHomeConditions{
+        private boolean isExistMyTeam;
+        private boolean isUnivVerifiedMember;
+
+        @Builder
+        public ResponseTeamHomeConditions(boolean isExistMyTeam, boolean isUnivVerifiedMember) {
+            this.isExistMyTeam = isExistMyTeam;
+            this.isUnivVerifiedMember = isUnivVerifiedMember;
+        }
+    }
 }
