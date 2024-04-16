@@ -5,6 +5,7 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
@@ -113,7 +114,7 @@ public class TeamServiceImpl implements TeamService{
         Optional<Long> minPk = teams.stream().map(Team::getPk).min(Long::compareTo);
         boolean hasNextData = false;
         if (minPk.isPresent()) {
-            hasNextData = teamRepository.existsByPkLessThanAndTeamNameContains(minPk.get(), teamName);
+            hasNextData = teamRepository.existsByPkLessThanAndTeamNameContainsAndTeamType(minPk.get(), teamName, TeamType.TEAM);
         }
 
         return hasNextData;

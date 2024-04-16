@@ -3,6 +3,7 @@ package com.wemingle.core.domain.team.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,8 @@ public class DSLTeamRepositoryImpl implements DSLTeamRepository{
         return jpaQueryFactory.selectFrom(team)
                 .where(
                         nextIdxLt(nextIdx),
-                        team.teamName.contains(teamName)
+                        team.teamName.contains(teamName),
+                        team.teamType.eq(TeamType.TEAM)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
