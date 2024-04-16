@@ -66,15 +66,11 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public HashMap<Long, TeamDto.ResponseRandomTeamInfo> getRecommendTeams(Long nextIdx, String memberId) {
-        Long remainNum = getRemainNum();
-        PageRequest pageRequest = PageRequest.of(0, 4);
-        List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
+    public HashMap<Long, TeamDto.ResponseRecommendationTeamInfo> getRecommendTeams(Long nextIdx, String memberId) {
+        List<Team> randomTeams = getRecommendationTeams(nextIdx, memberId);
+        LinkedHashMap<Long, TeamDto.ResponseRecommendationTeamInfo> responseHashMap = new LinkedHashMap<>();
 
-        List<Team> randomTeams = teamRepository.getRecommendationTeams(nextIdx, myTeams, remainNum, pageRequest);
-        LinkedHashMap<Long, TeamDto.ResponseRandomTeamInfo> responseHashMap = new LinkedHashMap<>();
-
-         randomTeams.forEach(randomTeam -> responseHashMap.put(randomTeam.getPk(), TeamDto.ResponseRandomTeamInfo.builder()
+         randomTeams.forEach(randomTeam -> responseHashMap.put(randomTeam.getPk(), TeamDto.ResponseRecommendationTeamInfo.builder()
                  .teamName(randomTeam.getTeamName())
                  .content(randomTeam.getContent())
                  .recruitmentType(randomTeam.getRecruitmentType())
@@ -82,6 +78,28 @@ public class TeamServiceImpl implements TeamService{
                  .build()));
 
          return responseHashMap;
+    }
+
+    private List<Team> getRecommendationTeams(Long nextIdx, String memberId) {
+        Long remainNum = getRemainNum();
+        PageRequest pageRequest = PageRequest.of(0, 4);
+        List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
+
+        return teamRepository.getRecommendationTeams(nextIdx, myTeams, remainNum, pageRequest);
+    }
+
+    @Override
+    public HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> getRecommendTeamsForMember(Long nextIdx, String memberId) {
+        List<Team> randomTeams = getRecommendationTeams(nextIdx, memberId);
+        LinkedHashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> responseHashMap = new LinkedHashMap<>();
+
+        randomTeams.forEach(randomTeam -> responseHashMap.put(randomTeam.getPk(), TeamDto.ResponseRecommendationTeamForMemberInfo.builder()
+                .teamName(randomTeam.getTeamName())
+                .content(randomTeam.getContent())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(randomTeam.getProfileImgId()))
+                .build()));
+
+        return responseHashMap;
     }
 
     protected long getRemainNum() {

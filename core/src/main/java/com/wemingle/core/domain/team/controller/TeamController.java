@@ -62,13 +62,26 @@ public class TeamController {
     }
 
     @GetMapping("/recommendation")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRandomTeamInfo>>> getRecommendTeams(@RequestParam(required = false) Long nextIdx,
-                                                                                                            @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseRandomTeamInfo> randomTeams = teamService.getRecommendTeams(nextIdx, userDetails.getUsername());
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRecommendationTeamInfo>>> getRecommendTeams(@RequestParam(required = false) Long nextIdx,
+                                                                                                                             @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseRecommendationTeamInfo> randomTeams = teamService.getRecommendTeams(nextIdx, userDetails.getUsername());
 
         return ResponseEntity.ok(
-                ResponseHandler.<HashMap<Long, TeamDto.ResponseRandomTeamInfo>>builder()
-                        .responseMessage("Random teams retrieval successfully")
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseRecommendationTeamInfo>>builder()
+                        .responseMessage("Recommendation teams retrieval successfully")
+                        .responseData(randomTeams)
+                        .build()
+        );
+    }
+
+    @GetMapping("/recommendation/member")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo>>> getRecommendTeamsForMember(@RequestParam(required = false) Long nextIdx,
+                                                                                                                                      @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> randomTeams = teamService.getRecommendTeamsForMember(nextIdx, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo>>builder()
+                        .responseMessage("Recommendation teams for member retrieval successfully")
                         .responseData(randomTeams)
                         .build()
         );

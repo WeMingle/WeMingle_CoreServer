@@ -42,7 +42,8 @@ public class DSLTeamRepositoryImpl implements DSLTeamRepository{
                 .where(
                         nextIdxLt(nextIdx),
                         notInTeams(myTeams),
-                        randomTeamPkEq(remainNum))
+                        randomTeamPkEq(remainNum),
+                        team.teamType.eq(TeamType.TEAM))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(team.pk.desc())

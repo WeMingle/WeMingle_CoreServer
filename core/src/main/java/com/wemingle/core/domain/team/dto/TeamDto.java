@@ -23,18 +23,33 @@ public class TeamDto {
 
     @Getter
     @NoArgsConstructor
-    public static class ResponseRandomTeamInfo {
+    public static class ResponseRecommendationTeamInfo {
         private String teamName;
         private String content;
         private String teamImgUrl;
         private RecruitmentType recruitmentType;
 
         @Builder
-        public ResponseRandomTeamInfo(String teamName, String content, String teamImgUrl, RecruitmentType recruitmentType) {
+        public ResponseRecommendationTeamInfo(String teamName, String content, String teamImgUrl, RecruitmentType recruitmentType) {
             this.teamName = teamName;
             this.content = content;
             this.teamImgUrl = teamImgUrl;
             this.recruitmentType = recruitmentType;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseRecommendationTeamForMemberInfo {
+        private String teamName;
+        private String content;
+        private String teamImgUrl;
+
+        @Builder
+        public ResponseRecommendationTeamForMemberInfo(String teamName, String content, String teamImgUrl) {
+            this.teamName = teamName;
+            this.content = content;
+            this.teamImgUrl = teamImgUrl;
         }
     }
 
