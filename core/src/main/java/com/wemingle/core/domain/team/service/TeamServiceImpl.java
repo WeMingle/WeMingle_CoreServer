@@ -3,11 +3,13 @@ package com.wemingle.core.domain.team.service;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
+import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class TeamServiceImpl implements TeamService{
     private final S3ImgService s3ImgService;
     private final MemberRepository memberRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     @Override
     public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithMemberId(String memberId) {
         List<Team> teamList = teamRepository.findByTeamOwner_MemberId(memberId);
@@ -136,5 +139,26 @@ public class TeamServiceImpl implements TeamService{
         }
 
         return hasNextData;
+    }
+
+    @Override
+    public HashMap<Long, TeamDto.ResponseTeamByMemberUniv> getTeamWithMemberUniv(Long nextIdx, String memberId){
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        UnivEntity univEntity = verifiedUniversityEmailRepository.findUnivEntityByMember(member)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
+        List<Member> univMates = verifiedUniversityEmailRepository.findUnivMates(univEntity, member);
+        List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        List<Team> teams = teamRepository.getTeamsByTeamOwners(nextIdx, univMates, myTeams, pageRequest);
+        LinkedHashMap<Long, TeamDto.ResponseTeamByMemberUniv> responseDto = new LinkedHashMap<>();
+
+        teams.forEach(team -> responseDto.put(team.getPk(), TeamDto.ResponseTeamByMemberUniv.builder()
+                .teamName(team.getTeamName())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .build()));
+
+        return responseDto;
     }
 }

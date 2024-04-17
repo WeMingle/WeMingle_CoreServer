@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.team.repository;
 
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.team.entity.Team;
 import org.springframework.data.domain.Pageable;
 
@@ -13,4 +14,9 @@ public interface DSLTeamRepository {
                                       List<Team> excludeTeams,
                                       Long remainNum,
                                       Pageable pageable);
+
+    List<Team> getTeamsByTeamOwners(Long nextIdx,
+                                 List<Member> members,
+                                 List<Team> myTeams,
+                                 Pageable pageable);
 }

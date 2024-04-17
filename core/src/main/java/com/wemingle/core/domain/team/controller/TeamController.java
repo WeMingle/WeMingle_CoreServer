@@ -99,4 +99,16 @@ public class TeamController {
                         .build()
         );
     }
+
+    @GetMapping("/univ")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamByMemberUniv>>> getTeamsWithMyUniv(@RequestParam(required = false) Long nextIdx,
+                                                                                                               @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseTeamByMemberUniv> responsesData = teamService.getTeamWithMemberUniv(nextIdx, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseTeamByMemberUniv>>builder()
+                        .responseMessage("Teams associated with my univ retrieval successfully")
+                        .responseData(responsesData)
+                        .build());
+    }
 }

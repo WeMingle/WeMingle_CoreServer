@@ -1,17 +1,15 @@
 package com.wemingle.core.global.advice.vaildation;
 
-import com.wemingle.core.domain.matching.controller.MatchingController;
-import com.wemingle.core.domain.member.controller.MemberController;
-import com.wemingle.core.domain.nickname.controller.NicknameController;
-import com.wemingle.core.domain.post.controller.MatchingPostController;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(assignableTypes = {NicknameController.class, MemberController.class, MatchingController.class, MatchingPostController.class})
+//@RestControllerAdvice(assignableTypes = {NicknameController.class, MemberController.class, MatchingController.class, MatchingPostController.class})
+@RestControllerAdvice
 public class ValidExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -48,6 +46,16 @@ public class ValidExceptionHandler {
         return ResponseEntity.badRequest().body(
                 ResponseHandler.<String>builder()
                         .responseMessage("RuntimeException")
+                        .responseData(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ResponseHandler<String>> EntityNotFoundException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                ResponseHandler.<String>builder()
+                        .responseMessage("EntityNotFoundException")
                         .responseData(e.getMessage())
                         .build()
         );

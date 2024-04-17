@@ -2,6 +2,7 @@ package com.wemingle.core.domain.team.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,25 @@ public class DSLTeamRepositoryImpl implements DSLTeamRepository{
                         notInTeams(myTeams),
                         randomTeamPkEq(remainNum),
                         team.teamType.eq(TeamType.TEAM))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(team.pk.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<Team> getTeamsByTeamOwners(Long nextIdx, List<Member> members, List<Team> myTeams, Pageable pageable) {
+        if (members.isEmpty()){
+            return List.of();
+        }
+
+        return jpaQueryFactory.selectFrom(team)
+                .where(
+                        nextIdxLt(nextIdx),
+                        team.teamOwner.in(members),
+                        team.teamType.eq(TeamType.TEAM),
+                        notInTeams(myTeams)
+                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(team.pk.desc())

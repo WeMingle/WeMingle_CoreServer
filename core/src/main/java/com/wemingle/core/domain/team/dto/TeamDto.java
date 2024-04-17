@@ -95,4 +95,17 @@ public class TeamDto {
             this.isUnivVerifiedMember = isUnivVerifiedMember;
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseTeamByMemberUniv {
+        String teamName;
+        String teamImgUrl;
+
+        @Builder
+        public ResponseTeamByMemberUniv(String teamName, String teamImgUrl) {
+            this.teamName = teamName;
+            this.teamImgUrl = teamImgUrl;
+        }
+    }
 }
