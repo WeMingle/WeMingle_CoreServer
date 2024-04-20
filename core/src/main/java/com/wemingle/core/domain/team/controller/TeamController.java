@@ -111,15 +111,4 @@ public class TeamController {
                         .responseData(responseData)
                         .build());
     }
-
-    @GetMapping("/member")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseMemberTeamsInfo>>> getTeamsWithMember(@AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseMemberTeamsInfo> responseData = teamService.getTeamsWithMember(userDetails.getUsername());
-
-        return ResponseEntity.ok(
-                ResponseHandler.<HashMap<Long, TeamDto.ResponseMemberTeamsInfo>>builder()
-                        .responseMessage("My teams retrieval successfully")
-                        .responseData(responseData)
-                        .build());
-    }
 }
