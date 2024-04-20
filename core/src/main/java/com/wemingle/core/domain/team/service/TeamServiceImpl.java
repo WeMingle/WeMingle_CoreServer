@@ -32,6 +32,8 @@ public class TeamServiceImpl implements TeamService{
     private final MemberRepository memberRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
+
+    private static final int PAGE_SIZE = 30;
     @Override
     public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithMemberId(String memberId) {
         List<Team> teamList = teamRepository.findByTeamOwner_MemberId(memberId);
@@ -85,7 +87,7 @@ public class TeamServiceImpl implements TeamService{
 
     private List<Team> getRecommendationTeams(Long nextIdx, String memberId) {
         Long remainNum = getRemainNum();
-        PageRequest pageRequest = PageRequest.of(0, 4);
+        PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
         List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
 
         return teamRepository.getRecommendationTeams(nextIdx, myTeams, remainNum, pageRequest);
@@ -111,7 +113,7 @@ public class TeamServiceImpl implements TeamService{
 
     @Override
     public TeamDto.ResponseTeamInfoByName getTeamByName(Long nextIdx, String teamName) {
-        PageRequest pageRequest = PageRequest.of(0, 4);
+        PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
         List<Team> teams = teamRepository.getTeamByTeamName(nextIdx, teamName, pageRequest);
 
         LinkedHashMap<Long, TeamDto.TeamInfoInSearch> teamInfoHashMap = new LinkedHashMap<>();
@@ -150,7 +152,7 @@ public class TeamServiceImpl implements TeamService{
         List<Member> univMates = verifiedUniversityEmailRepository.findUnivMates(univEntity, member);
         List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
 
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
         List<Team> teams = teamRepository.getTeamsByTeamOwners(nextIdx, univMates, myTeams, pageRequest);
         LinkedHashMap<Long, TeamDto.ResponseTeamByMemberUniv> responseDto = new LinkedHashMap<>();
 
