@@ -108,4 +108,19 @@ public class TeamDto {
             this.teamImgUrl = teamImgUrl;
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseMemberTeamsInfo {
+        String teamName;
+        String teamImgUrl;
+        int unreadMessageCnt;
+
+        @Builder
+        public ResponseMemberTeamsInfo(String teamName, String teamImgUrl, int unreadMessageCnt) {
+            this.teamName = teamName;
+            this.teamImgUrl = teamImgUrl;
+            this.unreadMessageCnt = unreadMessageCnt;
+        }
+    }
 }

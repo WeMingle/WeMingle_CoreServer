@@ -161,4 +161,18 @@ public class TeamServiceImpl implements TeamService{
 
         return responseDto;
     }
+
+    @Override
+    public HashMap<Long, TeamDto.ResponseMemberTeamsInfo> getTeamsWithMember(String memberId) {
+        List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
+
+        LinkedHashMap<Long, TeamDto.ResponseMemberTeamsInfo> responseData = new LinkedHashMap<>();
+        myTeams.forEach(team -> responseData.put(team.getPk(), TeamDto.ResponseMemberTeamsInfo.builder()
+                .teamName(team.getTeamName())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .unreadMessageCnt(0) //todo 채팅 완성되면 안읽은 채팅 수 카운트 로직 추가
+                .build()));
+
+        return responseData;
+    }
 }

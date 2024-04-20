@@ -103,12 +103,23 @@ public class TeamController {
     @GetMapping("/univ")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamByMemberUniv>>> getTeamsWithMyUniv(@RequestParam(required = false) Long nextIdx,
                                                                                                                @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseTeamByMemberUniv> responsesData = teamService.getTeamWithMemberUniv(nextIdx, userDetails.getUsername());
+        HashMap<Long, TeamDto.ResponseTeamByMemberUniv> responseData = teamService.getTeamWithMemberUniv(nextIdx, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseTeamByMemberUniv>>builder()
                         .responseMessage("Teams associated with my univ retrieval successfully")
-                        .responseData(responsesData)
+                        .responseData(responseData)
+                        .build());
+    }
+
+    @GetMapping("/member")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseMemberTeamsInfo>>> getTeamsWithMember(@AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseMemberTeamsInfo> responseData = teamService.getTeamsWithMember(userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseMemberTeamsInfo>>builder()
+                        .responseMessage("My teams retrieval successfully")
+                        .responseData(responseData)
                         .build());
     }
 }
