@@ -128,6 +128,8 @@ public class InitDatabase {
                     .teamName("teamname" + i)
                     .capacityLimit(100)
                     .profileImgId(UUID.randomUUID())
+                    .content("teamname" + i)
+                    .recruitmentType(RecruitmentType.FIRST_SERVED_BASED)
                     .teamOwner(memberList.get(i))
                     .teamType(TeamType.TEAM)
                     .sportsCategory(SportsType.OTHER)

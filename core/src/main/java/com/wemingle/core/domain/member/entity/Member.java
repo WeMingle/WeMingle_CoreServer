@@ -176,4 +176,7 @@ public class Member extends BaseEntity implements UserDetails {
     public void patchPolicyTerms(PolicyTerms policyTerms){
         this.policyTerms = policyTerms;
     }
+    public boolean isVerifiedMember(){
+        return !this.role.equals(Role.UNVERIFIED_USER);
+    }
 }

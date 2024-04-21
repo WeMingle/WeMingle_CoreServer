@@ -3,6 +3,7 @@ package com.wemingle.core.domain.team.entity;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -39,8 +40,16 @@ public class Team extends BaseEntity {
     private UUID profileImgId;
 
     @NotNull
+    @Column(name = "CONTENT", length = 3000)
+    private String content;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     private TeamType teamType;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private RecruitmentType recruitmentType;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -56,12 +65,14 @@ public class Team extends BaseEntity {
     private List<TeamMember> teamMembers = new ArrayList<>();
 
     @Builder
-    public Team(String teamName, int capacityLimit, UUID profileImgId, TeamType teamType, Member teamOwner, SportsType sportsCategory) {
+    public Team(String teamName, int capacityLimit, UUID profileImgId, String content, TeamType teamType, RecruitmentType recruitmentType, Member teamOwner, SportsType sportsCategory) {
         this.teamName = teamName;
         this.capacityLimit = capacityLimit;
         this.completedMatchingCnt = 0;
         this.profileImgId = profileImgId;
+        this.content = content;
         this.teamType = teamType;
+        this.recruitmentType = recruitmentType;
         this.teamOwner = teamOwner;
         this.sportsCategory = sportsCategory;
     }
