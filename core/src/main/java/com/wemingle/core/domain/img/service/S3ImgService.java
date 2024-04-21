@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.net.URL;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -52,5 +54,17 @@ public class S3ImgService {
         URL url = s3Presigner.presignGetObject(objectPreSignRequest).url();
         s3Presigner.close();
         return url.toString();
+    }
+
+    public List<String> getTeamPostPicUrl(List<UUID> picIds) {
+        ArrayList<String> s3Urls = new ArrayList<>();
+        for (UUID picId: picIds) {
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key("post/team/" + picId).build();
+            GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
+            URL url = s3Presigner.presignGetObject(objectPreSignRequest).url();
+            s3Urls.add(url.toString());
+            s3Presigner.close();
+        }
+        return s3Urls;
     }
 }
