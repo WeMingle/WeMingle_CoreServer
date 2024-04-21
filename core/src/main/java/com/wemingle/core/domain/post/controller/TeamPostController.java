@@ -18,12 +18,12 @@ public class TeamPostController {
     private final TeamPostService teamPostService;
 
     @GetMapping
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfo>>> getTeamPostsWithMember(@RequestParam(required = false) Long nextIdx,
-                                                                                                                    @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamPostDto.ResponseTeamPostsInfo> responseData = teamPostService.getTeamPostWithMember(nextIdx, userDetails.getUsername());
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>> getTeamPostsWithMember(@RequestParam(required = false) Long nextIdx,
+                                                                                                                              @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> responseData = teamPostService.getTeamPostWithMember(nextIdx, userDetails.getUsername());
 
         return ResponseEntity.ok(
-                ResponseHandler.<HashMap<Long, TeamPostDto.ResponseTeamPostsInfo>>builder()
+                ResponseHandler.<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>builder()
                         .responseMessage("Team posts retrieval successfully")
                         .responseData(responseData)
                         .build()
@@ -31,13 +31,14 @@ public class TeamPostController {
     }
 
     @GetMapping("/{teamPk}")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfo>>> getTeamPostsWithMember(@PathVariable Long teamPk,
-                                                                                                                    @RequestParam(required = false) Long nextIdx,
-                                                                                                                    @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamPostDto.ResponseTeamPostsInfo> responseData = teamPostService.getTeamPostWithTeam(nextIdx, teamPk, userDetails.getUsername());
+    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostsInfoWithTeam>> getTeamPostsWithMember(@PathVariable Long teamPk,
+                                                                                                                              @RequestParam boolean isNotice,
+                                                                                                                              @RequestParam(required = false) Long nextIdx,
+                                                                                                                              @AuthenticationPrincipal UserDetails userDetails){
+        TeamPostDto.ResponseTeamPostsInfoWithTeam responseData = teamPostService.getTeamPostWithTeam(nextIdx, isNotice, teamPk, userDetails.getUsername());
 
         return ResponseEntity.ok(
-                ResponseHandler.<HashMap<Long, TeamPostDto.ResponseTeamPostsInfo>>builder()
+                ResponseHandler.<TeamPostDto.ResponseTeamPostsInfoWithTeam>builder()
                         .responseMessage("Team posts retrieval successfully")
                         .responseData(responseData)
                         .build()

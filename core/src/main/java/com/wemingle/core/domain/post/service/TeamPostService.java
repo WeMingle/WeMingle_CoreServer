@@ -7,6 +7,8 @@ import com.wemingle.core.domain.post.dto.TeamPostDto;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
@@ -31,26 +33,14 @@ public class TeamPostService {
     private final BookmarkedTeamPostRepository bookmarkedTeamPostRepository;
     private final S3ImgService s3ImgService;
 
-    public HashMap<Long, TeamPostDto.ResponseTeamPostsInfo> getTeamPostWithMember(Long nextIdx, String memberId){
+    public HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> getTeamPostWithMember(Long nextIdx, String memberId){
         List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
         List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithMember(nextIdx, myTeams);
 
-        return getTeamPostsInfo(memberId, teamPosts);
-    }
-
-    public HashMap<Long, TeamPostDto.ResponseTeamPostsInfo> getTeamPostWithTeam(Long nextIdx, Long teamPk, String memberId){
-        Team team = teamRepository.findById(teamPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
-        List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithTeam(nextIdx, team);
-
-        return getTeamPostsInfo(memberId, teamPosts);
-    }
-
-    private HashMap<Long, TeamPostDto.ResponseTeamPostsInfo> getTeamPostsInfo(String memberId, List<TeamPost> teamPosts) {
         List<TeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findBookmarkedByTeamPost(teamPosts, memberId);
 
-        HashMap<Long, TeamPostDto.ResponseTeamPostsInfo> responseData = new LinkedHashMap<>();
-        teamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.ResponseTeamPostsInfo.builder()
+        HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> responseData = new LinkedHashMap<>();
+        teamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.ResponseTeamPostsInfoWithMember.builder()
                 .teamName(teamPost.getTeam().getTeamName())
                 .title(teamPost.getTitle())
                 .content(teamPost.getContent())
@@ -66,8 +56,44 @@ public class TeamPostService {
         return responseData;
     }
 
-    private static List<UUID> getImgIds(TeamPost teamPost) {
+    public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamPk, String memberId){
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        TeamMember teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+        List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithTeam(nextIdx, team ,isNotice);
+
+        List<TeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findBookmarkedByTeamPost(teamPosts, memberId);
+
+        HashMap<Long, TeamPostDto.TeamPostInfo> responseData = new LinkedHashMap<>();
+
+        teamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.TeamPostInfo.builder()
+                .teamName(teamPost.getTeam().getTeamName())
+                .title(teamPost.getTitle())
+                .content(teamPost.getContent())
+                .nickname(teamPost.getWriter().getNickname())
+                .createdTime(teamPost.getCreatedTime())
+                .teamPostImgUrls(s3ImgService.getTeamPostPicUrl(getImgIds(teamPost)))
+                .likeCnt(teamPost.getLikeCount())
+                .replyCnt(teamPost.getReplyCount())
+                .postType(teamPost.getPostType())
+                .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
+                .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
+                .build()
+        ));
+
+        return TeamPostDto.ResponseTeamPostsInfoWithTeam.builder()
+                .isTeamOwner(isTeamOwner(teamMember))
+                .teamPostsInfo(responseData)
+                .build();
+    }
+
+    private List<UUID> getImgIds(TeamPost teamPost) {
         return teamPost.getTeamPostImgs().stream().map(TeamPostImg::getImgId).toList();
+    }
+
+    private boolean isTeamOwner(TeamMember teamMember) {
+        return !teamMember.getTeamRole().equals(TeamRole.PARTICIPANT);
     }
 
     private boolean isBookmarked(TeamPost teamPost, List<TeamPost> bookmarkedTeamPosts) {
