@@ -4,6 +4,8 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
+import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
+import com.wemingle.core.domain.review.repository.TeamReviewRepository;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
@@ -11,6 +13,7 @@ import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
+import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +35,8 @@ public class TeamServiceImpl implements TeamService{
     private final MemberRepository memberRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
+    private final TeamReviewRepository teamReviewRepository;
+    private final TeamRatingRepository teamRatingRepository;
 
     private static final int PAGE_SIZE = 30;
     @Override
@@ -162,5 +167,32 @@ public class TeamServiceImpl implements TeamService{
                 .build()));
 
         return responseDto;
+    }
+
+    @Override
+    public TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk) {
+        TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Integer reviewCnt = teamReviewRepository.findTeamReviewCntWithReviewee(team);
+        Double totalRating = teamRatingRepository.findTotalRatingWithTeam(team);
+
+        return TeamDto.TeamInfo.builder()
+                .createDate(team.getCreatedTime().toLocalDate())
+                .teamMemberCnt(team.getTeamMembers().size())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .teamName(team.getTeamName())
+                .teamRating(teamRatingUtil.adjustTeamRating(getNonNullTotalRating(totalRating)))
+                .reviewCnt(getNonNullReviewCnt(reviewCnt))
+                .content(team.getContent())
+                .build();
+    }
+
+    private double getNonNullTotalRating(Double totalRating){
+        return totalRating == null ? 0 : totalRating;
+    }
+
+    private int getNonNullReviewCnt(Integer reviewCnt){
+        return reviewCnt == null ? 0 : reviewCnt;
     }
 }

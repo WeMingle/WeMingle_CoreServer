@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.team.controller;
 
-import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.domain.team.service.TeamService;
@@ -10,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
@@ -23,7 +19,6 @@ import java.util.HashMap;
 public class TeamController {
     private final TeamService teamService;
     private final TeamMemberService teamMemberService;
-    private final MemberService memberService;
 
     @GetMapping("/post")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
@@ -108,6 +103,17 @@ public class TeamController {
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseTeamByMemberUniv>>builder()
                         .responseMessage("Teams associated with my univ retrieval successfully")
+                        .responseData(responseData)
+                        .build());
+    }
+
+    @GetMapping("/{teamPk}")
+    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk){
+        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.TeamInfo>builder()
+                        .responseMessage("Team info retrieval successfully")
                         .responseData(responseData)
                         .build());
     }

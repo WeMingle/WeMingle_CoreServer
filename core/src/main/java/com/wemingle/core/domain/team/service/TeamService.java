@@ -11,4 +11,5 @@ public interface TeamService {
     HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> getRecommendTeamsForMember(Long nextIdx, String memberId);
     TeamDto.ResponseTeamInfoByName getTeamByName(Long nextIdx, String teamName);
     HashMap<Long, TeamDto.ResponseTeamByMemberUniv> getTeamWithMemberUniv(Long nextIdx, String memberId);
+    TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk);
 }
