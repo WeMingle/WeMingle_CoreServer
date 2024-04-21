@@ -10,7 +10,7 @@ import java.util.List;
 public class TeamPostDto {
     @Getter
     @NoArgsConstructor
-    public static class ResponseTeamPostsInfoWithMember{
+    public static class ResponseTeamPostsInfo {
         private String teamName;
         private String title;
         private String content;
@@ -23,7 +23,7 @@ public class TeamPostDto {
         private VoteInfo voteInfo;
 
         @Builder
-        public ResponseTeamPostsInfoWithMember(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, VoteInfo voteInfo) {
+        public ResponseTeamPostsInfo(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, VoteInfo voteInfo) {
             this.teamName = teamName;
             this.title = title;
             this.content = content;

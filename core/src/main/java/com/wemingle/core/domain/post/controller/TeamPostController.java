@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
@@ -21,12 +18,26 @@ public class TeamPostController {
     private final TeamPostService teamPostService;
 
     @GetMapping
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>> getTeamPostsWithMember(@RequestParam(required = false) Long nextIdx,
-                                                                                                               @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> responseData = teamPostService.getTeamPostWithMember(nextIdx, userDetails.getUsername());
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfo>>> getTeamPostsWithMember(@RequestParam(required = false) Long nextIdx,
+                                                                                                                    @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamPostDto.ResponseTeamPostsInfo> responseData = teamPostService.getTeamPostWithMember(nextIdx, userDetails.getUsername());
 
         return ResponseEntity.ok(
-                ResponseHandler.<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>builder()
+                ResponseHandler.<HashMap<Long, TeamPostDto.ResponseTeamPostsInfo>>builder()
+                        .responseMessage("Team posts retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping("/{teamPk}")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfo>>> getTeamPostsWithMember(@PathVariable Long teamPk,
+                                                                                                                    @RequestParam(required = false) Long nextIdx,
+                                                                                                                    @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamPostDto.ResponseTeamPostsInfo> responseData = teamPostService.getTeamPostWithTeam(nextIdx, teamPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamPostDto.ResponseTeamPostsInfo>>builder()
                         .responseMessage("Team posts retrieval successfully")
                         .responseData(responseData)
                         .build()
