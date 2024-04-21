@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.entity;
 
+import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -11,9 +12,13 @@ import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,11 +97,16 @@ public class MatchingPost extends BaseEntity {
     @JoinColumn(name = "TEAM")
     private Team team;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SPORTS_CATEGORY")
+    private SportsCategory sportsCategory;
+
     @NotNull
     @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
+
     public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
@@ -111,10 +121,11 @@ public class MatchingPost extends BaseEntity {
         this.gender = gender;
         this.recruitmentType = recruitmentType;
         this.recruiterType = recruiterType;
-        this.matchingStatus = MatchingStatus.COMPLETE;
+        this.matchingStatus = MatchingStatus.PENDING;
         this.locationSelectionType = locationSelectionType;
         this.writer = writer;
         this.team = team;
+        this.sportsCategory = sportsCategory;
     }
 
     public void putAreaList(List<MatchingPostArea> matchingPostAreaList){
@@ -123,5 +134,9 @@ public class MatchingPost extends BaseEntity {
 
     public void putArea(MatchingPostArea matchingPostArea){
         areaList.add(matchingPostArea);
+    }
+    public void updateForRePost(){
+        setCreatedTime(LocalDateTime.now());
+        this.matchingStatus = MatchingStatus.PENDING;
     }
 }
