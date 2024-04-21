@@ -1,6 +1,6 @@
 package com.wemingle.core.domain.team.entity;
 
-import com.wemingle.core.domain.category.sports.entity.SportsCategory;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
@@ -43,6 +43,10 @@ public class Team extends BaseEntity {
     private TeamType teamType;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    private SportsType sportsCategory;
+
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM_OWNER")
     private Member teamOwner;
@@ -51,13 +55,8 @@ public class Team extends BaseEntity {
     @OneToMany(mappedBy = "team", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<TeamMember> teamMembers = new ArrayList<>();
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SPORTS_CATEGORY")
-    private SportsCategory sportsCategory;
-
     @Builder
-    public Team(String teamName, int capacityLimit, UUID profileImgId, TeamType teamType, Member teamOwner, SportsCategory sportsCategory) {
+    public Team(String teamName, int capacityLimit, UUID profileImgId, TeamType teamType, Member teamOwner, SportsType sportsCategory) {
         this.teamName = teamName;
         this.capacityLimit = capacityLimit;
         this.completedMatchingCnt = 0;

@@ -3,9 +3,7 @@ package com.wemingle.core.global.initdb;
 
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
 import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
-import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
-import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
@@ -60,8 +58,6 @@ public class InitDatabase {
     TeamMemberRepository teamMemberRepository;
     @Autowired
     MatchingPostAreaRepository matchingPostAreaRepository;
-    @Autowired
-    SportsCategoryRepository sportsCategoryRepository;
     @Autowired
     BookmarkRepository bookmarkRepository;
 
@@ -124,9 +120,6 @@ public class InitDatabase {
         return returnTeamMembers;
     }
 
-    private SportsCategory createSportsCategory() {
-        return sportsCategoryRepository.save(SportsCategory.builder().sportsName(SportsType.OTHER).build());
-    }
 
     private List<Team> createTeam(int amount,List<Member> memberList) {
         List<Team> returnTeams = new ArrayList<>();
@@ -137,7 +130,7 @@ public class InitDatabase {
                     .profileImgId(UUID.randomUUID())
                     .teamOwner(memberList.get(i))
                     .teamType(TeamType.TEAM)
-                    .sportsCategory(createSportsCategory())
+                    .sportsCategory(SportsType.OTHER)
                     .build();
 
             returnTeams.add(team);

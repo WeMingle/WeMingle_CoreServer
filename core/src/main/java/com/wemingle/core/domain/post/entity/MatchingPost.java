@@ -1,6 +1,6 @@
 package com.wemingle.core.domain.post.entity;
 
-import com.wemingle.core.domain.category.sports.entity.SportsCategory;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -97,17 +97,15 @@ public class MatchingPost extends BaseEntity {
     @JoinColumn(name = "TEAM")
     private Team team;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SPORTS_CATEGORY")
-    private SportsCategory sportsCategory;
+    @Enumerated(EnumType.STRING)
+    private SportsType sportsCategory;
 
     @NotNull
     @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
-
-    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
+    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
         this.locationName = locationName;

@@ -1,8 +1,6 @@
 package com.wemingle.core.domain.member.service;
 
-import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
-import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.member.dto.MemberAuthenticationInfoDto;
 import com.wemingle.core.domain.member.dto.MemberInfoDto;
 import com.wemingle.core.domain.member.entity.Member;
@@ -33,7 +31,6 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PolicyTermsRepository policyTermsRepository;
-    private final SportsCategoryRepository sportsCategoryRepository;
     private final MemberPreferenceSportsRepository memberPreferenceSportsRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
 
@@ -92,9 +89,8 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports) {
         Member findMember = findByMemberId(memberId);
-        List<SportsCategory> preferenceSportsCategories = sportsCategoryRepository.findBySportsTypes(preferenceSports);
 
-        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSportsCategories.stream()
+        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSports.stream()
                 .map(preferenceSportsCategory -> MemberPreferenceSports.builder()
                         .member(findMember)
                         .sports(preferenceSportsCategory)
