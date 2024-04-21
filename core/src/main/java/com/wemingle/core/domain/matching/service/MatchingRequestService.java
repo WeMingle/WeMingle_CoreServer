@@ -87,15 +87,25 @@ public class MatchingRequestService {
             }
             case PENDING -> {
                 if (myMatchingPost.contains(matchingRequest.getMatchingPost())){
-                    return new TitleInfo(teamName + RECEIVE_SUFFIX, RequestTitleStatus.RECEIVE);
+                    return getTitleInfoWithRecruiterType(matchingRequest, teamName);
                 }
 
-                return matchingRequest.getTeam().getTeamOwner().equals(findMember)
-                        ? new TitleInfo(teamName + IS_OWNER_SENT_SUFFIX, RequestTitleStatus.SENT_BY_ME)
-                        : new TitleInfo(IS_PARTICIPANT_TITLE_PREFIX + teamName + IS_PARTICIPANT_SENT_SUFFIX, RequestTitleStatus.SENT_BY_OWNER);
+                return getTitleInfoWithSender(matchingRequest, findMember, teamName);
             }
             default -> throw new RuntimeException(ExceptionMessage.INVALID_MATCHING_REQUEST_STATUS.getExceptionMessage());
         }
+    }
+
+    private static TitleInfo getTitleInfoWithRecruiterType(MatchingRequest matchingRequest, String teamName) {
+        return matchingRequest.getMatchingPost().getRecruiterType().equals(RecruiterType.TEAM)
+                ? new TitleInfo(teamName + RECEIVE_SUFFIX, RequestTitleStatus.RECEIVE_BY_TEAM)
+                : new TitleInfo(teamName + RECEIVE_SUFFIX, RequestTitleStatus.RECEIVE_BY_INDIVIDUAL);
+    }
+
+    private static TitleInfo getTitleInfoWithSender(MatchingRequest matchingRequest, Member findMember, String teamName) {
+        return matchingRequest.getTeam().getTeamOwner().equals(findMember)
+                ? new TitleInfo(teamName + IS_OWNER_SENT_SUFFIX, RequestTitleStatus.SENT_BY_ME)
+                : new TitleInfo(IS_PARTICIPANT_TITLE_PREFIX + teamName + IS_PARTICIPANT_SENT_SUFFIX, RequestTitleStatus.SENT_BY_OWNER);
     }
 
     public MatchingRequestDto.ResponsePendingRequestsByIndividual getPendingRequestsByIndividual(Long matchingPostPk){
@@ -109,8 +119,8 @@ public class MatchingRequestService {
                 .nickname(matchingRequest.getMember().getNickname())
                 .content(matchingRequest.getContent())
                 .completedMatchingCnt(matchingRequest.getTeam().getCompletedMatchingCnt())
-                .majorActivityArea(matchingRequest.getMember().getMajorActivityArea())
-                .ability(matchingRequest.getMember().getAbility()) //todo 카테고리별 ability로 수정
+//                .majorActivityArea(matchingRequest.getMember().getMajorActivityArea())
+//                .ability(matchingRequest.getMember().getAbility()) //todo 카테고리별 ability로 수정
                 .build()));
 
         return MatchingRequestDto.ResponsePendingRequestsByIndividual.builder()
@@ -151,13 +161,8 @@ public class MatchingRequestService {
     }
 
     @Transactional
-    public void approveMatchingRequests(MatchingRequestDto.MatchingRequestComplete matchingRequestComplete){
-        List<Long> matchingRequestsPk = matchingRequestComplete.getMatchingRequests();
-        List<MatchingRequest> matchingRequests = matchingRequestRepository.findByPkIn(matchingRequestsPk);
-        Set<Team> teams = matchingRequests.stream().map(MatchingRequest::getTeam).collect(Collectors.toSet());
-        MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
-        List<MatchingRequest> matchingAllRequest = matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
+    public void approveMatchingRequests(MatchingRequestDto.MatchingRequestApprove matchingRequestApprove){
+        List<MatchingRequest> matchingAllRequest = getAllMatchingRequests(matchingRequestApprove.getMatchingRequests());
         ArrayList<Matching> saveMatching = new ArrayList<>();
 
         matchingAllRequest.forEach(matchingRequest -> {
@@ -166,5 +171,20 @@ public class MatchingRequestService {
         });
 
         matchingRepository.saveAll(saveMatching);
+    }
+
+    @Transactional
+    public void deleteMatchingRequests(MatchingRequestDto.MatchingRequestDelete matchingRequestDelete){
+        List<MatchingRequest> matchingAllRequests = getAllMatchingRequests(matchingRequestDelete.getMatchingRequests());
+
+        matchingRequestRepository.deleteAllInBatch(matchingAllRequests);
+    }
+
+    private List<MatchingRequest> getAllMatchingRequests(List<Long> matchingRequestsPk) {
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findByPkIn(matchingRequestsPk);
+        Set<Team> teams = matchingRequests.stream().map(MatchingRequest::getTeam).collect(Collectors.toSet());
+        MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        return matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
     }
 }

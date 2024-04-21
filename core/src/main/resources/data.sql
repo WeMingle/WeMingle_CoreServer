@@ -126,19 +126,19 @@ INSERT INTO university (UNIV_NAME,DOMAIN) VALUES
                                                ,('부산대학교','pusan')
                                                ,('상명대학교','sangmyung');
 
-INSERT INTO sports_category (sports_name) VALUES
-                                              ('RUNNING'),
-                                              ('SOCCER'),
-                                              ('BASKETBALL'),
-                                              ('BASEBALL'),
-                                              ('TENNIS'),
-                                              ('BOWLING'),
-                                              ('SQUASH'),
-                                              ('CLIMBING'),
-                                              ('CYCLING'),
-                                              ('BADMINTON'),
-                                              ('SKATEBOARDING'),
-                                              ('OTHER');
+-- INSERT INTO sports_category (sports_name) VALUES
+--                                               ('RUNNING'),
+--                                               ('SOCCER'),
+--                                               ('BASKETBALL'),
+--                                               ('BASEBALL'),
+--                                               ('TENNIS'),
+--                                               ('BOWLING'),
+--                                               ('SQUASH'),
+--                                               ('CLIMBING'),
+--                                               ('CYCLING'),
+--                                               ('BADMINTON'),
+--                                               ('SKATEBOARDING'),
+--                                               ('OTHER');
 
 -- INSERT INTO policy_terms (policy_1, policy_2, policy_3, agree_to_location_based_services, agree_to_receive_marketing_information, created_time) values
 --     (true, true, true, true, true, NOW());

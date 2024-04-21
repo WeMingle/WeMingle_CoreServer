@@ -1,6 +1,6 @@
 package com.wemingle.core.domain.member.entity;
 
-import com.wemingle.core.domain.category.sports.entity.SportsCategory;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -22,12 +22,11 @@ public class MemberPreferenceSports {
 
     @Getter
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SPORTS")
-    private SportsCategory sports;
+    @Enumerated(EnumType.STRING)
+    private SportsType sports;
 
     @Builder
-    public MemberPreferenceSports(Member member, SportsCategory sports) {
+    public MemberPreferenceSports(Member member, SportsType sports) {
         this.member = member;
         this.sports = sports;
     }

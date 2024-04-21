@@ -4,7 +4,7 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
-import com.wemingle.core.domain.post.entity.abillity.Ability;
+import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -60,8 +60,9 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "FIREBASE_TOKEN", columnDefinition = "VARBINARY(400) NOT NULL")
     private String firebaseToken;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "MAJOR_ACTIVITY_AREA", columnDefinition = "VARBINARY(100) NOT NULL")
-    private String majorActivityArea;
+    private AreaName majorActivityArea;
 
     @Column(name = "IS_MAJOR_ACTIVITY_AREA_PUBLIC")
     private boolean isMajorActivityAreaPublic;
@@ -72,10 +73,6 @@ public class Member extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "GENDER", columnDefinition = "VARBINARY(50) NOT NULL")
     private Gender gender;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "ABILITY", columnDefinition = "VARBINARY(50) NOT NULL")
-    private Ability ability;
 
     @Column(name = "IS_ABILIY_PUBLIC")
     private boolean isAbilityPublic;
@@ -132,7 +129,7 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     @Builder
-    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, boolean notifyAllow, PolicyTerms policyTerms, Ability ability, int numberOfMatches, Gender gender, String majorActivityArea, String oneLineIntroduction, boolean isAbilityPublic, boolean isMajorActivityAreaPublic) {
+    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, boolean notifyAllow, PolicyTerms policyTerms, int numberOfMatches, Gender gender, AreaName majorActivityArea, String oneLineIntroduction, boolean isAbilityPublic, boolean isMajorActivityAreaPublic) {
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;
@@ -145,7 +142,6 @@ public class Member extends BaseEntity implements UserDetails {
         this.complaintsCount = 0;
         this.notifyAllow = notifyAllow;
         this.policyTerms = policyTerms;
-        this.ability = ability;
         this.numberOfMatches = numberOfMatches;
         this.gender = gender;
         this.majorActivityArea = majorActivityArea;

@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.member.service;
 
-import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.img.service.S3ImgService;
@@ -8,9 +7,11 @@ import com.wemingle.core.domain.member.dto.MemberAuthenticationInfoDto;
 import com.wemingle.core.domain.member.dto.MemberDto;
 import com.wemingle.core.domain.member.dto.MemberInfoDto;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.entity.MemberAbility;
 import com.wemingle.core.domain.member.entity.MemberPreferenceSports;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.domain.member.repository.MemberAbilityRepository;
 import com.wemingle.core.domain.member.repository.MemberPreferenceSportsRepository;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
@@ -38,10 +39,10 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PolicyTermsRepository policyTermsRepository;
-    private final SportsCategoryRepository sportsCategoryRepository;
     private final MemberPreferenceSportsRepository memberPreferenceSportsRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     private final S3ImgService s3ImgService;
+    private final MemberAbilityRepository memberAbilityRepository;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
@@ -98,9 +99,8 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports) {
         Member findMember = findByMemberId(memberId);
-        List<SportsCategory> preferenceSportsCategories = sportsCategoryRepository.findBySportsTypes(preferenceSports);
 
-        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSportsCategories.stream()
+        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSports.stream()
                 .map(preferenceSportsCategory -> MemberPreferenceSports.builder()
                         .member(findMember)
                         .sports(preferenceSportsCategory)
@@ -113,10 +113,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberInfoDto getMemberInfo(String memberId) {
         Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<MemberInfoDto.EachAbilityAboutMember> abilityAboutMembers = memberAbilityRepository.findMemberAbilitiesByMember(member).stream().map(memberAbility -> MemberInfoDto.EachAbilityAboutMember.builder().ability(memberAbility.getAbility()).sportsType(memberAbility.getSportsType()).build()).toList();
         return MemberInfoDto.builder().oneLineIntroduction(member.getOneLineIntroduction())
                 .nickname(member.getNickname())
                 .isAbilityPublic(member.isAbilityPublic())
-                .ability(member.getAbility())
+                .abilityList(abilityAboutMembers)
                 .gender(member.getGender())
                 .numberOfMatches(member.getNumberOfMatches())
                 .isMajorActivityAreaPublic(member.isMajorActivityAreaPublic())
@@ -138,7 +139,25 @@ public class MemberServiceImpl implements MemberService {
         member.setAbilityPublic(memberInfoDto.isAbilityPublic());
         member.setGender(memberInfoDto.getGender());
         member.setOneLineIntroduction(memberInfoDto.getOneLineIntroduction());
-        member.setAbility(memberInfoDto.getAbility());
+        memberRepository.save(member);
+
+        clearMemberAbility(member);
+
+        if (!memberInfoDto.getAbilityList().isEmpty()) {
+            List<MemberAbility> memberAbilityList = memberInfoDto.getAbilityList().stream().map(
+                    eachAbilityAboutMember -> MemberAbility.builder()
+                            .sportsType(eachAbilityAboutMember.getSportsType())
+                            .ability(eachAbilityAboutMember.getAbility())
+                            .member(member)
+                            .build()
+            ).toList();
+            memberAbilityRepository.saveAll(memberAbilityList);
+        }
+    }
+
+    private void clearMemberAbility(Member member) {
+        List<MemberAbility> memberAbilitiesByMember = memberAbilityRepository.findMemberAbilitiesByMember(member);
+        memberAbilityRepository.deleteAll(memberAbilitiesByMember);
     }
 
     @Override

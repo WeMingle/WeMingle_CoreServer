@@ -3,9 +3,7 @@ package com.wemingle.core.global.initdb;
 
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
 import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
-import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
-import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
@@ -60,8 +58,6 @@ public class InitDatabase {
     TeamMemberRepository teamMemberRepository;
     @Autowired
     MatchingPostAreaRepository matchingPostAreaRepository;
-    @Autowired
-    SportsCategoryRepository sportsCategoryRepository;
     @Autowired
     BookmarkRepository bookmarkRepository;
 
@@ -124,9 +120,6 @@ public class InitDatabase {
         return returnTeamMembers;
     }
 
-    private SportsCategory createSportsCategory() {
-        return sportsCategoryRepository.save(SportsCategory.builder().sportsName(SportsType.OTHER).build());
-    }
 
     private List<Team> createTeam(int amount,List<Member> memberList) {
         List<Team> returnTeams = new ArrayList<>();
@@ -139,7 +132,7 @@ public class InitDatabase {
                     .recruitmentType(RecruitmentType.FIRST_SERVED_BASED)
                     .teamOwner(memberList.get(i))
                     .teamType(TeamType.TEAM)
-                    .sportsCategory(createSportsCategory())
+                    .sportsCategory(SportsType.OTHER)
                     .build();
 
             returnTeams.add(team);
@@ -153,7 +146,7 @@ public class InitDatabase {
         for (int i = 0; i < amount; i++) {
             matchingPosts.add(MatchingPost.builder()
                     .matchingDate(LocalDate.of(2024, 3, 29))
-                    .expiryDate(LocalDate.of(2024, 3, 29))
+                    .expiryDate(LocalDate.of(2024, new Random().nextInt(12)+1, new Random().nextInt(29)+1))
                     .locationName("jacob house")
                     .lat(new Random().nextDouble(90))
                     .lon(new Random().nextDouble(180))
@@ -165,8 +158,9 @@ public class InitDatabase {
                     .recruiterType(RecruiterType.INDIVIDUAL)
                     .recruitmentType(RecruitmentType.APPROVAL_BASED)
                     .locationSelectionType(LocationSelectionType.SELECT_BASED)
-                    .writer(memberList.get(i%10))
-                    .team(teams.get(i%10))
+                    .writer(memberList.get(amount%10))
+                    .team(teams.get(amount%10))
+                    .viewCnt(new Random().nextInt(100))//new Random().nextInt(100000)
                     .build());
         }
         return matchingPosts;
@@ -176,9 +170,8 @@ public class InitDatabase {
         for (int i = 0; i < amount-1; i++) {
             memberRepository.save(Member.builder()
                     .memberId("memberId" + i)
-                    .ability(Ability.MEDIUM)
                     .gender(Gender.MALE)
-                    .majorActivityArea("강남")
+                    .majorActivityArea(AreaName.강원)
                     .oneLineIntroduction("안녕")
                     .password("password")
                     .nickname("nickname" + i)
@@ -194,9 +187,8 @@ public class InitDatabase {
         }
         memberRepository.save(Member.builder()
                 .memberId("wemingle@gmail.com")
-                .ability(Ability.MEDIUM)
                 .gender(Gender.MALE)
-                .majorActivityArea("강남")
+                .majorActivityArea(AreaName.강원)
                 .oneLineIntroduction("안녕")
                 .password("password")
                 .nickname("leeking")
