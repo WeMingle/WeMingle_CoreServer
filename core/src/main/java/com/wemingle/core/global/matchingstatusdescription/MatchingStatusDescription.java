@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum MatchingStatusDescription {
-    CANCEL_MATCHING("취소된 매칭"),
-    COMPLETE_MATCHING("매칭 완료"),
+    CANCEL_MATCHING("취소됨"),
+    COMPLETE_MATCHING("완료됨"),
     REMAIN_DAYS_PREFIX("D-"),
     RENEW_MATCHING_POST("매칭글 다시 올리기"),
     CANCEL_NOT_PERMITTED_DURATION("취소할 수 있는 기간이 아닙니다"),
