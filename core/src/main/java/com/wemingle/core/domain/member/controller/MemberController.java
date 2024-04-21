@@ -2,11 +2,13 @@ package com.wemingle.core.domain.member.controller;
 
 import com.wemingle.core.domain.authentication.dto.TokenDto;
 import com.wemingle.core.domain.authentication.service.TokenService;
-import com.wemingle.core.domain.member.dto.SetMemberProfileDto;
-import com.wemingle.core.domain.member.dto.SignUpDto;
+import com.wemingle.core.domain.member.dto.*;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -68,4 +70,48 @@ public class MemberController {
                         .build()
         );
     }
+
+    @GetMapping("/info")
+    ResponseEntity<ResponseHandler<Object>> getMyInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        MemberInfoDto memberInfo = memberService.getMemberInfo(userDetails.getUsername());
+
+        return ResponseEntity.ok().body(ResponseHandler.builder()
+                .responseMessage("member info retrieval successfully")
+                .responseData(memberInfo).build()
+        );
+    }
+
+    @PatchMapping("/info")
+    ResponseEntity<ResponseHandler<Object>> setMyInfo(@RequestBody MemberInfoDto memberInfoDto, @AuthenticationPrincipal UserDetails userDetails) {
+        memberService.setMemberInfo(userDetails.getUsername(), memberInfoDto);
+
+        return ResponseEntity.ok().body(ResponseHandler.builder()
+                .responseMessage("member info update successfully")
+                .build()
+        );
+    }
+
+    @GetMapping("/authentication")
+    ResponseEntity<ResponseHandler<Object>> getAuthenticationInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        MemberAuthenticationInfoDto memberAuthenticationInfo = memberService.getMemberAuthenticationInfo(userDetails.getUsername());
+
+        return ResponseEntity.ok().body(ResponseHandler.builder()
+                .responseMessage("member authentication info retrieval successfully")
+                .responseData(memberAuthenticationInfo).build()
+        );
+    }
+
+    @GetMapping
+    ResponseEntity<ResponseHandler<MemberDto.ResponseMemberInfo>> getMemberByNickname(@RequestParam(required = false) Long nextIdx,
+                                                                                      @RequestParam @NotBlank @NotNull @NotEmpty String nickname){
+        MemberDto.ResponseMemberInfo responseData = memberService.getMemberByNickname(nextIdx, nickname);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<MemberDto.ResponseMemberInfo>builder()
+                        .responseMessage("Member retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
 }

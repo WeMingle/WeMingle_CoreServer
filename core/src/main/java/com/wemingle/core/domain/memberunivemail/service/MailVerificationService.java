@@ -1,12 +1,12 @@
 package com.wemingle.core.domain.memberunivemail.service;
 
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
-import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
@@ -30,7 +30,6 @@ public class MailVerificationService {
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final SportsCategoryRepository sportsCategoryRepository;
     private final int VERIFIED_CODE_LENGTH = 8;
     private static final int LIMIT_TIME = 300000;
     private final ConcurrentHashMap<String, VerificationCodeEntry> verificationCodes = new ConcurrentHashMap<>();
@@ -93,7 +92,9 @@ public class MailVerificationService {
                 .teamOwner(member)
                 .teamType(TeamType.INDIVIDUAL)
                 .profileImgId(member.getProfileImgId())
-                .sportsCategory(sportsCategoryRepository.findBySportsType(SportsType.OTHER))
+                .content(member.getMemberId())
+                .recruitmentType(RecruitmentType.FIRST_SERVED_BASED)
+                .sportsCategory(SportsType.OTHER)
                 .capacityLimit(1)
                 .build();
 

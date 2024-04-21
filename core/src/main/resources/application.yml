@@ -22,6 +22,9 @@ cloud:
 spring:
   jpa:
     defer-datasource-initialization: true
+    properties:
+      hibernate:
+        default_batch_fetch_size: 1000
 
   mail:
     host: smtp.gmail.com
@@ -40,14 +43,18 @@ spring:
     init:
       mode: always
 
+  jackson:
+    time-zone: Asia/Seoul
+
 wemingle:
   ip: ENC(Xtb3qSACnMuBfHLCacz17TL1GTEQbFINe4khOzj2NU8WOEVgSU/i9g==)
-
 ---
+
 ## prod setting
 spring:
-  profiles:
-    active: prod
+  config:
+    activate:
+      on-profile: prod
 
   datasource:
     url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
@@ -70,8 +77,9 @@ spring:
 
 ## jungwooLocal
 spring:
-  profiles:
-    active: jungwoo
+  config:
+    activate:
+      on-profile: jungwoo
 
   datasource:
     url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
@@ -101,16 +109,13 @@ logging:
         type:
           descriptor:
             sql: trace
-
 ---
 
 ## howangLocal
 spring:
-  profiles:
-    active: howang
-
-  jackson:
-    time-zone: Asia/Seoul
+  config:
+    activate:
+      on-profile: howang
 
   datasource:
     url: ENC(OWM8GJAYIIZBILEDUOrxp/+SXrUu6cTBAECgWoohRDuXsSFNhvCQ23Cj8hzgpeK4oTqnsGOyEuTyPTU8b7ES2qgSnYtIK14Lbnk/Q63cCqvmlwAp2vRhwR2mcbAs1hPx)
@@ -118,12 +123,13 @@ spring:
     password: ENC(nN/GHvgyZLbz7vhsaYBagTczwxNBREOi)
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-
   jpa:
-    hibernate:
-      ddl-auto: create
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
-        default_batch_fetch_size: 1000
+        show_sql: true
+        format_sql: true
+#        use_sql_comments: true
+    hibernate:
+      ddl-auto: none
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect

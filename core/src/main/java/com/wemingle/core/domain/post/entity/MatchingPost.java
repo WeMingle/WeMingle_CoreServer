@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.entity;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -11,10 +12,13 @@ import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import org.locationtech.jts.geom.Point;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +44,12 @@ public class MatchingPost extends BaseEntity {
     private String locationName; // 매칭 장소 이름
 
     @NotNull
-    @Column(name = "POSITION")
-    private Point position;
+    @Column(name = "LAT")
+    private Double lat;
+
+    @NotNull
+    @Column(name = "LON")
+    private Double lon;
 
     @NotNull
     @Column(name = "CONTENT", length = 3000)
@@ -54,6 +62,9 @@ public class MatchingPost extends BaseEntity {
     @NotNull
     @Column(name = "IS_LOCATION_CONSENSUS_POSSIBLE")
     private boolean isLocationConsensusPossible;
+
+    @Column(name = "VIEW_CNT")
+    private int viewCnt;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -86,27 +97,33 @@ public class MatchingPost extends BaseEntity {
     @JoinColumn(name = "TEAM")
     private Team team;
 
+    @Enumerated(EnumType.STRING)
+    private SportsType sportsCategory;
+
     @NotNull
     @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
-    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Point position, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
+    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
         this.locationName = locationName;
-        this.position = position;
+        this.lat = lat;
+        this.lon = lon;
         this.content = content;
         this.capacityLimit = capacityLimit;
         this.isLocationConsensusPossible = isLocationConsensusPossible;
+        this.viewCnt = viewCnt;
         this.ability = ability;
         this.gender = gender;
         this.recruitmentType = recruitmentType;
         this.recruiterType = recruiterType;
-        this.matchingStatus = MatchingStatus.COMPLETE;
+        this.matchingStatus = MatchingStatus.PENDING;
         this.locationSelectionType = locationSelectionType;
         this.writer = writer;
         this.team = team;
+        this.sportsCategory = sportsCategory;
     }
 
     public void putAreaList(List<MatchingPostArea> matchingPostAreaList){
@@ -115,5 +132,9 @@ public class MatchingPost extends BaseEntity {
 
     public void putArea(MatchingPostArea matchingPostArea){
         areaList.add(matchingPostArea);
+    }
+    public void updateForRePost(){
+        setCreatedTime(LocalDateTime.now());
+        this.matchingStatus = MatchingStatus.PENDING;
     }
 }

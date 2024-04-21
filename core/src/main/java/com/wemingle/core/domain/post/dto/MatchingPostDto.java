@@ -14,23 +14,20 @@ import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MatchingPostDto {
-    @ToString
     @Setter
     @Getter
-    public static class ResponseMatchingPostDto{
+    public static class ResponseMyBookmarkDto {
+        private Long pk;
         private String profilePicUrl;
         private String writer;
         private String contents;
-        private List<MatchingPostArea> areaList;
+        private List<AreaName> areaList;
         private int matchingCnt;
         private LocalDate matchingDate;
         private RecruiterType recruiterType;
@@ -39,13 +36,47 @@ public class MatchingPostDto {
         private boolean isBookmarked;
 
         @Builder
-        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<MatchingPostArea> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
+        public ResponseMyBookmarkDto(Long pk, String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
+            this.pk = pk;
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
             this.contents = contents;
             this.areaList = areaList;
             this.matchingCnt = matchingCnt;
             this.matchingDate = matchingDate;
+            this.recruiterType = recruiterType;
+            this.ability = ability;
+            this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.isBookmarked = isBookmarked;
+        }
+    }
+    @ToString
+    @Setter
+    @Getter
+    public static class ResponseMatchingPostDto{
+        private String profilePicUrl;
+        private String writer;
+        private String contents;
+        private List<AreaName> areaList;
+        private int matchingCnt;
+        private int viewCnt;
+        private LocalDate matchingDate;
+        private LocalDate expiryDate;
+        private RecruiterType recruiterType;
+        private Ability ability;
+        private boolean isLocationConsensusPossible;
+        private boolean isBookmarked;
+
+        @Builder
+        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, int viewCnt, LocalDate matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
+            this.profilePicUrl = profilePicUrl;
+            this.writer = writer;
+            this.contents = contents;
+            this.areaList = areaList;
+            this.matchingCnt = matchingCnt;
+            this.viewCnt = viewCnt;
+            this.matchingDate = matchingDate;
+            this.expiryDate = expiryDate;
             this.recruiterType = recruiterType;
             this.ability = ability;
             this.isLocationConsensusPossible = isLocationConsensusPossible;
@@ -110,15 +141,13 @@ public class MatchingPostDto {
         }
 
         public MatchingPost of(Team team, TeamMember writer){
-            GeometryFactory geometryFactory = new GeometryFactory();
-            Coordinate coordinate = new Coordinate(longitude, latitude);
-            Point position = geometryFactory.createPoint(coordinate);
 
             MatchingPost matchingPost = MatchingPost.builder()
                     .matchingDate(matchingDate)
                     .expiryDate(expiryDate)
                     .locationName(locationName)
-                    .position(position)
+                    .lat(latitude)
+                    .lon(longitude)
                     .content(content)
                     .capacityLimit(capacityLimit)
                     .isLocationConsensusPossible(isLocationConsensusPossible)
@@ -153,10 +182,10 @@ public class MatchingPostDto {
         private String profileImgUrl;
         private String detailPostUrl;
         private String matchingStatus;
-        private ScheduledRequest scheduledRequest;
+        private String scheduledRequestDescription;
 
         @Builder
-        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, ScheduledRequest scheduledRequest) {
+        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, String scheduledRequestDescription) {
             this.matchingDate = matchingDate;
             this.recruiterType = recruiterType;
             this.teamName = teamName;
@@ -168,20 +197,8 @@ public class MatchingPostDto {
             this.profileImgUrl = profileImgUrl;
             this.detailPostUrl = detailPostUrl;
             this.matchingStatus = matchingStatus;
-            this.scheduledRequest = scheduledRequest;
+            this.scheduledRequestDescription = scheduledRequestDescription;
         }
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class ScheduledRequest {
-        private String description;
-        private String requestApiUri;
-
-        public ScheduledRequest(String description, String requestApiUri) {
-            this.description = description;
-            this.requestApiUri = requestApiUri;
-        }
-    }
 }

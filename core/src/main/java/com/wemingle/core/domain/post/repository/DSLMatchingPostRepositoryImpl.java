@@ -1,8 +1,11 @@
 package com.wemingle.core.domain.post.repository;
 
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
@@ -10,22 +13,26 @@ import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import static com.wemingle.core.domain.post.entity.QMatchingPost.matchingPost;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<MatchingPost> findFilteredMatchingPost(Long nextIdx,
+    public List<MatchingPost> findFilteredMatchingPost(Long lastIdx,
                                                        RecruitmentType recruitmentType,
                                                        Ability ability,
                                                        Gender gender,
@@ -33,31 +40,53 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                                                        List<AreaName> areaList,
                                                        LocalDate currentDate,
                                                        LocalDate dateFilter,
+                                                       YearMonth monthFilter,
+                                                       SortOption sortOption,
+                                                       Long lastViewCnt,
+                                                       LocalDate lastExpiredDate,
                                                        Pageable pageable) {
         return jpaQueryFactory.selectFrom(matchingPost)
-                .join(matchingPost.team).fetchJoin()
-                .join(matchingPost.writer).fetchJoin()
-                .join(matchingPost.writer.team).fetchJoin()
-                .join(matchingPost.areaList).fetchJoin()
                 .where(
-                        nextIdxLt(nextIdx),
+                        lastIdxLt(lastIdx),
                         recruitmentTypeEq(recruitmentType),
                         abilityEq(ability),
                         genderEq(gender),
                         recruiterTypeEq(recruiterType),
                         areaListIn(areaList),
                         currentDateAfter(currentDate),
-                        dateFilterEq(dateFilter)
+                        dateFilterEq(dateFilter,monthFilter),
+                        lastViewCntLoe(lastViewCnt),
+                        lastExpiredDateLoe(lastExpiredDate)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(matchingPost.createdTime.desc())
+                .orderBy(getSortOption(sortOption))
                 .fetch();
     }
 
-    private BooleanExpression nextIdxLt(Long nextIdx) {
-        return nextIdx == null ? null : matchingPost.pk.loe(nextIdx);
+    @Override
+    public Integer findFilteredMatchingPostCnt(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, Pageable pageable) {
+        Long cnt = jpaQueryFactory.select(matchingPost.count())
+                .from(matchingPost)
+                .where(
+                        lastIdxLt(lastIdx),
+                        recruitmentTypeEq(recruitmentType),
+                        abilityEq(ability),
+                        genderEq(gender),
+                        recruiterTypeEq(recruiterType),
+                        areaListIn(areaList),
+                        currentDateAfter(currentDate),
+                        dateFilterEq(dateFilter, monthFilter)
+                ).fetchOne();
+
+        return cnt == null ? 0 : cnt.intValue();
     }
+
+    private BooleanExpression lastIdxLt(Long nextIdx) {
+        return nextIdx == null ? null : matchingPost.pk.lt(nextIdx);
+    }
+    private BooleanExpression lastViewCntLoe(Long viewCnt) {return viewCnt == null ? null : matchingPost.viewCnt.loe(viewCnt);}
+    private BooleanExpression lastExpiredDateLoe(LocalDate lastExpiredDate) {return lastExpiredDate == null ? null : matchingPost.expiryDate.loe(lastExpiredDate).and(matchingPost.expiryDate.before(LocalDate.now()));}
 
     private BooleanExpression recruitmentTypeEq(RecruitmentType recruitmentType) {
         return recruitmentType == null ? null : matchingPost.recruitmentType.eq(recruitmentType);
@@ -81,20 +110,52 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
         return currentDate == null ? null : matchingPost.expiryDate.after(currentDate);
     }
 
-    private BooleanExpression dateFilterEq(LocalDate dateFilter) {
-        return dateFilter == null ? null : matchingPost.matchingDate.eq(dateFilter);
+    private BooleanExpression dateFilterEq(LocalDate dateFilter, YearMonth monthFilter) {
+        if (dateFilter != null && monthFilter != null) {
+            throw new RuntimeException(ExceptionMessage.DATE_MONTH_CANT_COEXIST.getExceptionMessage());
+        }
+        if (dateFilter == null && monthFilter == null) {
+            return null;
+        }
+        return dateFilter == null ? matchingPost.matchingDate.yearMonth().eq(monthFilter.getYear()*100+monthFilter.getMonthValue()) : matchingPost.matchingDate.eq(dateFilter);
+    }
+
+    private OrderSpecifier[] getSortOption(SortOption sortOption) {
+        return switch (sortOption) {
+            case NEW -> new OrderSpecifier[]{
+                    new OrderSpecifier<>(Order.DESC, matchingPost.createdTime),
+                    new OrderSpecifier<>(Order.DESC,matchingPost.pk),
+            };
+            case VIEW -> new OrderSpecifier[]{
+                    new OrderSpecifier<>(Order.DESC, matchingPost.viewCnt),
+                    new OrderSpecifier<>(Order.DESC,matchingPost.pk)
+            };
+            case DEADLINE -> new OrderSpecifier[]{
+                    new OrderSpecifier<>(Order.DESC, matchingPost.expiryDate),
+                    new OrderSpecifier<>(Order.DESC,matchingPost.pk)
+            };
+        };
     }
 
     @Override
     public List<MatchingPost> findCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, Member member, List<MatchingPost> matchingPostWithReview, Pageable pageable) {
         return jpaQueryFactory.selectFrom(matchingPost)
                 .where(isTeamMemberInTeam(member))
-                .where(nextIdxLt(nextIdx))
+                .where(lastIdxLt(nextIdx))
                 .where(recruiterTypeEq(recruiterType))
                 .where(expiredMatchesFilter(excludeCompleteMatchesFilter, matchingPostWithReview))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(matchingPost.createdTime.desc())
+                .fetch();
+    }
+
+    @Override
+    public List<MatchingPost> findMatchingPostInMap(double topLat, double bottomLat, double leftLon, double rightLon) {
+
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .where(matchingPost.lat.between(bottomLat,topLat).and(matchingPost.lon.between(leftLon,rightLon))
+                )
                 .fetch();
     }
 

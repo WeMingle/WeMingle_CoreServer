@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, DSLMemberRepository {
     Optional<Member> findByMemberId(String memberId);
     Optional<Member> findByRefreshToken(String refreshToken);
     Optional<Member> findByNickname(String nickname);
     List<Member> findByMemberIdIn(List<String> memberIdList);
+    boolean existsByPkLessThanAndNicknameContains(Long memberPk, String nickname);
 }

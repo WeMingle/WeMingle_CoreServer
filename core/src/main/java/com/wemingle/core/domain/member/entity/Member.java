@@ -4,12 +4,11 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.domain.post.entity.area.AreaName;
+import com.wemingle.core.domain.post.entity.gender.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +18,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity implements UserDetails {
@@ -59,6 +59,26 @@ public class Member extends BaseEntity implements UserDetails {
     @NotNull
     @Column(name = "FIREBASE_TOKEN", columnDefinition = "VARBINARY(400) NOT NULL")
     private String firebaseToken;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "MAJOR_ACTIVITY_AREA", columnDefinition = "VARBINARY(100) NOT NULL")
+    private AreaName majorActivityArea;
+
+    @Column(name = "IS_MAJOR_ACTIVITY_AREA_PUBLIC")
+    private boolean isMajorActivityAreaPublic;
+
+    @Column(name = "NUMBER_OF_MATCHES")
+    private int numberOfMatches;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "GENDER", columnDefinition = "VARBINARY(50) NOT NULL")
+    private Gender gender;
+
+    @Column(name = "IS_ABILIY_PUBLIC")
+    private boolean isAbilityPublic;
+
+    @Column(name = "ONE_LINE_INTRODUCTOIN", columnDefinition = "VARBINARY(400) NOT NULL")
+    private String oneLineIntroduction;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -109,7 +129,7 @@ public class Member extends BaseEntity implements UserDetails {
     }
 
     @Builder
-    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, boolean notifyAllow, PolicyTerms policyTerms) {
+    public Member(String memberId, String password, String nickname, UUID profileImgId, PhoneType phoneType, SignupPlatform signupPlatform, String refreshToken, String firebaseToken, Role role, boolean notifyAllow, PolicyTerms policyTerms, int numberOfMatches, Gender gender, AreaName majorActivityArea, String oneLineIntroduction, boolean isAbilityPublic, boolean isMajorActivityAreaPublic) {
         this.memberId = memberId;
         this.password = password;
         this.nickname = nickname;
@@ -122,6 +142,12 @@ public class Member extends BaseEntity implements UserDetails {
         this.complaintsCount = 0;
         this.notifyAllow = notifyAllow;
         this.policyTerms = policyTerms;
+        this.numberOfMatches = numberOfMatches;
+        this.gender = gender;
+        this.majorActivityArea = majorActivityArea;
+        this.oneLineIntroduction = oneLineIntroduction;
+        this.isAbilityPublic = isAbilityPublic;
+        this.isMajorActivityAreaPublic = isMajorActivityAreaPublic;
     }
 
     @Override
@@ -149,5 +175,8 @@ public class Member extends BaseEntity implements UserDetails {
 
     public void patchPolicyTerms(PolicyTerms policyTerms){
         this.policyTerms = policyTerms;
+    }
+    public boolean isVerifiedMember(){
+        return !this.role.equals(Role.UNVERIFIED_USER);
     }
 }

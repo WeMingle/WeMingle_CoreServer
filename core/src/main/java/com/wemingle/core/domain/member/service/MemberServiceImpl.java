@@ -1,23 +1,34 @@
 package com.wemingle.core.domain.member.service;
 
-import com.wemingle.core.domain.category.sports.entity.SportsCategory;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
+import com.wemingle.core.domain.img.service.S3ImgService;
+import com.wemingle.core.domain.member.dto.MemberAuthenticationInfoDto;
+import com.wemingle.core.domain.member.dto.MemberDto;
+import com.wemingle.core.domain.member.dto.MemberInfoDto;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.entity.MemberAbility;
 import com.wemingle.core.domain.member.entity.MemberPreferenceSports;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
+import com.wemingle.core.domain.member.repository.MemberAbilityRepository;
 import com.wemingle.core.domain.member.repository.MemberPreferenceSportsRepository;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
+import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
+import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
@@ -28,8 +39,10 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PolicyTermsRepository policyTermsRepository;
-    private final SportsCategoryRepository sportsCategoryRepository;
     private final MemberPreferenceSportsRepository memberPreferenceSportsRepository;
+    private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
+    private final S3ImgService s3ImgService;
+    private final MemberAbilityRepository memberAbilityRepository;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
@@ -86,9 +99,8 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports) {
         Member findMember = findByMemberId(memberId);
-        List<SportsCategory> preferenceSportsCategories = sportsCategoryRepository.findBySportsTypes(preferenceSports);
 
-        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSportsCategories.stream()
+        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSports.stream()
                 .map(preferenceSportsCategory -> MemberPreferenceSports.builder()
                         .member(findMember)
                         .sports(preferenceSportsCategory)
@@ -96,5 +108,100 @@ public class MemberServiceImpl implements MemberService {
                 .toList();
 
         memberPreferenceSportsRepository.saveAll(memberPreferenceSportsList); //
+    }
+
+    @Override
+    public MemberInfoDto getMemberInfo(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<MemberInfoDto.EachAbilityAboutMember> abilityAboutMembers = memberAbilityRepository.findMemberAbilitiesByMember(member).stream().map(memberAbility -> MemberInfoDto.EachAbilityAboutMember.builder().ability(memberAbility.getAbility()).sportsType(memberAbility.getSportsType()).build()).toList();
+        return MemberInfoDto.builder().oneLineIntroduction(member.getOneLineIntroduction())
+                .nickname(member.getNickname())
+                .isAbilityPublic(member.isAbilityPublic())
+                .abilityList(abilityAboutMembers)
+                .gender(member.getGender())
+                .numberOfMatches(member.getNumberOfMatches())
+                .isMajorActivityAreaPublic(member.isMajorActivityAreaPublic())
+                .majorActivityArea(member.getMajorActivityArea())
+                .oneLineIntroduction(member.getOneLineIntroduction())
+                .profilePicId(member.getProfileImgId())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void setMemberInfo(String memberId, MemberInfoDto memberInfoDto) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+
+        member.setNickname(memberInfoDto.getNickname());
+        member.setMajorActivityAreaPublic(memberInfoDto.isMajorActivityAreaPublic());
+        member.setMajorActivityArea(memberInfoDto.getMajorActivityArea());
+        member.setNumberOfMatches(memberInfoDto.getNumberOfMatches());
+        member.setAbilityPublic(memberInfoDto.isAbilityPublic());
+        member.setGender(memberInfoDto.getGender());
+        member.setOneLineIntroduction(memberInfoDto.getOneLineIntroduction());
+        memberRepository.save(member);
+
+        clearMemberAbility(member);
+
+        if (!memberInfoDto.getAbilityList().isEmpty()) {
+            List<MemberAbility> memberAbilityList = memberInfoDto.getAbilityList().stream().map(
+                    eachAbilityAboutMember -> MemberAbility.builder()
+                            .sportsType(eachAbilityAboutMember.getSportsType())
+                            .ability(eachAbilityAboutMember.getAbility())
+                            .member(member)
+                            .build()
+            ).toList();
+            memberAbilityRepository.saveAll(memberAbilityList);
+        }
+    }
+
+    private void clearMemberAbility(Member member) {
+        List<MemberAbility> memberAbilitiesByMember = memberAbilityRepository.findMemberAbilitiesByMember(member);
+        memberAbilityRepository.deleteAll(memberAbilitiesByMember);
+    }
+
+    @Override
+    public MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        VerifiedUniversityEmail verifiedUniversityEmail = verifiedUniversityEmailRepository.findByMember(member)
+                .orElse(
+                        VerifiedUniversityEmail.builder()
+                        .univEmailAddress("University authentication has not been completed")
+                        .build()
+                );
+        return MemberAuthenticationInfoDto.builder()
+                .memberId(member.getMemberId())
+                .univEmail(verifiedUniversityEmail.getUnivEmailAddress())
+                .build();
+    }
+
+    @Override
+    public MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname) {
+        PageRequest pageRequest = PageRequest.of(0, 3);
+        List<Member> members = memberRepository.getMemberByNickname(nextIdx, nickname, pageRequest);
+
+        LinkedHashMap<Long, MemberDto.MemberInfoInSearch> membersInfoHashMap = new LinkedHashMap<>();
+        members.forEach(member -> membersInfoHashMap.put(member.getPk(), MemberDto.MemberInfoInSearch.builder()
+                .nickname(member.getNickname())
+                .profileImg(s3ImgService.getMemberProfilePicUrl(member.getProfileImgId()))
+                .build()
+        ));
+
+        boolean hasNextMember = isExistedNextMember(members, nickname);
+
+        return MemberDto.ResponseMemberInfo.builder()
+                .membersInfo(membersInfoHashMap)
+                .hasNextMember(hasNextMember)
+                .build();
+    }
+
+    private boolean isExistedNextMember(List<Member> members, String nickname) {
+        Optional<Long> minPk = members.stream().map(Member::getPk).min(Long::compareTo);
+        boolean hasNextData = false;
+        if (minPk.isPresent()) {
+            hasNextData = memberRepository.existsByPkLessThanAndNicknameContains(minPk.get(), nickname);
+        }
+
+        return hasNextData;
     }
 }

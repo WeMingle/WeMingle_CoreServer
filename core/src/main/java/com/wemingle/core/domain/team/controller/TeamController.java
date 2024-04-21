@@ -1,15 +1,18 @@
 package com.wemingle.core.domain.team.controller;
 
+import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.domain.team.service.TeamService;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -20,8 +23,9 @@ import java.util.HashMap;
 public class TeamController {
     private final TeamService teamService;
     private final TeamMemberService teamMemberService;
+    private final MemberService memberService;
 
-    @GetMapping
+    @GetMapping("/post")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamDto.ResponseTeamInfoDto> teamListInfo = teamService.getTeamInfoWithMemberId(userDetails.getUsername());
 
@@ -43,5 +47,68 @@ public class TeamController {
                         .responseData(teamListInfo)
                         .build()
         );
+    }
+
+    @GetMapping("/home/condition")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamHomeConditions>> verifyTeamHomeConditions(@AuthenticationPrincipal UserDetails userDetails){
+        TeamDto.ResponseTeamHomeConditions teamHomeConditions = teamService.getTeamHomeConditions(userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.ResponseTeamHomeConditions>builder()
+                        .responseMessage("Check existence of my team successfully")
+                        .responseData(teamHomeConditions)
+                        .build()
+        );
+    }
+
+    @GetMapping("/recommendation")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRecommendationTeamInfo>>> getRecommendTeams(@RequestParam(required = false) Long nextIdx,
+                                                                                                                             @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseRecommendationTeamInfo> randomTeams = teamService.getRecommendTeams(nextIdx, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseRecommendationTeamInfo>>builder()
+                        .responseMessage("Recommendation teams retrieval successfully")
+                        .responseData(randomTeams)
+                        .build()
+        );
+    }
+
+    @GetMapping("/recommendation/member")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo>>> getRecommendTeamsForMember(@RequestParam(required = false) Long nextIdx,
+                                                                                                                                      @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> randomTeams = teamService.getRecommendTeamsForMember(nextIdx, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo>>builder()
+                        .responseMessage("Recommendation teams for member retrieval successfully")
+                        .responseData(randomTeams)
+                        .build()
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamInfoByName>> getTeamsByTeamName(@RequestParam(required = false) Long nextIdx,
+                                                                                              @RequestParam @NotBlank String teamName){
+        TeamDto.ResponseTeamInfoByName responseData = teamService.getTeamByName(nextIdx, teamName);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.ResponseTeamInfoByName>builder()
+                        .responseMessage("Teams retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping("/univ")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamByMemberUniv>>> getTeamsWithMyUniv(@RequestParam(required = false) Long nextIdx,
+                                                                                                               @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseTeamByMemberUniv> responseData = teamService.getTeamWithMemberUniv(nextIdx, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseTeamByMemberUniv>>builder()
+                        .responseMessage("Teams associated with my univ retrieval successfully")
+                        .responseData(responseData)
+                        .build());
     }
 }
