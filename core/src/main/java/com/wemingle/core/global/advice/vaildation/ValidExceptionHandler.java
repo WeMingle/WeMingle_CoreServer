@@ -43,13 +43,13 @@ public class ValidExceptionHandler {
         );
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ResponseHandler<String>> RuntimeException(Exception e) {
-        return ResponseEntity.badRequest().body(
-                ResponseHandler.<String>builder()
-                        .responseMessage("RuntimeException")
-                        .responseData(e.getMessage())
-                        .build()
-        );
-    }
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<ResponseHandler<String>> RuntimeException(Exception e) {
+//        return ResponseEntity.badRequest().body(
+//                ResponseHandler.<String>builder()
+//                        .responseMessage("RuntimeException")
+//                        .responseData(e.getMessage())
+//                        .build()
+//        );
+//    }
 }

@@ -63,6 +63,9 @@ public class MatchingPost extends BaseEntity {
     @Column(name = "IS_LOCATION_CONSENSUS_POSSIBLE")
     private boolean isLocationConsensusPossible;
 
+    @Column(name = "VIEW_CNT")
+    private int viewCnt;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private Ability ability;
@@ -103,7 +106,8 @@ public class MatchingPost extends BaseEntity {
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
-    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsCategory sportsCategory) {
+
+    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team) {
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
         this.locationName = locationName;
@@ -112,6 +116,7 @@ public class MatchingPost extends BaseEntity {
         this.content = content;
         this.capacityLimit = capacityLimit;
         this.isLocationConsensusPossible = isLocationConsensusPossible;
+        this.viewCnt = viewCnt;
         this.ability = ability;
         this.gender = gender;
         this.recruitmentType = recruitmentType;

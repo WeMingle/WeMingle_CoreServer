@@ -9,6 +9,7 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
+import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
@@ -38,6 +39,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
@@ -69,8 +72,7 @@ public class MatchingPostService {
                 .orElseThrow(()->new NoSuchElementException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
     }
 
-    public Integer getFilteredMatchingPostCnt(String memberId,
-                                              Long nextIdx,
+    public Integer getFilteredMatchingPostCnt(Long nextIdx,
                                               RecruitmentType recruitmentType,
                                               Ability ability,
                                               Gender gender,
@@ -79,9 +81,7 @@ public class MatchingPostService {
                                               LocalDate dateFilter,
                                               YearMonth monthFilter,
                                               Boolean excludeExpired) {
-        if (dateFilter != null && monthFilter != null) {
-            throw new RuntimeException(DATE_MONTH_CANT_COEXIST.getExceptionMessage());
-        }
+        isDateFilterAndMonthFilterCoexist(dateFilter, monthFilter);
 
         return matchingPostRepository.findFilteredMatchingPostCnt(
                 nextIdx,
@@ -97,42 +97,66 @@ public class MatchingPostService {
         );
     }
 
-    public HashMap<Long, Object> getFilteredMatchingPost(String memberId,
-                                                         Long nextIdx,
-                                                         RecruitmentType recruitmentType,
-                                                         Ability ability,
-                                                         Gender gender,
-                                                         RecruiterType recruiterType,
-                                                         List<AreaName> areaList,
-                                                         LocalDate dateFilter,
-                                                         YearMonth monthFilter,
-                                                         Boolean excludeExpired){
+    public LinkedHashMap<String, Object> getFilteredMatchingPostBySortOption(String memberId,
+                                                                             Long lastIdx,
+                                                                             RecruitmentType recruitmentType,
+                                                                             Ability ability,
+                                                                             Gender gender,
+                                                                             RecruiterType recruiterType,
+                                                                             List<AreaName> areaList,
+                                                                             LocalDate dateFilter,
+                                                                             YearMonth monthFilter,
+                                                                             Boolean excludeExpired,
+                                                                             SortOption sortOption,
+                                                                             Long lastViewCnt,
+                                                                             LocalDate lastExpiredDate,
+                                                                             Integer callCnt){
+        isDateFilterAndMonthFilterCoexist(dateFilter, monthFilter);
 
-        if (dateFilter != null && monthFilter != null) {
-            throw new RuntimeException(DATE_MONTH_CANT_COEXIST.getExceptionMessage());
-        }
+        List<MatchingPost> filteredMatchingPost;
+        filteredMatchingPost = getFilteredMatchingPostBySortOption(lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastViewCnt, lastExpiredDate, callCnt);
+        
+        Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, filteredMatchingPost);
 
-        List<MatchingPost> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
-                nextIdx,
-                recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                areaList,
-                excludeExpired == null ? null : LocalDate.now(),
-                dateFilter,
-                monthFilter,
-                PageRequest.of(0, 30)
-        );
+        String nextRetrieveUrlParams = createNextRetrieveUrlParams(getLastIdxInMatchingPostList(filteredMatchingPost), recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastViewCnt, getLastExpiredDateInMatchingPostList(sortOption, filteredMatchingPost), nextUrlCallCnt);
+
+
+        LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
+
 
         List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
 
-        HashMap<Long, Object> objectNode = new LinkedHashMap<>();
+        HashMap<Long, Object> postsMap = createMatchingPostDtoMap(filteredMatchingPost, bookmarkedByMatchingPosts);
+        responseObj.put("post list", postsMap);
+        return responseObj;
+    }
+
+    private LinkedHashMap<String, Object> createResponseObj(List<MatchingPost> filteredMatchingPost, String nextRetrieveUrlParams) {
+        LinkedHashMap<String, Object> responseObj = new LinkedHashMap<>();
+        if (filteredMatchingPost.isEmpty()) {
+            responseObj.put("next url", null);
+        } else {
+            responseObj.put("next url", serverIp + "/post/mathch/calendar?"+ nextRetrieveUrlParams);
+        }
+        return responseObj;
+    }
+
+    private LocalDate getLastExpiredDateInMatchingPostList(SortOption sortOption, List<MatchingPost> filteredMatchingPost) {
+
+        return filteredMatchingPost.isEmpty()||!sortOption.equals(SortOption.DEADLINE) ? null : filteredMatchingPost.get(filteredMatchingPost.size() - 1).getExpiryDate();
+    }
+
+    private Long getLastIdxInMatchingPostList(List<MatchingPost> filteredMatchingPost) {
+        return filteredMatchingPost.isEmpty() ? null : filteredMatchingPost.get(filteredMatchingPost.size() - 1).getPk();
+    }
+
+    private HashMap<Long, Object> createMatchingPostDtoMap(List<MatchingPost> filteredMatchingPost, List<BookmarkedMatchingPost> bookmarkedByMatchingPosts) {
+        HashMap<Long, Object> postsMap = new LinkedHashMap<>();
 
         filteredMatchingPost.forEach(post -> {
                     boolean isBookmarked = bookmarkedByMatchingPosts.stream().anyMatch(bookmark -> bookmark.getMatchingPost().equals(post));
 
-                    objectNode.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
+                    postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
                             .writer(post.getWriter().getTeam().getTeamName())
                             .matchingDate(post.getMatchingDate())
                             .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
@@ -143,10 +167,183 @@ public class MatchingPostService {
                             .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
                             .matchingCnt(post.getTeam().getCompletedMatchingCnt())
                             .isBookmarked(isBookmarked)
+                            .viewCnt(post.getViewCnt())
+                            .expiryDate(post.getExpiryDate())
                             .build());
                 }
         );
-        return objectNode;
+        return postsMap;
+    }
+
+    private List<MatchingPost> getFilteredMatchingPostBySortOption(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, Long lastViewCnt, LocalDate lastExpiredDate, Integer callCnt) {
+        List<MatchingPost> filteredMatchingPost;
+        switch (Objects.requireNonNull(sortOption)) {
+            case VIEW -> {
+                int pageNumber = Optional.ofNullable(callCnt).orElse(0);
+                filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
+                        null,
+                        recruitmentType,
+                        ability,
+                        gender,
+                        recruiterType,
+                        areaList,
+                        excludeExpired == null ? null : LocalDate.now(),
+                        dateFilter,
+                        monthFilter,
+                        sortOption,
+                        lastViewCnt,
+                        null,
+                        PageRequest.of(pageNumber, 30)
+                );
+                removeDuplicatePosts(lastIdx, filteredMatchingPost);
+                if (filteredMatchingPost.size() < 30) {
+                    filteredMatchingPost.addAll(
+                            matchingPostRepository.findFilteredMatchingPost(
+                                    null,
+                                    recruitmentType,
+                                    ability,
+                                    gender,
+                                    recruiterType,
+                                    areaList,
+                                    excludeExpired == null ? null : LocalDate.now(),
+                                    dateFilter,
+                                    monthFilter,
+                                    sortOption,
+                                    lastViewCnt,
+                                    null,
+                                    PageRequest.of(pageNumber +1, 30)
+                            )
+                    );
+                }
+                filteredMatchingPost = filteredMatchingPost.stream().limit(30).toList();
+            }
+            case NEW -> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
+                    lastIdx,
+                    recruitmentType,
+                    ability,
+                    gender,
+                    recruiterType,
+                    areaList,
+                    excludeExpired == null ? null : LocalDate.now(),
+                    dateFilter,
+                    monthFilter,
+                    sortOption,
+                    null,
+                    null,
+                    PageRequest.of(0, 30)
+            );
+            case DEADLINE -> {
+                int pageNumber = Optional.ofNullable(callCnt).orElse(0);
+                filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
+                    null,
+                    recruitmentType,
+                    ability,
+                    gender,
+                    recruiterType,
+                    areaList,
+                    excludeExpired == null ? null : LocalDate.now(),
+                    dateFilter,
+                    monthFilter,
+                    sortOption,
+                    null,
+                    lastExpiredDate,
+                    PageRequest.of(pageNumber, 30)
+                );
+                removeDuplicatePosts(lastIdx, filteredMatchingPost);
+
+                if (filteredMatchingPost.size() < 30) {
+                    filteredMatchingPost.addAll(
+                            matchingPostRepository.findFilteredMatchingPost(
+                                    null,
+                                    recruitmentType,
+                                    ability,
+                                    gender,
+                                    recruiterType,
+                                    areaList,
+                                    excludeExpired == null ? null : LocalDate.now(),
+                                    dateFilter,
+                                    monthFilter,
+                                    sortOption,
+                                    null,
+                                    lastExpiredDate,
+                                    PageRequest.of(pageNumber +1, 30)
+                            )
+                    );
+                }
+                filteredMatchingPost = filteredMatchingPost.stream().limit(30).toList();
+            }
+            default -> throw new RuntimeException("unknown enum value");
+        }
+        return filteredMatchingPost;
+    }
+
+    private Integer createNextUrlCallCnt(Integer callCnt, List<MatchingPost> filteredMatchingPost) {
+
+        Predicate<Integer> sameViewCnt = viewCnt ->
+                filteredMatchingPost.stream()
+                        .allMatch(p -> p.getViewCnt()==viewCnt);
+        Predicate<LocalDate> sameExpiredDate = localDate ->
+                filteredMatchingPost.stream()
+                        .allMatch(p -> p.getExpiryDate().equals(localDate));
+
+        Optional<MatchingPost> firstPost = filteredMatchingPost.stream().findFirst();
+
+        boolean isSameViewCountOrExpiredDate = firstPost.map(matchingPost -> sameViewCnt.test(matchingPost.getViewCnt()) || sameExpiredDate.test(matchingPost.getExpiryDate()))
+                .orElse(false);
+
+        if (isSameViewCountOrExpiredDate) {
+            return callCnt == null ? 1 : callCnt + 1;
+        }
+        return null;
+    }
+
+    private String createNextRetrieveUrlParams(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, Long lastViewCnt, LocalDate lastExpiredDate, Integer callCnt) {
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("lastIdx", lastIdx);
+        parameters.put("recruitmentType", recruitmentType);
+        parameters.put("ability", ability);
+        parameters.put("gender", gender);
+        parameters.put("recruiterType", recruiterType);
+        parameters.put("areaList", areaList != null && !areaList.isEmpty() ? areaList : null);
+        parameters.put("dateFilter", dateFilter);
+        parameters.put("monthFilter", monthFilter);
+        parameters.put("excludeExpired", excludeExpired);
+        parameters.put("sortOption", sortOption);
+        parameters.put("lastViewCnt", lastViewCnt);
+        parameters.put("lastExpireDate", lastExpiredDate);
+        if (sortOption.equals(SortOption.VIEW) || sortOption.equals(SortOption.DEADLINE)) {
+            parameters.put("callCnt", callCnt);
+        }
+
+
+        return parameters.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&"));
+    }
+
+    private void removeDuplicatePosts(Long lastIdx, List<MatchingPost> filteredMatchingPost) {
+        Iterator<MatchingPost> iterator = filteredMatchingPost.iterator();
+        log.info("{}",iterator.hasNext());
+        log.info("{}",!Objects.isNull(lastIdx));
+        log.info("{}",filteredMatchingPost.stream().anyMatch(matchingPost -> matchingPost.getPk().equals(lastIdx)));
+        while (iterator.hasNext()&&!Objects.isNull(lastIdx)&& filteredMatchingPost.stream().anyMatch(matchingPost -> matchingPost.getPk().equals(lastIdx))) {
+            MatchingPost next = iterator.next();
+            iterator.remove();
+            log.info("delete this = {}",next.getPk());
+            if (next.getPk().equals(lastIdx)) {
+                break;
+            }
+        }
+    }
+
+    private void isDateFilterAndMonthFilterCoexist(LocalDate dateFilter, YearMonth monthFilter) {
+        if (dateFilter != null && monthFilter != null) {
+            throw new RuntimeException(DATE_MONTH_CANT_COEXIST.getExceptionMessage());
+        }
+        if (dateFilter == null && monthFilter == null) {
+            throw new RuntimeException(DATE_OR_MONTH_MUST_EXIST.getExceptionMessage());
+        }
     }
 
     public LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> getCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, String memberId){

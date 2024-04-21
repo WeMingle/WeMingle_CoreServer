@@ -151,7 +151,7 @@ public class InitDatabase {
         for (int i = 0; i < amount; i++) {
             matchingPosts.add(MatchingPost.builder()
                     .matchingDate(LocalDate.of(2024, 3, 29))
-                    .expiryDate(LocalDate.of(2024, 3, 29))
+                    .expiryDate(LocalDate.of(2024, new Random().nextInt(12)+1, new Random().nextInt(29)+1))
                     .locationName("jacob house")
                     .lat(new Random().nextDouble(90))
                     .lon(new Random().nextDouble(180))
@@ -163,8 +163,9 @@ public class InitDatabase {
                     .recruiterType(RecruiterType.INDIVIDUAL)
                     .recruitmentType(RecruitmentType.APPROVAL_BASED)
                     .locationSelectionType(LocationSelectionType.SELECT_BASED)
-                    .writer(memberList.get(i%10))
-                    .team(teams.get(i%10))
+                    .writer(memberList.get(amount%10))
+                    .team(teams.get(amount%10))
+                    .viewCnt(new Random().nextInt(100))//new Random().nextInt(100000)
                     .build());
         }
         return matchingPosts;

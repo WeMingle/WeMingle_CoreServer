@@ -4,6 +4,7 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
+import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
@@ -47,7 +48,8 @@ public class MatchingPostController {
     }
 
     @GetMapping("/calendar")
-    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalender(@RequestParam(required = false) Long nextIdx,
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalender(@RequestParam SortOption sortOption,
+                                                                             @RequestParam(required = false) Long lastIdx,
                                                                              @RequestParam(required = false) RecruitmentType recruitmentType,
                                                                              @RequestParam(required = false) Ability ability,
                                                                              @RequestParam(required = false) Gender gender,
@@ -56,8 +58,11 @@ public class MatchingPostController {
                                                                              @RequestParam(required = false) LocalDate dateFilter,
                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                              @RequestParam(required = false) Boolean excludeExpired,
+                                                                             @RequestParam(required = false) Long lastViewCnt,
+                                                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-DD")LocalDate lastExpiredDate,
+                                                                             @RequestParam(required = false) Integer callCnt,
                                                                              @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPost(userDetails.getUsername(), nextIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired);
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostBySortOption(userDetails.getUsername(), lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastViewCnt, lastExpiredDate, callCnt);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
@@ -75,9 +80,8 @@ public class MatchingPostController {
                                                                                 @RequestParam(required = false) List<AreaName> areaList,
                                                                                 @RequestParam(required = false) LocalDate dateFilter,
                                                                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
-                                                                                @RequestParam(required = false) Boolean excludeExpired,
-                                                                                @AuthenticationPrincipal UserDetails userDetails){
-        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(userDetails.getUsername(), nextIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired);
+                                                                                @RequestParam(required = false) Boolean excludeExpired){
+        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(nextIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()

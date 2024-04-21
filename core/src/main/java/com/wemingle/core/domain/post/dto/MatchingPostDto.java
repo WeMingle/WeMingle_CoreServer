@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.post.dto;
 
-import com.wemingle.core.domain.post.dto.historystatus.HistoryStatus;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
@@ -60,20 +59,24 @@ public class MatchingPostDto {
         private String contents;
         private List<AreaName> areaList;
         private int matchingCnt;
+        private int viewCnt;
         private LocalDate matchingDate;
+        private LocalDate expiryDate;
         private RecruiterType recruiterType;
         private Ability ability;
         private boolean isLocationConsensusPossible;
         private boolean isBookmarked;
 
         @Builder
-        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
+        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, int viewCnt, LocalDate matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
             this.contents = contents;
             this.areaList = areaList;
             this.matchingCnt = matchingCnt;
+            this.viewCnt = viewCnt;
             this.matchingDate = matchingDate;
+            this.expiryDate = expiryDate;
             this.recruiterType = recruiterType;
             this.ability = ability;
             this.isLocationConsensusPossible = isLocationConsensusPossible;
