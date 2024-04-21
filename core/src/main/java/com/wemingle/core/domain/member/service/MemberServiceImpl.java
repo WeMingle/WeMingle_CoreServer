@@ -1,7 +1,6 @@
 package com.wemingle.core.domain.member.service;
 
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
-import com.wemingle.core.domain.category.sports.repository.SportsCategoryRepository;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.dto.MemberAuthenticationInfoDto;
 import com.wemingle.core.domain.member.dto.MemberDto;
