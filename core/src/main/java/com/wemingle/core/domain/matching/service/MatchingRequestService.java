@@ -119,8 +119,8 @@ public class MatchingRequestService {
                 .nickname(matchingRequest.getMember().getNickname())
                 .content(matchingRequest.getContent())
                 .completedMatchingCnt(matchingRequest.getTeam().getCompletedMatchingCnt())
-                .majorActivityArea(matchingRequest.getMember().getMajorActivityArea())
-                .ability(matchingRequest.getMember().getAbility()) //todo 카테고리별 ability로 수정
+//                .majorActivityArea(matchingRequest.getMember().getMajorActivityArea())
+//                .ability(matchingRequest.getMember().getAbility()) //todo 카테고리별 ability로 수정
                 .build()));
 
         return MatchingRequestDto.ResponsePendingRequestsByIndividual.builder()
