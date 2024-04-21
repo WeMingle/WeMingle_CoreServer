@@ -168,9 +168,8 @@ public class InitDatabase {
         for (int i = 0; i < amount-1; i++) {
             memberRepository.save(Member.builder()
                     .memberId("memberId" + i)
-                    .ability(Ability.MEDIUM)
                     .gender(Gender.MALE)
-                    .majorActivityArea("강남")
+                    .majorActivityArea(AreaName.강원)
                     .oneLineIntroduction("안녕")
                     .password("password")
                     .nickname("nickname" + i)
@@ -186,9 +185,8 @@ public class InitDatabase {
         }
         memberRepository.save(Member.builder()
                 .memberId("wemingle@gmail.com")
-                .ability(Ability.MEDIUM)
                 .gender(Gender.MALE)
-                .majorActivityArea("강남")
+                .majorActivityArea(AreaName.강원)
                 .oneLineIntroduction("안녕")
                 .password("password")
                 .nickname("leeking")
