@@ -6,8 +6,10 @@ import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class TeamReview extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")

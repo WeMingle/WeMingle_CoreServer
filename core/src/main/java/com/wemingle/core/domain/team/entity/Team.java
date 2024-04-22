@@ -40,8 +40,10 @@ public class Team extends BaseEntity {
     @Column(name = "END_AGE")
     private int endAge;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "GENDER")
     private Gender gender;
+
     @Column(name = "ONLY_SAME_UNIV")
     private boolean onlySameUniv;
 
@@ -97,5 +99,13 @@ public class Team extends BaseEntity {
 
     public void addTeamMembers(List<TeamMember> teamMembers){
         this.teamMembers = teamMembers;
+    }
+
+    public boolean hasGenderCond(){
+        return this.gender != null;
+    }
+
+    public boolean hasAgeCond(){
+        return this.startAge != 0 && this.endAge != 0;
     }
 }

@@ -11,4 +11,6 @@ import java.util.List;
 public interface TeamRatingRepository extends JpaRepository<TeamRating, Long> {
     @Query("select tr from TeamRating tr where tr.team in :teams")
     List<TeamRating> findTeamRatingInPk(@Param("teams") List<Team> team);
+    @Query("select tr.totalRating from TeamRating tr where tr.team = :team")
+    Double findTotalRatingWithTeam(@Param("team") Team team);
 }

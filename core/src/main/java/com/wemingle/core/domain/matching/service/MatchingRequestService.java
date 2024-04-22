@@ -21,6 +21,7 @@ import com.wemingle.core.domain.rating.entity.TeamRating;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
+import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -170,11 +171,15 @@ public class MatchingRequestService {
     }
 
     private double getTeamRating(List<TeamRating> teamRatings, Team team) {
-        return teamRatings.stream()
+        TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
+
+        double totalRating = teamRatings.stream()
                 .filter(teamRating -> teamRating.getTeam().equals(team))
                 .findFirst()
                 .map(TeamRating::getTotalRating)
                 .orElse(0.0);
+
+        return teamRatingUtil.adjustTeamRating(totalRating);
     }
 
     @Transactional

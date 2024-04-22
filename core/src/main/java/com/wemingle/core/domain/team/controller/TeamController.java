@@ -1,6 +1,5 @@
 package com.wemingle.core.domain.team.controller;
 
-import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
@@ -21,7 +20,6 @@ import java.util.HashMap;
 public class TeamController {
     private final TeamService teamService;
     private final TeamMemberService teamMemberService;
-    private final MemberService memberService;
 
     @GetMapping("/post")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
@@ -110,6 +108,17 @@ public class TeamController {
                         .build());
     }
 
+    @GetMapping("/{teamPk}")
+    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk) {
+        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.TeamInfo>builder()
+                        .responseMessage("Team info retrieval successfully")
+                        .responseData(responseData)
+                        .build());
+    }
+
     @PostMapping("/create")
     public ResponseEntity<ResponseHandler<Object>> createTeam(@RequestBody CreateTeamDto createTeamDto,
                                                                        @AuthenticationPrincipal UserDetails userDetails) {
@@ -117,5 +126,17 @@ public class TeamController {
         return ResponseEntity.ok(
                 ResponseHandler.builder().responseMessage("Team create successfully").build()
         );
+    }
+
+    @GetMapping("/{teamPk}/condition")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamParticipantCond>> getTeamParticipantCond(@PathVariable Long teamPk,
+                                                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        TeamDto.ResponseTeamParticipantCond responseData = teamService.getTeamParticipantCond(teamPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.ResponseTeamParticipantCond>builder()
+                        .responseMessage("Team condition result retrieval successfully")
+                        .responseData(responseData)
+                        .build());
     }
 }

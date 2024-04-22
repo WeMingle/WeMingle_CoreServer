@@ -21,11 +21,26 @@ public class TeamPostController {
 
     @GetMapping
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>> getTeamPostsWithMember(@RequestParam(required = false) Long nextIdx,
-                                                                                                               @AuthenticationPrincipal UserDetails userDetails){
+                                                                                                                              @AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> responseData = teamPostService.getTeamPostWithMember(nextIdx, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>builder()
+                        .responseMessage("Team posts retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping("/{teamPk}")
+    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostsInfoWithTeam>> getTeamPostsWithMember(@PathVariable Long teamPk,
+                                                                                                                              @RequestParam boolean isNotice,
+                                                                                                                              @RequestParam(required = false) Long nextIdx,
+                                                                                                                              @AuthenticationPrincipal UserDetails userDetails) {
+        TeamPostDto.ResponseTeamPostsInfoWithTeam responseData = teamPostService.getTeamPostWithTeam(nextIdx, isNotice, teamPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamPostDto.ResponseTeamPostsInfoWithTeam>builder()
                         .responseMessage("Team posts retrieval successfully")
                         .responseData(responseData)
                         .build()

@@ -61,7 +61,6 @@ public class Member extends BaseEntity implements UserDetails {
     private String firebaseToken;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "MAJOR_ACTIVITY_AREA", columnDefinition = "VARBINARY(100) NOT NULL")
     private AreaName majorActivityArea;
 
     @Column(name = "IS_MAJOR_ACTIVITY_AREA_PUBLIC")
@@ -71,11 +70,16 @@ public class Member extends BaseEntity implements UserDetails {
     private int numberOfMatches;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "GENDER", columnDefinition = "VARBINARY(50) NOT NULL")
     private Gender gender;
 
     @Column(name = "IS_ABILIY_PUBLIC")
     private boolean isAbilityPublic;
+
+    @Column(name = "IS_BIRTH_YEAR_PUBLIC")
+    private boolean isBirthYearPublic;
+
+    @Column(name = "BIRTH_YEAR")
+    private int birthYear;
 
     @Column(name = "ONE_LINE_INTRODUCTOIN", columnDefinition = "VARBINARY(400) NOT NULL")
     private String oneLineIntroduction;
@@ -178,5 +182,17 @@ public class Member extends BaseEntity implements UserDetails {
     }
     public boolean isVerifiedMember(){
         return !this.role.equals(Role.UNVERIFIED_USER);
+    }
+    public boolean isBeforeWriteInfo(){
+        boolean hasGender = this.gender != null;
+        boolean hasIntroduction = this.oneLineIntroduction != null;
+        boolean hasBirthYear = this.birthYear != 0;
+        boolean hasMajorActivityArea = this.majorActivityArea != null;
+
+        return hasGender || hasIntroduction || hasBirthYear || hasMajorActivityArea;
+    }
+
+    public void updateBirthYear(int birthYear){
+        this.birthYear = birthYear;
     }
 }
