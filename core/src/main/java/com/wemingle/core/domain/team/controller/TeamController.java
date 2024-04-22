@@ -21,7 +21,7 @@ public class TeamController {
     private final TeamService teamService;
     private final TeamMemberService teamMemberService;
 
-    @GetMapping("/post")
+    @GetMapping("/profile/writable")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamDto.ResponseTeamInfoDto> teamListInfo = teamService.getTeamInfoWithMemberId(userDetails.getUsername());
 
