@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.team.service;
 
+import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 
 import java.util.HashMap;
@@ -12,4 +13,5 @@ public interface TeamService {
     TeamDto.ResponseTeamInfoByName getTeamByName(Long nextIdx, String teamName);
     HashMap<Long, TeamDto.ResponseTeamByMemberUniv> getTeamWithMemberUniv(Long nextIdx, String memberId);
     TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk);
+    void saveTeam(String ownerId, CreateTeamDto createTeamDto);
 }

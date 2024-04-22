@@ -24,7 +24,7 @@ public class TeamPost extends BaseEntity {
     private Long pk;
 
     @NotNull
-    @Column(name = "TITLE", length = 3000)
+    @Column(name = "TITLE", length = 1000)
     private String title;
 
     @NotNull
@@ -42,6 +42,14 @@ public class TeamPost extends BaseEntity {
     @NotNull
     @Column(name = "COMPLAINTS_COUNT")
     private int complaintsCount;
+
+    @NotNull
+    @Column(name = "COMMENT_ALLOW")
+    private boolean commentAllow;
+
+    @NotNull
+    @Column(name = "LIKE_ALLOW")
+    private boolean likeAllow;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -66,15 +74,24 @@ public class TeamPost extends BaseEntity {
     private List<TeamPostImg> teamPostImgs;
 
     @Builder
-    public TeamPost(String title, String content, int likeCount, int replyCount, int complaintsCount, PostType postType, Team team, TeamMember writer, TeamPostVote teamPostVote) {
+    public TeamPost(String title, String content, boolean commentAllow, boolean likeAllow, PostType postType, Team team, TeamMember writer) {
         this.title = title;
         this.content = content;
-        this.likeCount = likeCount;
-        this.replyCount = replyCount;
-        this.complaintsCount = complaintsCount;
+        this.likeCount = 0;
+        this.replyCount = 0;
+        this.complaintsCount = 0;
+        this.commentAllow = commentAllow;
+        this.likeAllow = likeAllow;
         this.postType = postType;
         this.team = team;
         this.writer = writer;
+    }
+
+    public void addTeamPostImgs(List<TeamPostImg> teamPostImgs){
+        this.teamPostImgs = teamPostImgs;
+    }
+
+    public void addTeamPostVote(TeamPostVote teamPostVote){
         this.teamPostVote = teamPostVote;
     }
 }

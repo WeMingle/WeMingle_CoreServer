@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.team.controller;
 
+import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.domain.team.service.TeamService;
@@ -108,7 +109,7 @@ public class TeamController {
     }
 
     @GetMapping("/{teamPk}")
-    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk){
+    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk) {
         TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk);
 
         return ResponseEntity.ok(
@@ -116,5 +117,14 @@ public class TeamController {
                         .responseMessage("Team info retrieval successfully")
                         .responseData(responseData)
                         .build());
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<ResponseHandler<Object>> createTeam(@RequestBody CreateTeamDto createTeamDto,
+                                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        teamService.saveTeam(userDetails.getUsername(),createTeamDto);
+        return ResponseEntity.ok(
+                ResponseHandler.builder().responseMessage("Team create successfully").build()
+        );
     }
 }
