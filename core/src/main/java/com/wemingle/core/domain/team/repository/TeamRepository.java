@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface TeamRepository extends JpaRepository<Team, Long>, DSLTeamRepository{
     List<Team> findByTeamOwner_MemberId(String memberId);
@@ -17,4 +19,11 @@ public interface TeamRepository extends JpaRepository<Team, Long>, DSLTeamReposi
             "where t.teamOwner in :members and t.teamType = 'TEAM' " +
             "order by t.pk desc")
     List<Team> findByTeamOwnerIn(@Param("members")List<Member> members, Pageable pageable);
+
+    @Query("select t.profileImgId from Team t " +
+            "where t.teamOwner.memberId = :ownerId and t.teamName = :teamName")
+    Optional<UUID> findTeamProfileImgId(@Param("ownerId") String memberId, @Param("teamName") String teamName);
+
+    @Query("select t from Team t where t.teamName = :ownerId and t.teamOwner.memberId = :ownerId")
+    Optional<Team> findTemporaryTeam(@Param("ownerId") String ownerId);
 }

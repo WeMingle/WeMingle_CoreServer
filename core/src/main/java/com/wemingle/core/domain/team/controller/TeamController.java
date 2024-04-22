@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.team.controller;
 
 import com.wemingle.core.domain.member.service.MemberService;
+import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.domain.team.service.TeamService;
@@ -10,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
@@ -110,5 +108,14 @@ public class TeamController {
                         .responseMessage("Teams associated with my univ retrieval successfully")
                         .responseData(responseData)
                         .build());
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<ResponseHandler<Object>> createTeam(@RequestBody CreateTeamDto createTeamDto,
+                                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        teamService.saveTeam(userDetails.getUsername(),createTeamDto);
+        return ResponseEntity.ok(
+                ResponseHandler.builder().responseMessage("Team create successfully").build()
+        );
     }
 }
