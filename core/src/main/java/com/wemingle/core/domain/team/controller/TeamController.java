@@ -127,4 +127,16 @@ public class TeamController {
                 ResponseHandler.builder().responseMessage("Team create successfully").build()
         );
     }
+
+    @GetMapping("/{teamPk}/condition")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamParticipantCond>> getTeamParticipantCond(@PathVariable Long teamPk,
+                                                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        TeamDto.ResponseTeamParticipantCond responseData = teamService.getTeamParticipantCond(teamPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.ResponseTeamParticipantCond>builder()
+                        .responseMessage("Team condition result retrieval successfully")
+                        .responseData(responseData)
+                        .build());
+    }
 }
