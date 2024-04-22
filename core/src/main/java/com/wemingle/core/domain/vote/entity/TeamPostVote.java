@@ -49,7 +49,7 @@ public class TeamPostVote extends BaseEntity {
     private List<VoteOption> voteOptions = new ArrayList<>();
 
     @Builder
-    public TeamPostVote(String title, LocalDateTime expiryTime, boolean isMultiVoting, boolean isAnonymousVoting, int voteLimit, com.wemingle.core.domain.post.entity.TeamPost teamPost) {
+    public TeamPostVote(String title, LocalDateTime expiryTime, boolean isMultiVoting, boolean isAnonymousVoting, int voteLimit, TeamPost teamPost) {
         this.title = title;
         this.expiryTime = expiryTime;
         this.isMultiVoting = isMultiVoting;
