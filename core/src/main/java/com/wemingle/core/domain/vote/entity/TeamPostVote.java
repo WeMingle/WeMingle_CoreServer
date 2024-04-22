@@ -25,7 +25,6 @@ public class TeamPostVote extends BaseEntity {
     @Column(name = "TITLE", length = 1000)
     private String title;
 
-    @NotNull
     @Column(name = "EXPIRY_TIME")
     private LocalDateTime expiryTime;
 
@@ -38,24 +37,28 @@ public class TeamPostVote extends BaseEntity {
     private boolean isAnonymousVoting;
 
     @NotNull
-    @Column(name = "IS_ADDITIONAL_ITEM")
-    private boolean isAdditionalItem;
+    @Column(name = "VOTE_LIMIT")
+    private int voteLimit;
 
     @NotNull
     @OneToOne(mappedBy = "teamPostVote", cascade = CascadeType.ALL, orphanRemoval = true)
-    private TeamPost TeamPost;
+    private TeamPost teamPost;
 
     @NotNull
     @OneToMany(mappedBy = "teamPostVote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VoteOption> voteOptions = new ArrayList<>();
 
     @Builder
-    public TeamPostVote(String title, LocalDateTime expiryTime, boolean isMultiVoting, boolean isAnonymousVoting, boolean isAdditionalItem, List<VoteOption> voteOptions) {
+    public TeamPostVote(String title, LocalDateTime expiryTime, boolean isMultiVoting, boolean isAnonymousVoting, int voteLimit, com.wemingle.core.domain.post.entity.TeamPost teamPost) {
         this.title = title;
         this.expiryTime = expiryTime;
         this.isMultiVoting = isMultiVoting;
         this.isAnonymousVoting = isAnonymousVoting;
-        this.isAdditionalItem = isAdditionalItem;
+        this.voteLimit = voteLimit;
+        this.teamPost = teamPost;
+    }
+
+    public void addVoteOptions(List<VoteOption> voteOptions){
         this.voteOptions = voteOptions;
     }
 }
