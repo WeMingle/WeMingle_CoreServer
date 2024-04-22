@@ -86,7 +86,6 @@ public class TeamPostService {
 
     @Transactional
     public void saveTeamPost(TeamPostDto.RequestTeamPostSave savePostDto, String memberId){
-        log.info("{}", savePostDto);
         Team team = teamRepository.findById(savePostDto.getTeamPk())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
         TeamMember teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId)
@@ -119,8 +118,6 @@ public class TeamPostService {
 
     private TeamPostVote saveVote(TeamPost teamPost, SaveVoteVo saveVoteVo) {
         if (saveVoteVo.isHasVote()){
-            log.info("isMultiVoting = {}", saveVoteVo.isMultiVoting());
-            log.info("isAnonymousVoting = {}", saveVoteVo.isAnonymousVoting());
             TeamPostVote teamPostVote = TeamPostVote.builder()
                     .title(saveVoteVo.getTitle())
                     .expiryTime(saveVoteVo.getExpiryTime())
