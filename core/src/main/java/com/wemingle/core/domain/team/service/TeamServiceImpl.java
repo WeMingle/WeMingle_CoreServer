@@ -4,10 +4,13 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
+import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
+import com.wemingle.core.domain.team.repository.TeamQuestionnaireRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
@@ -31,6 +34,7 @@ public class TeamServiceImpl implements TeamService{
     private final S3ImgService s3ImgService;
     private final MemberRepository memberRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final TeamQuestionnaireRepository teamQuestionnaireRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
 
     private static final int PAGE_SIZE = 30;
@@ -162,5 +166,30 @@ public class TeamServiceImpl implements TeamService{
                 .build()));
 
         return responseDto;
+    }
+
+    @Transactional
+    @Override
+    public void saveTeam(String ownerId, CreateTeamDto createTeamDto) {
+        Member owner = memberRepository.findByMemberId(ownerId)
+                .orElseThrow(() -> new RuntimeException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Team team = Team.builder().teamOwner(owner)
+                .teamName(createTeamDto.getTeamName())
+                .content(createTeamDto.getContent())
+                .teamType(TeamType.TEAM)
+                .sportsCategory(createTeamDto.getSportsType())
+                .profileImgId(createTeamDto.getTeamImgId())
+                .capacityLimit(createTeamDto.getPersonnelLimitIrrelevant() ? 0 : createTeamDto.getPersonnelLimit())
+                .recruitmentType(createTeamDto.getRecruitmentType())
+                .startAge(createTeamDto.getAgeIsIrrelevant() ? 0 : createTeamDto.getStartAge())
+                .endAge(createTeamDto.getAgeIsIrrelevant() ? 0 : createTeamDto.getEndAge())
+                .gender(createTeamDto.getGenderIsIrrelevant() ? null : createTeamDto.getGender())
+                .onlySameUniv(createTeamDto.getOnlySameUniv())
+                .build();
+        teamRepository.save(team);
+        List<TeamQuestionnaire> questionnaireList = createTeamDto.getFreeQuestionList().stream()
+                .map(question -> TeamQuestionnaire.builder().content(question).team(team).build())
+                .toList();
+        teamQuestionnaireRepository.saveAll(questionnaireList);
     }
 }
