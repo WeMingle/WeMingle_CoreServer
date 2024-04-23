@@ -87,7 +87,9 @@ public class TokenService {
         member.patchRefreshToken(refreshToken);
         return TokenDto.ResponseTokenDto.builder()
                 .refreshToken(refreshToken)
+                .refreshTokenExpiredTime(getExpirationTime(refreshToken))
                 .accessToken(accessToken)
+                .accessTokenExpiredTime(getExpirationTime(accessToken))
                 .build();
     }
 
