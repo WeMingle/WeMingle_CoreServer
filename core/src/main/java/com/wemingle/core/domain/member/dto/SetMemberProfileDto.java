@@ -14,7 +14,7 @@ import lombok.Setter;
 public class SetMemberProfileDto {
     @Essential
     @Size(min = 2, max = 10, message = "2~10글자 사이로 입력하세요")
-    String nickname;
+    private String nickname;
 
     public SignupVo.PatchMemberProfileVo of() {
         return SignupVo.PatchMemberProfileVo.builder()
