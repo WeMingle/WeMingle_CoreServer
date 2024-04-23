@@ -18,6 +18,7 @@ public interface MemberService {
     Member findByMemberId(String memberId);
     boolean isRegisteredMember(String memberId, SignupPlatform platform);
     SignupPlatform findRegisteredPlatformByMember(String memberId);
+    boolean isMatchesPassword(String memberId, String rawPw);
     void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports);
 
     MemberInfoDto getMemberInfo(String memberId);

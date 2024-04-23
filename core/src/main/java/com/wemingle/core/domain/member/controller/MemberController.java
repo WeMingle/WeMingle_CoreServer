@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -26,14 +27,21 @@ public class MemberController {
 
     private final MemberService memberService;
     private final TokenService tokenService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @PostMapping("/signin")
     ResponseEntity<ResponseHandler<Object>> signInMember(@RequestBody SignUpDto.RequestSignInDto signInDto) {
         boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId(), signInDto.getSignupPlatform());
         if (!isRegisteredMember) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ResponseHandler.builder()
                             .responseMessage("Member not found")
+                            .build());
+        }
+        if (!memberService.isMatchesPassword(signInDto.getMemberId(), signInDto.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("Passwords do not match")
                             .build());
         }
         TokenDto.ResponseTokenDto tokensForRegisteredMember = tokenService.getTokensForRegisteredMember(signInDto.getMemberId());
