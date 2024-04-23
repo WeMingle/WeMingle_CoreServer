@@ -348,10 +348,10 @@ public class MatchingPostService {
 
     public LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> getCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, String memberId){
         Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
-        List<MatchingPost> matchingPostWithMemberId = teamReviewRepository.findMatchingPostWithMemberId(member);
+        List<MatchingPost> matchingPostWrittenReview = teamReviewRepository.findMatchingPostWithMemberId(member);
         PageRequest pageRequest = PageRequest.of(0, 30);
 
-        List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWithMemberId, pageRequest);
+        List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWrittenReview, pageRequest);
 
         List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
 
@@ -369,13 +369,13 @@ public class MatchingPostService {
                 .profileImgUrl(getProfileImgUrl(matchingPost))
                 .detailPostUrl(serverIp + "/post/match/" + matchingPost.getPk())
                 .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate()))
-                .scheduledRequestDescription(getScheduledRequest(matchingPost, member, matchingPostWithMemberId))
+                .scheduledRequestDescription(getScheduledRequest(matchingPost, member, matchingPostWrittenReview))
                 .build()));
 
         return responseHashMap;
     }
 
-    private static List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
+    private List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
         return matchingPostAreas.stream()
                 .filter(matchingPostArea -> matchingPostArea.getMatchingPost().equals(matchingPost))
                 .map(MatchingPostArea::getAreaName)
@@ -388,7 +388,7 @@ public class MatchingPostService {
                 : s3ImgService.getMemberProfilePicUrl(matchingPost.getTeam().getProfileImgId());
     }
 
-    private static boolean isTeam(MatchingPost matchingPost) {
+    private boolean isTeam(MatchingPost matchingPost) {
         return matchingPost.getTeam().getTeamType().equals(TeamType.TEAM);
     }
 
@@ -405,20 +405,20 @@ public class MatchingPostService {
         }
     }
 
-    private String getScheduledRequest(MatchingPost matchingPost, Member member, List<MatchingPost> matchingPostWithMemberId) {
+    private String getScheduledRequest(MatchingPost matchingPost, Member member, List<MatchingPost> matchingPostWrittenReview) {
         return isTeamOwner(matchingPost, member)
-                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWithMemberId)
+                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWrittenReview)
                 : createScheduledRequestWithMember();
     }
 
-    private static boolean isTeamOwner(MatchingPost matchingPost, Member member) {
+    private boolean isTeamOwner(MatchingPost matchingPost, Member member) {
         return matchingPost.getTeam().getTeamOwner().equals(member);
     }
 
     private String createScheduledRequestWithOwner(MatchingStatus matchingStatus,
                                                    LocalDate matchingDate,
                                                    MatchingPost matchingPost,
-                                                   List<MatchingPost> matchingPostWithMemberId) {
+                                                   List<MatchingPost> matchingPostWrittenReview) {
         switch (matchingStatus) {
             case CANCEL -> {
                 return RENEW_MATCHING_POST.getDescription();
@@ -431,7 +431,7 @@ public class MatchingPostService {
                 } else if (remainDays >= 0) {
                     return CANCEL_NOT_PERMITTED_DURATION.getDescription();
                 } else {
-                    return checkReviewWrittenPost(matchingPost, matchingPostWithMemberId);
+                    return checkReviewWrittenPost(matchingPost, matchingPostWrittenReview);
                 }
             }
             default -> throw new RuntimeException(INVALID_MATCHING_POST_STATUS.getExceptionMessage());
