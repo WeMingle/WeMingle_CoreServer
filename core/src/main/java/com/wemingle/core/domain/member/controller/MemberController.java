@@ -50,7 +50,7 @@ public class MemberController {
         memberService.saveMember(saveMemberVo);
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
-                        .responseMessage("Token issuance completed")
+                        .responseMessage("Temporary token issuance completed")
                         .responseData(unVerifiedUserTokens)
                         .build()
         );

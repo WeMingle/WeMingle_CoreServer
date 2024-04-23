@@ -81,7 +81,7 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "BIRTH_YEAR")
     private int birthYear;
 
-    @Column(name = "ONE_LINE_INTRODUCTOIN", columnDefinition = "VARBINARY(400) NOT NULL")
+    @Column(name = "ONE_LINE_INTRODUCTOIN", columnDefinition = "VARBINARY(400)")
     private String oneLineIntroduction;
 
     @NotNull
