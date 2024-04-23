@@ -3,6 +3,7 @@ package com.wemingle.core.domain.member.controller;
 import com.wemingle.core.domain.authentication.dto.TokenDto;
 import com.wemingle.core.domain.authentication.service.TokenService;
 import com.wemingle.core.domain.member.dto.*;
+import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
@@ -44,6 +45,15 @@ public class MemberController {
 
     @PostMapping("/signup")
     ResponseEntity<ResponseHandler<Object>> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) {
+        boolean registeredMember = memberService.isRegisteredMember(signUpDto.getMemberId(), signUpDto.getSignupPlatform());
+        if (registeredMember) {
+            SignupPlatform registeredPlatformByMember = memberService.findRegisteredPlatformByMember(signUpDto.getMemberId());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("Member is registered")
+                            .responseData(registeredPlatformByMember.getPlatformType())
+                            .build());
+        }
         TokenDto.ResponseTokenDto unVerifiedUserTokens = tokenService.getUnVerifiedUserTokens(signUpDto.getMemberId());
         SignupVo.SaveMemberVo saveMemberVo = signUpDto.of();
         saveMemberVo.setRefreshToken(unVerifiedUserTokens.getRefreshToken());

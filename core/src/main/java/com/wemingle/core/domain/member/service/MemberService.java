@@ -17,6 +17,7 @@ public interface MemberService {
     Member findByRefreshToken(String refreshToken);
     Member findByMemberId(String memberId);
     boolean isRegisteredMember(String memberId, SignupPlatform platform);
+    SignupPlatform findRegisteredPlatformByMember(String memberId);
     void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports);
 
     MemberInfoDto getMemberInfo(String memberId);

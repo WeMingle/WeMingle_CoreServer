@@ -17,12 +17,15 @@ import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.utils.Platform;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +34,7 @@ import java.util.Optional;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
@@ -89,9 +93,15 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public boolean isRegisteredMember(String memberId, SignupPlatform platform) {
-        return memberRepository.findByMemberId(memberId)
-                .map(member -> member.getSignupPlatform().toString().equals(platform.toString()))
-                .orElse(false);
+        Optional<Member> byMemberId = memberRepository.findByMemberId(memberId);
+        log.info("{}",byMemberId.isPresent());
+        return byMemberId.isPresent();
+    }
+
+    @Override
+    public SignupPlatform findRegisteredPlatformByMember(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new RuntimeException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        return member.getSignupPlatform();
     }
 
     @Override
