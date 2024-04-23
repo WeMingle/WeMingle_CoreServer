@@ -39,9 +39,11 @@ public class MemberInfoDto {
     private List<EachAbilityAboutMember> abilityList;
     private String oneLineIntroduction;
     private UUID profilePicId;
+    private Integer birthYear;
+    private boolean isBirthYearPublic;
 
     @Builder
-    public MemberInfoDto(String nickname, boolean isMajorActivityAreaPublic, AreaName majorActivityArea, int numberOfMatches, Gender gender, boolean isAbilityPublic, List<EachAbilityAboutMember> abilityList, String oneLineIntroduction, UUID profilePicId) {
+    public MemberInfoDto(String nickname, boolean isMajorActivityAreaPublic, AreaName majorActivityArea, int numberOfMatches, Gender gender, boolean isAbilityPublic, List<EachAbilityAboutMember> abilityList, String oneLineIntroduction, UUID profilePicId, Integer birthYear, boolean isBirthYearPublic) {
         this.nickname = nickname;
         this.isMajorActivityAreaPublic = isMajorActivityAreaPublic;
         this.majorActivityArea = majorActivityArea;
@@ -51,6 +53,8 @@ public class MemberInfoDto {
         this.abilityList = abilityList;
         this.oneLineIntroduction = oneLineIntroduction;
         this.profilePicId = profilePicId;
+        this.birthYear = birthYear;
+        this.isBirthYearPublic = isBirthYearPublic;
     }
 }
 

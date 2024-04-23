@@ -138,6 +138,8 @@ public class MemberServiceImpl implements MemberService {
         member.setAbilityPublic(memberInfoDto.isAbilityPublic());
         member.setGender(memberInfoDto.getGender());
         member.setOneLineIntroduction(memberInfoDto.getOneLineIntroduction());
+        member.setBirthYearPublic(memberInfoDto.isBirthYearPublic());
+        member.setBirthYear(member.getBirthYear());
         memberRepository.save(member);
 
         clearMemberAbility(member);
