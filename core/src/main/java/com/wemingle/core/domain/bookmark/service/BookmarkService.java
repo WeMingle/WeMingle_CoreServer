@@ -42,9 +42,9 @@ public class BookmarkService {
         return bookmarkRepository.findBookmarkedByMatchingPosts(matchingPostList, memberId);
     }
 
-    public List<MatchingPostDto.ResponseMyBookmarkDto> getMyBookmarkedList(Long nextIdx, Boolean excludeExpired, RecruiterType recruiterType, String memberId) {
+    public List<MatchingPostDto.ResponseMyBookmarkDto> getMyBookmarkedList(Long nextIdx, boolean excludeExpired, RecruiterType recruiterType, String memberId) {
         ArrayList<MatchingPostDto.ResponseMyBookmarkDto> matchingPostDtoList = new ArrayList<>();
-        bookmarkRepository.findMyBookmarkedList(nextIdx, memberId, excludeExpired ? null : LocalDate.now(), recruiterType, PageRequest.of(0, 30))
+        bookmarkRepository.findMyBookmarkedList(nextIdx, memberId, !excludeExpired ? null : LocalDate.now(), recruiterType, PageRequest.of(0, 30))
                 .forEach(matchingPost -> matchingPostDtoList.add(
                         MatchingPostDto.ResponseMyBookmarkDto.builder()
                                 .pk(matchingPost.getPk())

@@ -1,6 +1,6 @@
 package com.wemingle.core.domain.team.controller;
 
-import com.wemingle.core.domain.member.service.MemberService;
+import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.domain.team.service.TeamService;
@@ -10,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
@@ -23,9 +20,8 @@ import java.util.HashMap;
 public class TeamController {
     private final TeamService teamService;
     private final TeamMemberService teamMemberService;
-    private final MemberService memberService;
 
-    @GetMapping("/post")
+    @GetMapping("/profile/writable")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamDto.ResponseTeamInfoDto> teamListInfo = teamService.getTeamInfoWithMemberId(userDetails.getUsername());
 
@@ -108,6 +104,38 @@ public class TeamController {
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseTeamByMemberUniv>>builder()
                         .responseMessage("Teams associated with my univ retrieval successfully")
+                        .responseData(responseData)
+                        .build());
+    }
+
+    @GetMapping("/{teamPk}")
+    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk) {
+        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.TeamInfo>builder()
+                        .responseMessage("Team info retrieval successfully")
+                        .responseData(responseData)
+                        .build());
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<ResponseHandler<Object>> createTeam(@RequestBody CreateTeamDto createTeamDto,
+                                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        teamService.saveTeam(userDetails.getUsername(),createTeamDto);
+        return ResponseEntity.ok(
+                ResponseHandler.builder().responseMessage("Team create successfully").build()
+        );
+    }
+
+    @GetMapping("/{teamPk}/condition")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamParticipantCond>> getTeamParticipantCond(@PathVariable Long teamPk,
+                                                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        TeamDto.ResponseTeamParticipantCond responseData = teamService.getTeamParticipantCond(teamPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.ResponseTeamParticipantCond>builder()
+                        .responseMessage("Team condition result retrieval successfully")
                         .responseData(responseData)
                         .build());
     }

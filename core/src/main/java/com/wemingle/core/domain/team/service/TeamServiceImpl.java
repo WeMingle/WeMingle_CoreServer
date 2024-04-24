@@ -4,13 +4,20 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
+import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
+import com.wemingle.core.domain.review.repository.TeamReviewRepository;
+import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
+import com.wemingle.core.domain.team.repository.TeamQuestionnaireRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
+import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +38,10 @@ public class TeamServiceImpl implements TeamService{
     private final S3ImgService s3ImgService;
     private final MemberRepository memberRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final TeamQuestionnaireRepository teamQuestionnaireRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
+    private final TeamReviewRepository teamReviewRepository;
+    private final TeamRatingRepository teamRatingRepository;
 
     private static final int PAGE_SIZE = 30;
     @Override
@@ -162,5 +172,105 @@ public class TeamServiceImpl implements TeamService{
                 .build()));
 
         return responseDto;
+    }
+
+    @Override
+    public TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk) {
+        TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Integer reviewCnt = teamReviewRepository.findTeamReviewCntWithReviewee(team);
+        Double totalRating = teamRatingRepository.findTotalRatingWithTeam(team);
+
+        return TeamDto.TeamInfo.builder()
+                .createDate(team.getCreatedTime().toLocalDate())
+                .teamMemberCnt(team.getTeamMembers().size())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .teamName(team.getTeamName())
+                .teamRating(teamRatingUtil.adjustTeamRating(getNonNullTotalRating(totalRating)))
+                .reviewCnt(getNonNullReviewCnt(reviewCnt))
+                .content(team.getContent())
+                .build();
+    }
+
+    private double getNonNullTotalRating(Double totalRating){
+        return totalRating == null ? 0 : totalRating;
+    }
+
+    private int getNonNullReviewCnt(Integer reviewCnt) {
+        return reviewCnt == null ? 0 : reviewCnt;
+    }
+
+    @Transactional
+    @Override
+    public void saveTeam(String ownerId, CreateTeamDto createTeamDto) {
+        Member owner = memberRepository.findByMemberId(ownerId)
+                .orElseThrow(() -> new RuntimeException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Team team = Team.builder().teamOwner(owner)
+                .teamName(createTeamDto.getTeamName())
+                .content(createTeamDto.getContent())
+                .teamType(TeamType.TEAM)
+                .sportsCategory(createTeamDto.getSportsType())
+                .profileImgId(createTeamDto.getTeamImgId())
+                .capacityLimit(createTeamDto.getPersonnelLimitIrrelevant() ? 0 : createTeamDto.getPersonnelLimit())
+                .recruitmentType(createTeamDto.getRecruitmentType())
+                .startAge(createTeamDto.getAgeIsIrrelevant() ? 0 : createTeamDto.getStartAge())
+                .endAge(createTeamDto.getAgeIsIrrelevant() ? 0 : createTeamDto.getEndAge())
+                .gender(createTeamDto.getGenderIsIrrelevant() ? null : createTeamDto.getGender())
+                .onlySameUniv(createTeamDto.getOnlySameUniv())
+                .build();
+        teamRepository.save(team);
+        List<TeamQuestionnaire> questionnaireList = createTeamDto.getFreeQuestionList().stream()
+                .map(question -> TeamQuestionnaire.builder().content(question).team(team).build())
+                .toList();
+        teamQuestionnaireRepository.saveAll(questionnaireList);
+    }
+
+    @Override
+    public TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId) {//todo 호왕햄 테스트 알려주기
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        UnivEntity teamOwnerUniv = verifiedUniversityEmailRepository.findUnivEntityByMember(team.getTeamOwner())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
+        UnivEntity memberUniv = verifiedUniversityEmailRepository.findUnivEntityByMember(member)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
+
+        return TeamDto.ResponseTeamParticipantCond
+                .builder()
+                .beforeWriteInfo(member.isBeforeWriteInfo())
+                .univCondResult(createUnivCondResult(team.isOnlySameUniv(), memberUniv, teamOwnerUniv))
+                .genderCondResult(createGenderCondResult(team, member.getGender()))
+                .birthYearCondResult(createBirthYearCondResult(team, member.getBirthYear()))
+                .build();
+    }
+
+    private Boolean createUnivCondResult(boolean onlySameUniv, UnivEntity memberUniv, UnivEntity teamOwnerUniv) {
+        return onlySameUniv ? memberUniv.equals(teamOwnerUniv) : null;
+    }
+
+    private TeamDto.GenderCondResult createGenderCondResult(Team team, Gender memberGender) {
+        Gender teamGender = team.getGender();
+
+        return team.hasGenderCond()
+                ? TeamDto.GenderCondResult.builder()
+                    .isSatisfiedGenderCond(teamGender.equals(memberGender))
+                    .gender(teamGender)
+                    .build()
+                : null;
+    }
+
+    private TeamDto.BirthYearCondResult createBirthYearCondResult(Team team, int memberBirthYear) {
+        int teamCondStartAge = team.getStartAge();
+        int teamCondEndAge = team.getEndAge();
+
+        return team.hasAgeCond()
+                ? TeamDto.BirthYearCondResult.builder()
+                    .isSatisfiedBirthYearCond(teamCondStartAge <= memberBirthYear && teamCondEndAge >= memberBirthYear)
+                    .startAge(teamCondStartAge)
+                    .endAge(teamCondEndAge)
+                    .build()
+                : null;
     }
 }

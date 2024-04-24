@@ -161,6 +161,7 @@ public class InitDatabase {
                     .writer(memberList.get(amount%10))
                     .team(teams.get(amount%10))
                     .viewCnt(new Random().nextInt(100))//new Random().nextInt(100000)
+                    .sportsCategory(SportsType.OTHER)
                     .build());
         }
         return matchingPosts;

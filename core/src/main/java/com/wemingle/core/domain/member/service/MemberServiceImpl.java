@@ -19,6 +19,7 @@ import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import java.util.Optional;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
@@ -42,6 +44,7 @@ public class MemberServiceImpl implements MemberService {
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     private final S3ImgService s3ImgService;
     private final MemberAbilityRepository memberAbilityRepository;
+    private final BCryptPasswordEncoder pwEncoder;
 
     @Override
     public boolean verifyAvailableId(String memberId) {
@@ -89,24 +92,31 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public boolean isRegisteredMember(String memberId, SignupPlatform platform) {
-        return memberRepository.findByMemberId(memberId)
-                .map(member -> member.getSignupPlatform().toString().equals(platform.toString()))
-                .orElse(false);
+        Optional<Member> byMemberId = memberRepository.findByMemberId(memberId);
+        return byMemberId.isPresent()&&byMemberId.get().getSignupPlatform().getPlatformType().equals(platform.getPlatformType());
+    }
+
+    @Override
+    public SignupPlatform findRegisteredPlatformByMember(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new RuntimeException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        return member.getSignupPlatform();
+    }
+
+    @Override
+    public boolean isMatchesPassword(String memberId, String rawPw) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        return pwEncoder.matches(rawPw, member.getPassword());
     }
 
     @Override
     @Transactional
-    public void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports) {
+    public void saveMemberPreferenceSports(String memberId, SportsType preferenceSport) {
         Member findMember = findByMemberId(memberId);
 
-        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSports.stream()
-                .map(preferenceSportsCategory -> MemberPreferenceSports.builder()
-                        .member(findMember)
-                        .sports(preferenceSportsCategory)
-                        .build())
-                .toList();
-
-        memberPreferenceSportsRepository.saveAll(memberPreferenceSportsList); //
+        memberPreferenceSportsRepository.save(MemberPreferenceSports.builder()
+                .member(findMember)
+                .sports(preferenceSport)
+                .build());
     }
 
     @Override
@@ -123,6 +133,7 @@ public class MemberServiceImpl implements MemberService {
                 .majorActivityArea(member.getMajorActivityArea())
                 .oneLineIntroduction(member.getOneLineIntroduction())
                 .profilePicId(member.getProfileImgId())
+                .birthYear(member.getBirthYear())
                 .build();
     }
 
@@ -134,10 +145,11 @@ public class MemberServiceImpl implements MemberService {
         member.setNickname(memberInfoDto.getNickname());
         member.setMajorActivityAreaPublic(memberInfoDto.isMajorActivityAreaPublic());
         member.setMajorActivityArea(memberInfoDto.getMajorActivityArea());
-        member.setNumberOfMatches(memberInfoDto.getNumberOfMatches());
         member.setAbilityPublic(memberInfoDto.isAbilityPublic());
         member.setGender(memberInfoDto.getGender());
         member.setOneLineIntroduction(memberInfoDto.getOneLineIntroduction());
+        member.setBirthYearPublic(memberInfoDto.isBirthYearPublic());
+        member.setBirthYear(memberInfoDto.getBirthYear());
         memberRepository.save(member);
 
         clearMemberAbility(member);

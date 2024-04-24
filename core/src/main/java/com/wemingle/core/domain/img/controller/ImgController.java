@@ -2,6 +2,7 @@ package com.wemingle.core.domain.img.controller;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.service.MemberService;
+import com.wemingle.core.domain.team.service.TeamService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class ImgController {
     private final MemberService memberService;
     private final S3ImgService s3ImgService;
+    private final TeamService teamService;
     @GetMapping("/member/profile/upload")
     public ResponseEntity<ResponseHandler<Object>> getMemberProfilePicUploadPreSignUrl(@AuthenticationPrincipal UserDetails userDetails) {
         UUID profileImgId = memberService.findByMemberId(userDetails.getUsername()).getProfileImgId();
@@ -38,6 +40,15 @@ public class ImgController {
         return ResponseEntity.ok(ResponseHandler.builder()
                 .responseMessage("s3 url issuance complete")
                 .responseData(memberProfilePreSignedUrl)
+                .build());
+    }
+
+    @GetMapping("/team/profile/upload/{teamImgUUID}")
+    public ResponseEntity<ResponseHandler<Object>> getTeamProfilePicUploadPreSignUrl(@PathVariable("teamImgUUID") UUID teamImgUUID, @AuthenticationPrincipal UserDetails userDetails) {
+        String groupProfilePreSignedUrl = s3ImgService.setGroupProfilePreSignedUrl(teamImgUUID);
+        return ResponseEntity.ok(ResponseHandler.builder()
+                .responseMessage("s3 url issuance complete")
+                .responseData(groupProfilePreSignedUrl)
                 .build());
     }
 }

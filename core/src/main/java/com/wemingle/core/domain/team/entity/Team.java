@@ -3,19 +3,18 @@ package com.wemingle.core.domain.team.entity;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Setter
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,6 +33,19 @@ public class Team extends BaseEntity {
 
     @Column(name = "COMPLETED_MATCHING_CNT")
     private int completedMatchingCnt;
+
+    @Column(name = "START_AGE")
+    private int startAge;
+
+    @Column(name = "END_AGE")
+    private int endAge;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "GENDER")
+    private Gender gender;
+
+    @Column(name = "ONLY_SAME_UNIV")
+    private boolean onlySameUniv;
 
     @NotNull
     @Column(name = "PROFILE_IMG_ID", columnDefinition = "VARBINARY(255) NOT NULL")
@@ -65,7 +77,7 @@ public class Team extends BaseEntity {
     private List<TeamMember> teamMembers = new ArrayList<>();
 
     @Builder
-    public Team(String teamName, int capacityLimit, UUID profileImgId, String content, TeamType teamType, RecruitmentType recruitmentType, Member teamOwner, SportsType sportsCategory) {
+    public Team(String teamName, int capacityLimit, UUID profileImgId, String content, TeamType teamType, RecruitmentType recruitmentType, Member teamOwner, SportsType sportsCategory, int startAge, int endAge, Gender gender, boolean onlySameUniv) {
         this.teamName = teamName;
         this.capacityLimit = capacityLimit;
         this.completedMatchingCnt = 0;
@@ -75,6 +87,10 @@ public class Team extends BaseEntity {
         this.recruitmentType = recruitmentType;
         this.teamOwner = teamOwner;
         this.sportsCategory = sportsCategory;
+        this.startAge = startAge;
+        this.endAge = endAge;
+        this.gender = gender;
+        this.onlySameUniv = onlySameUniv;
     }
 
     public void addTeamMember(TeamMember teamMember){
@@ -83,5 +99,13 @@ public class Team extends BaseEntity {
 
     public void addTeamMembers(List<TeamMember> teamMembers){
         this.teamMembers = teamMembers;
+    }
+
+    public boolean hasGenderCond(){
+        return this.gender != null;
+    }
+
+    public boolean hasAgeCond(){
+        return this.startAge != 0 && this.endAge != 0;
     }
 }

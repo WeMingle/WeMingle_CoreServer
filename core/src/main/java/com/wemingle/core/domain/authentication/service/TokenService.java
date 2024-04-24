@@ -37,9 +37,13 @@ public class TokenService {
     }
 
     public TokenDto.ResponseTokenDto getUnVerifiedUserTokens(String memberId){
+        String refreshToken = tokenProvider.createRefreshToken(memberId, Role.UNVERIFIED_USER);
+        String accessToken = tokenProvider.createAccessToken(memberId, Role.UNVERIFIED_USER);
         return TokenDto.ResponseTokenDto.builder()
-                .refreshToken(tokenProvider.createRefreshToken(memberId, Role.UNVERIFIED_USER))
-                .accessToken(tokenProvider.createAccessToken(memberId, Role.UNVERIFIED_USER))
+                .refreshToken(refreshToken)
+                .accessToken(accessToken)
+                .refreshTokenExpiredTime(getExpirationTime(refreshToken))
+                .accessTokenExpiredTime(getExpirationTime(accessToken))
                 .build();
     }
 
@@ -83,7 +87,9 @@ public class TokenService {
         member.patchRefreshToken(refreshToken);
         return TokenDto.ResponseTokenDto.builder()
                 .refreshToken(refreshToken)
+                .refreshTokenExpiredTime(getExpirationTime(refreshToken))
                 .accessToken(accessToken)
+                .accessTokenExpiredTime(getExpirationTime(accessToken))
                 .build();
     }
 

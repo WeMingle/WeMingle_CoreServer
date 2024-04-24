@@ -3,6 +3,7 @@ package com.wemingle.core.domain.matching.dto;
 import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStatus;
 import com.wemingle.core.domain.matching.vo.TitleInfo;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
+import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import lombok.*;
 
@@ -58,11 +59,11 @@ public class MatchingRequestDto {
         private String nickname;
         private String content;
         private int completedMatchingCnt;
-        private String majorActivityArea;
+        private AreaName majorActivityArea;
         private Ability ability;
 
         @Builder
-        public RequestInfoByIndividual(String profileImg, String nickname, String content, int completedMatchingCnt, String majorActivityArea, Ability ability) {
+        public RequestInfoByIndividual(String profileImg, String nickname, String content, int completedMatchingCnt, AreaName majorActivityArea, Ability ability) {
             this.profileImg = profileImg;
             this.nickname = nickname;
             this.content = content;

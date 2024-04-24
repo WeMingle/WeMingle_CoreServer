@@ -20,7 +20,7 @@ public class AuthenticationController {
     private final TokenService tokenService;
 
     @PatchMapping("/token")
-    public ResponseEntity<?> patchToken(@RequestBody TokenDto.RequestTokenDto requestTokenDto){
+    public ResponseEntity<?> updateToken(@RequestBody TokenDto.RequestTokenDto requestTokenDto){
         String refreshToken = requestTokenDto.getRefreshToken();
         String accessToken = requestTokenDto.getAccessToken();
 

@@ -10,14 +10,18 @@ import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
 import com.wemingle.core.domain.matching.vo.TitleInfo;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.entity.MemberAbility;
+import com.wemingle.core.domain.member.repository.MemberAbilityRepository;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.entity.MatchingPost;
+import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.rating.entity.TeamRating;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
+import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +48,7 @@ public class MatchingRequestService {
     private final MatchingRequestRepository matchingRequestRepository;
     private final S3ImgService s3ImgService;
     private final TeamRatingRepository teamRatingRepository;
+    private final MemberAbilityRepository memberAbilityRepository;
 
     private static final String IS_OWNER_SENT_SUFFIX = "에 매칭 신청을 보냈습니다.";
     private static final String IS_PARTICIPANT_TITLE_PREFIX = "내가 속한 ";
@@ -112,6 +117,7 @@ public class MatchingRequestService {
         MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
         List<MatchingRequest> matchingRequests = matchingRequestRepository.findIndividualRequests(matchingPost);
+        List<MemberAbility> memberAbilities = memberAbilityRepository.findByMemberInAndSportsType(getRequestMembers(matchingRequests), matchingPost.getSportsCategory());
 
         LinkedHashMap<Long, MatchingRequestDto.RequestInfoByIndividual> requestsInfo = new LinkedHashMap<>();
         matchingRequests.forEach(matchingRequest -> requestsInfo.put(matchingRequest.getPk(), MatchingRequestDto.RequestInfoByIndividual.builder()
@@ -119,14 +125,31 @@ public class MatchingRequestService {
                 .nickname(matchingRequest.getMember().getNickname())
                 .content(matchingRequest.getContent())
                 .completedMatchingCnt(matchingRequest.getTeam().getCompletedMatchingCnt())
-//                .majorActivityArea(matchingRequest.getMember().getMajorActivityArea())
-//                .ability(matchingRequest.getMember().getAbility()) //todo 카테고리별 ability로 수정
+                .majorActivityArea(matchingRequest.getMember().getMajorActivityArea())
+                .ability(getMemberAbilities(memberAbilities, matchingRequest.getMember()))
                 .build()));
 
         return MatchingRequestDto.ResponsePendingRequestsByIndividual.builder()
                 .title(matchingPost.getContent())
                 .requestsInfo(requestsInfo)
                 .build();
+    }
+
+    private Ability getMemberAbilities(List<MemberAbility> memberAbilities, Member member) {
+        if (!member.isAbilityPublic()){
+            log.info(member.getPk().toString());
+            return null;
+        }
+
+        return memberAbilities.stream()
+                .filter(memberAbility -> memberAbility.getMember().equals(member))
+                .findFirst()
+                .map(MemberAbility::getAbility)
+                .orElse(null);
+    }
+
+    private List<Member> getRequestMembers(List<MatchingRequest> matchingRequests) {
+        return matchingRequests.stream().map(MatchingRequest::getMember).toList();
     }
 
     public MatchingRequestDto.ResponsePendingRequestsByTeam getPendingRequestsByTeam(Long matchingPostPk){
@@ -153,11 +176,15 @@ public class MatchingRequestService {
     }
 
     private double getTeamRating(List<TeamRating> teamRatings, Team team) {
-        return teamRatings.stream()
+        TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
+
+        double totalRating = teamRatings.stream()
                 .filter(teamRating -> teamRating.getTeam().equals(team))
                 .findFirst()
                 .map(TeamRating::getTotalRating)
                 .orElse(0.0);
+
+        return teamRatingUtil.adjustTeamRating(totalRating);
     }
 
     @Transactional
