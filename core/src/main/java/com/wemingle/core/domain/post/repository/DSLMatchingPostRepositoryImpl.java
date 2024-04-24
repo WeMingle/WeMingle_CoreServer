@@ -126,10 +126,6 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                     new OrderSpecifier<>(Order.DESC, matchingPost.createdTime),
                     new OrderSpecifier<>(Order.DESC,matchingPost.pk),
             };
-            case VIEW -> new OrderSpecifier[]{
-                    new OrderSpecifier<>(Order.DESC, matchingPost.viewCnt),
-                    new OrderSpecifier<>(Order.DESC,matchingPost.pk)
-            };
             case DEADLINE -> new OrderSpecifier[]{
                     new OrderSpecifier<>(Order.DESC, matchingPost.expiryDate),
                     new OrderSpecifier<>(Order.DESC,matchingPost.pk)

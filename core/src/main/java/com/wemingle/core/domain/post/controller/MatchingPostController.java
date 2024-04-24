@@ -58,11 +58,10 @@ public class MatchingPostController {
                                                                              @RequestParam(required = false) LocalDate dateFilter,
                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                              @RequestParam(required = false) Boolean excludeExpired,
-                                                                             @RequestParam(required = false) Long lastViewCnt,
                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-DD")LocalDate lastExpiredDate,
                                                                              @RequestParam(required = false) Integer callCnt,
                                                                              @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostBySortOption(userDetails.getUsername(), lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastViewCnt, lastExpiredDate, callCnt);
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostBySortOption(userDetails.getUsername(), lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
