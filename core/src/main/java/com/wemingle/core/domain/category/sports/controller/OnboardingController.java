@@ -23,7 +23,7 @@ public class OnboardingController {
     @PostMapping
     ResponseEntity<ResponseHandler<Object>> setOnboardInfo(@RequestBody OnboardDto.RequestOnboardInfoDto onboardInfoDto,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
-        memberService.saveMemberPreferenceSports(userDetails.getUsername(), onboardInfoDto.getSelectedSports());
+        memberService.saveMemberPreferenceSports(userDetails.getUsername(), onboardInfoDto.getSelectedSport());
         return ResponseEntity.ok(
                 ResponseHandler.builder()
                         .responseMessage("Onboard update completed")
