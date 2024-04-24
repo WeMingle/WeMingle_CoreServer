@@ -35,7 +35,7 @@ public class DSLBookmarkRepositoryImpl implements DSLBookmarkRepository{
     }
 
     BooleanExpression nextIdx(Long nextIdx) {
-        return Objects.isNull(nextIdx) ? null : bookmarkedMatchingPost.pk.loe(nextIdx);
+        return Objects.isNull(nextIdx) ? null : bookmarkedMatchingPost.pk.lt(nextIdx);
     }
 
     BooleanExpression isExpired(LocalDate currentDate) {
