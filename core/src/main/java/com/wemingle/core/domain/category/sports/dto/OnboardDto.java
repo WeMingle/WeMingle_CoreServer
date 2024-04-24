@@ -10,6 +10,6 @@ public class OnboardDto {
     @Getter
     @NoArgsConstructor
     public static class RequestOnboardInfoDto{
-        private SportsType selectedSports;
+        private SportsType selectedSport;
     }
 }
