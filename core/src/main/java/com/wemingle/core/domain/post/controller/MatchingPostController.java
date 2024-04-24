@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.controller;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
@@ -60,8 +61,9 @@ public class MatchingPostController {
                                                                              @RequestParam(required = false) Boolean excludeExpired,
                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
                                                                              @RequestParam(required = false) Integer callCnt,
+                                                                             @RequestParam SportsType sportsType,
                                                                              @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostBySortOption(userDetails.getUsername(), lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt);
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostBySortOption(userDetails.getUsername(), lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
@@ -78,8 +80,9 @@ public class MatchingPostController {
                                                                                 @RequestParam(required = false) List<AreaName> areaList,
                                                                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateFilter,
                                                                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
-                                                                                @RequestParam(required = false) Boolean excludeExpired){
-        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired);
+                                                                                @RequestParam(required = false) Boolean excludeExpired,
+                                                                                @RequestParam SportsType sportsType){
+        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sportsType);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()

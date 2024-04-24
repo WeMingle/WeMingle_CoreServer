@@ -2,6 +2,7 @@ package com.wemingle.core.domain.post.service;
 
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
 import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.entity.Matching;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
@@ -79,7 +80,8 @@ public class MatchingPostService {
                                               List<AreaName> areaList,
                                               LocalDate dateFilter,
                                               YearMonth monthFilter,
-                                              Boolean excludeExpired) {
+                                              Boolean excludeExpired,
+                                              SportsType sportsType) {
         isDateFilterAndMonthFilterCoexist(dateFilter, monthFilter);
 
         return matchingPostRepository.findFilteredMatchingPostCnt(
@@ -90,7 +92,8 @@ public class MatchingPostService {
                 areaList,
                 excludeExpired == null ? null : LocalDate.now(),
                 dateFilter,
-                monthFilter
+                monthFilter,
+                sportsType
         );
     }
 
@@ -106,11 +109,12 @@ public class MatchingPostService {
                                                                              Boolean excludeExpired,
                                                                              SortOption sortOption,
                                                                              LocalDate lastExpiredDate,
-                                                                             Integer callCnt){
+                                                                             Integer callCnt,
+                                                                             SportsType sportsType){
         isDateFilterAndMonthFilterCoexist(dateFilter, monthFilter);
 
         List<MatchingPost> filteredMatchingPost;
-        filteredMatchingPost = getMatchingPostBySortOption(lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt);
+        filteredMatchingPost = getMatchingPostBySortOption(lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType);
         
         Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, filteredMatchingPost);
 
@@ -171,7 +175,7 @@ public class MatchingPostService {
         return postsMap;
     }
 
-    private List<MatchingPost> getMatchingPostBySortOption(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt) {
+    private List<MatchingPost> getMatchingPostBySortOption(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, SportsType sportsType) {
         List<MatchingPost> filteredMatchingPost;
         switch (Objects.requireNonNull(sortOption)) {
 
@@ -188,6 +192,7 @@ public class MatchingPostService {
                     sortOption,
                     null,
                     null,
+                    sportsType,
                     PageRequest.of(0, 30)
             );
             case DEADLINE -> {
@@ -205,6 +210,7 @@ public class MatchingPostService {
                     sortOption,
                     null,
                     lastExpiredDate,
+                    sportsType,
                     PageRequest.of(pageNumber, 30)
                 );
                 removeDuplicatePosts(lastIdx, filteredMatchingPost);
@@ -224,6 +230,7 @@ public class MatchingPostService {
                                     sortOption,
                                     null,
                                     lastExpiredDate,
+                                    sportsType,
                                     PageRequest.of(pageNumber +1, 30)
                             )
                     );

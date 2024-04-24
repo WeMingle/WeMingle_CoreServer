@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.repository;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
@@ -16,8 +17,8 @@ import java.util.List;
 
 public interface DSLMatchingPostRepository {
 
-    List<MatchingPost> findFilteredMatchingPost(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, SortOption sortOption, Long lastViewCnt, LocalDate lastExpiredDate, Pageable pageable);
-    Integer findFilteredMatchingPostCnt(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter);
+    List<MatchingPost> findFilteredMatchingPost(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, SortOption sortOption, Long lastViewCnt, LocalDate lastExpiredDate, SportsType sportsType, Pageable pageable);
+    Integer findFilteredMatchingPostCnt(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, SportsType sportsType);
     List<MatchingPost> findCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, Member member, List<MatchingPost> matchingPostWithReview, Pageable pageable);
     List<MatchingPost> findMatchingPostInMap(double topLat, double bottomLat, double leftLon, double rightLon);
 }
