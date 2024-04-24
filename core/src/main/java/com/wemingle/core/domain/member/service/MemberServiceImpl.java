@@ -110,17 +110,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports) {
+    public void saveMemberPreferenceSports(String memberId, SportsType preferenceSport) {
         Member findMember = findByMemberId(memberId);
 
-        List<MemberPreferenceSports> memberPreferenceSportsList = preferenceSports.stream()
-                .map(preferenceSportsCategory -> MemberPreferenceSports.builder()
-                        .member(findMember)
-                        .sports(preferenceSportsCategory)
-                        .build())
-                .toList();
-
-        memberPreferenceSportsRepository.saveAll(memberPreferenceSportsList);
+        memberPreferenceSportsRepository.save(MemberPreferenceSports.builder()
+                .member(findMember)
+                .sports(preferenceSport)
+                .build());
     }
 
     @Override
