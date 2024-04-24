@@ -65,11 +65,10 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     }
 
     @Override
-    public Integer findFilteredMatchingPostCnt(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, Pageable pageable) {
+    public Integer findFilteredMatchingPostCnt(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter) {
         Long cnt = jpaQueryFactory.select(matchingPost.count())
                 .from(matchingPost)
                 .where(
-                        lastIdxLt(lastIdx),
                         recruitmentTypeEq(recruitmentType),
                         abilityEq(ability),
                         genderEq(gender),

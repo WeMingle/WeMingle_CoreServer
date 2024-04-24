@@ -72,8 +72,7 @@ public class MatchingPostService {
                 .orElseThrow(()->new NoSuchElementException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
     }
 
-    public Integer getFilteredMatchingPostCnt(Long nextIdx,
-                                              RecruitmentType recruitmentType,
+    public Integer getFilteredMatchingPostCnt(RecruitmentType recruitmentType,
                                               Ability ability,
                                               Gender gender,
                                               RecruiterType recruiterType,
@@ -84,7 +83,6 @@ public class MatchingPostService {
         isDateFilterAndMonthFilterCoexist(dateFilter, monthFilter);
 
         return matchingPostRepository.findFilteredMatchingPostCnt(
-                nextIdx,
                 recruitmentType,
                 ability,
                 gender,
@@ -92,8 +90,7 @@ public class MatchingPostService {
                 areaList,
                 excludeExpired == null ? null : LocalDate.now(),
                 dateFilter,
-                monthFilter,
-                PageRequest.of(0, 30)
+                monthFilter
         );
     }
 
