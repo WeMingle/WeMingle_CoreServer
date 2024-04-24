@@ -137,6 +137,7 @@ public class MemberServiceImpl implements MemberService {
                 .majorActivityArea(member.getMajorActivityArea())
                 .oneLineIntroduction(member.getOneLineIntroduction())
                 .profilePicId(member.getProfileImgId())
+                .birthYear(member.getBirthYear())
                 .build();
     }
 
@@ -148,12 +149,11 @@ public class MemberServiceImpl implements MemberService {
         member.setNickname(memberInfoDto.getNickname());
         member.setMajorActivityAreaPublic(memberInfoDto.isMajorActivityAreaPublic());
         member.setMajorActivityArea(memberInfoDto.getMajorActivityArea());
-        member.setNumberOfMatches(memberInfoDto.getNumberOfMatches());
         member.setAbilityPublic(memberInfoDto.isAbilityPublic());
         member.setGender(memberInfoDto.getGender());
         member.setOneLineIntroduction(memberInfoDto.getOneLineIntroduction());
         member.setBirthYearPublic(memberInfoDto.isBirthYearPublic());
-        member.setBirthYear(member.getBirthYear());
+        member.setBirthYear(memberInfoDto.getBirthYear());
         memberRepository.save(member);
 
         clearMemberAbility(member);

@@ -102,8 +102,8 @@ public class MemberController {
 
     @PatchMapping("/info")
     ResponseEntity<ResponseHandler<Object>> setMyInfo(@RequestBody MemberInfoDto memberInfoDto, @AuthenticationPrincipal UserDetails userDetails) {
+        log.info("{}",memberInfoDto.getBirthYear());
         memberService.setMemberInfo(userDetails.getUsername(), memberInfoDto);
-
         return ResponseEntity.ok().body(ResponseHandler.builder()
                 .responseMessage("member info update successfully")
                 .build()
