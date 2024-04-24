@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OnboardingController {
     private final MemberService memberService;
 
-    @PostMapping("/")
+    @PostMapping
     ResponseEntity<ResponseHandler<Object>> setOnboardInfo(@RequestBody OnboardDto.RequestOnboardInfoDto onboardInfoDto,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
         memberService.saveMemberPreferenceSports(userDetails.getUsername(), onboardInfoDto.getSelectedSports());
