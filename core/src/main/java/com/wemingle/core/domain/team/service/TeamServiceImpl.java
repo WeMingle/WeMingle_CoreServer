@@ -227,7 +227,7 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId) {
+    public TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId) {//todo 호왕햄 테스트 알려주기
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         Team team = teamRepository.findById(teamPk)
