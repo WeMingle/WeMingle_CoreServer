@@ -4,6 +4,7 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
@@ -44,6 +45,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                                                        SortOption sortOption,
                                                        Long lastViewCnt,
                                                        LocalDate lastExpiredDate,
+                                                       SportsType sportsType,
                                                        Pageable pageable) {
         return jpaQueryFactory.selectFrom(matchingPost)
                 .where(
@@ -56,7 +58,8 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                         currentDateAfter(currentDate),
                         dateFilterEq(dateFilter,monthFilter),
                         lastViewCntLoe(lastViewCnt),
-                        lastExpiredDateLoe(lastExpiredDate)
+                        lastExpiredDateLoe(lastExpiredDate),
+                        sportsTypeEq(sportsType)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -65,7 +68,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     }
 
     @Override
-    public Integer findFilteredMatchingPostCnt(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter) {
+    public Integer findFilteredMatchingPostCnt(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, SportsType sportsType) {
         Long cnt = jpaQueryFactory.select(matchingPost.count())
                 .from(matchingPost)
                 .where(
@@ -75,7 +78,8 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                         recruiterTypeEq(recruiterType),
                         areaListIn(areaList),
                         currentDateAfter(currentDate),
-                        dateFilterEq(dateFilter, monthFilter)
+                        dateFilterEq(dateFilter, monthFilter),
+                        sportsTypeEq(sportsType)
                 ).fetchOne();
 
         return cnt == null ? 0 : cnt.intValue();
@@ -107,6 +111,10 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
 
     private BooleanExpression currentDateAfter(LocalDate currentDate) {
         return currentDate == null ? null : matchingPost.expiryDate.after(currentDate);
+    }
+
+    private BooleanExpression sportsTypeEq(SportsType sportsType) {
+        return matchingPost.sportsCategory.eq(sportsType);
     }
 
     private BooleanExpression dateFilterEq(LocalDate dateFilter, YearMonth monthFilter) {
