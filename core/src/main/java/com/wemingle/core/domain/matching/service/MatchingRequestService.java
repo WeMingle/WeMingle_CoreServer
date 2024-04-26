@@ -6,6 +6,7 @@ import com.wemingle.core.domain.matching.dto.MatchingRequestDto;
 import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStatus;
 import com.wemingle.core.domain.matching.entity.Matching;
 import com.wemingle.core.domain.matching.entity.MatchingRequest;
+import com.wemingle.core.domain.matching.entity.RequestMemberType;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
 import com.wemingle.core.domain.matching.vo.TitleInfo;
@@ -95,7 +96,7 @@ public class MatchingRequestService {
                     return getTitleInfoWithRecruiterType(matchingRequest, teamName);
                 }
 
-                return getTitleInfoWithSender(matchingRequest, findMember, teamName);
+                return getTitleInfoWithSender(matchingRequest, teamName);
             }
             default -> throw new RuntimeException(ExceptionMessage.INVALID_MATCHING_REQUEST_STATUS.getExceptionMessage());
         }
@@ -107,8 +108,8 @@ public class MatchingRequestService {
                 : new TitleInfo(teamName + RECEIVE_SUFFIX, RequestTitleStatus.RECEIVE_BY_INDIVIDUAL);
     }
 
-    private static TitleInfo getTitleInfoWithSender(MatchingRequest matchingRequest, Member findMember, String teamName) {
-        return matchingRequest.getTeam().getTeamOwner().equals(findMember)
+    private static TitleInfo getTitleInfoWithSender(MatchingRequest matchingRequest, String teamName) {
+        return matchingRequest.getRequestMemberType().equals(RequestMemberType.REQUESTER)
                 ? new TitleInfo(teamName + IS_OWNER_SENT_SUFFIX, RequestTitleStatus.SENT_BY_ME)
                 : new TitleInfo(IS_PARTICIPANT_TITLE_PREFIX + teamName + IS_PARTICIPANT_SENT_SUFFIX, RequestTitleStatus.SENT_BY_OWNER);
     }
