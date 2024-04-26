@@ -424,7 +424,7 @@ public class MatchingPostService {
     }
 
     @Transactional
-    public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
+    public void saveMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
         RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
         Long teamPk = createMatchingPostDto.getTeamPk();
         List<String> participantsId = createMatchingPostDto.getParticipantsId();
