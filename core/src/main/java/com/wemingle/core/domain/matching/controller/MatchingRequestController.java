@@ -61,11 +61,4 @@ public class MatchingRequestController {
 
         return ResponseEntity.noContent().build();
     }
-
-    @DeleteMapping
-    public ResponseEntity<Object> deleteMatchingRequests(@RequestBody MatchingRequestDto.MatchingRequestDelete matchingRequestDelete){
-        matchingRequestService.deleteMatchingRequests(matchingRequestDelete);
-
-        return ResponseEntity.noContent().build();
-    }
 }

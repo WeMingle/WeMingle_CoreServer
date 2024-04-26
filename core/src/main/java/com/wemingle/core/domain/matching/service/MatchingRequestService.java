@@ -200,12 +200,6 @@ public class MatchingRequestService {
         matchingRepository.saveAll(saveMatching);
     }
 
-    @Transactional
-    public void deleteMatchingRequests(MatchingRequestDto.MatchingRequestDelete matchingRequestDelete){
-        List<MatchingRequest> matchingAllRequests = getAllMatchingRequests(matchingRequestDelete.getMatchingRequests());
-
-        matchingRequestRepository.deleteAllInBatch(matchingAllRequests);
-    }
 
     private List<MatchingRequest> getAllMatchingRequests(List<Long> matchingRequestsPk) {
         List<MatchingRequest> matchingRequests = matchingRequestRepository.findByPkIn(matchingRequestsPk);
