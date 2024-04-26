@@ -22,5 +22,5 @@ public interface MemberService {
     MemberInfoDto getMemberInfo(String memberId);
     void setMemberInfo(String memberId, MemberInfoDto memberInfoDto);
     MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId);
-    MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname);
+    MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname, String memberId);
 }

@@ -7,9 +7,7 @@ import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -121,9 +119,10 @@ public class MemberController {
     }
 
     @GetMapping
-    ResponseEntity<ResponseHandler<MemberDto.ResponseMemberInfo>> getMemberByNickname(@RequestParam(required = false) Long nextIdx,
-                                                                                      @RequestParam @NotBlank @NotNull @NotEmpty String nickname){
-        MemberDto.ResponseMemberInfo responseData = memberService.getMemberByNickname(nextIdx, nickname);
+    ResponseEntity<ResponseHandler<MemberDto.ResponseMemberInfo>> getSearchMemberByNickname(@RequestParam(required = false) Long nextIdx,
+                                                                                            @RequestParam @NotEmpty String nickname,
+                                                                                            @AuthenticationPrincipal UserDetails userDetails){
+        MemberDto.ResponseMemberInfo responseData = memberService.getMemberByNickname(nextIdx, nickname, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<MemberDto.ResponseMemberInfo>builder()

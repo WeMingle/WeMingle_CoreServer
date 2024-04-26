@@ -20,7 +20,6 @@ import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEma
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -187,14 +186,16 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname) {
-        PageRequest pageRequest = PageRequest.of(0, 3);
-        List<Member> members = memberRepository.getMemberByNickname(nextIdx, nickname, pageRequest);
+    public MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname, String memberId) {
+        Member findMember = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<Member> members = memberRepository.getMemberByNickname(nextIdx, nickname);
 
         LinkedHashMap<Long, MemberDto.MemberInfoInSearch> membersInfoHashMap = new LinkedHashMap<>();
         members.forEach(member -> membersInfoHashMap.put(member.getPk(), MemberDto.MemberInfoInSearch.builder()
                 .nickname(member.getNickname())
                 .profileImg(s3ImgService.getMemberProfilePicUrl(member.getProfileImgId()))
+                .isMe(member.equals(findMember))
                 .build()
         ));
 
