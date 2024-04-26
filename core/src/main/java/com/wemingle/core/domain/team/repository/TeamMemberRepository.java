@@ -19,4 +19,6 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     List<Team> findMyTeams(@Param("memberId") String memberId);
     @Query("select tm.team from TeamMember tm where tm.member.memberId = :memberId and tm.teamRole != 'PARTICIPANT'")
     List<Team> findTeamsWithAvailableWrite(@Param("memberId") String memberId);
+    @Query("select tm from TeamMember tm where tm.team in :teams and (tm.teamRole = 'OWNER' or tm.teamRole = 'MANAGER')")
+    List<TeamMember> findWithManagerOrHigher(@Param("teams") List<Team> teams);
 }

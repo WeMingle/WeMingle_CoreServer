@@ -141,16 +141,21 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     }
 
     @Override
-    public List<MatchingPost> findCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, Member member, List<MatchingPost> matchingPostWithReview, Pageable pageable) {
+    public List<MatchingPost> findCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, Member member, List<MatchingPost> matchingPostWithReview) {
         return jpaQueryFactory.selectFrom(matchingPost)
-                .where(isTeamMemberInTeam(member))
-                .where(lastIdxLt(nextIdx))
-                .where(recruiterTypeEq(recruiterType))
-                .where(expiredMatchesFilter(excludeCompleteMatchesFilter, matchingPostWithReview))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .where(
+                        isTeamMemberInTeam(member),
+                        nextIdx(nextIdx),
+                        recruiterTypeEq(recruiterType),
+                        expiredMatchesFilter(excludeCompleteMatchesFilter, matchingPostWithReview)
+                )
+                .limit(30)
                 .orderBy(matchingPost.createdTime.desc())
                 .fetch();
+    }
+
+    private BooleanExpression nextIdx(Long nextIdx) {
+        return nextIdx == null ? null : matchingPost.pk.loe(nextIdx);
     }
 
     @Override

@@ -180,12 +180,11 @@ public class MatchingPostDto {
         private boolean isLocationConsensusPossible;
         private Ability ability;
         private String profileImgUrl;
-        private String detailPostUrl;
         private String matchingStatus;
         private String scheduledRequestDescription;
 
         @Builder
-        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, String scheduledRequestDescription) {
+        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String matchingStatus, String scheduledRequestDescription) {
             this.matchingDate = matchingDate;
             this.recruiterType = recruiterType;
             this.teamName = teamName;
@@ -195,10 +194,8 @@ public class MatchingPostDto {
             this.isLocationConsensusPossible = isLocationConsensusPossible;
             this.ability = ability;
             this.profileImgUrl = profileImgUrl;
-            this.detailPostUrl = detailPostUrl;
             this.matchingStatus = matchingStatus;
             this.scheduledRequestDescription = scheduledRequestDescription;
         }
     }
-
 }
