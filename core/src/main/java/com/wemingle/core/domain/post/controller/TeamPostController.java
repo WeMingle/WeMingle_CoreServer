@@ -20,8 +20,8 @@ public class TeamPostController {
     private final TeamPostService teamPostService;
 
     @GetMapping
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>> getTeamPostsWithMember(@RequestParam(required = false) Long nextIdx,
-                                                                                                                              @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>> getTeamPostsInMyTeams(@RequestParam(required = false) Long nextIdx,
+                                                                                                                             @AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> responseData = teamPostService.getTeamPostWithMember(nextIdx, userDetails.getUsername());
 
         return ResponseEntity.ok(
@@ -33,10 +33,10 @@ public class TeamPostController {
     }
 
     @GetMapping("/{teamPk}")
-    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostsInfoWithTeam>> getTeamPostsWithMember(@PathVariable Long teamPk,
-                                                                                                                              @RequestParam boolean isNotice,
-                                                                                                                              @RequestParam(required = false) Long nextIdx,
-                                                                                                                              @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostsInfoWithTeam>> getTeamPostsWithTeam(@PathVariable Long teamPk,
+                                                                                                           @RequestParam boolean isNotice,
+                                                                                                           @RequestParam(required = false) Long nextIdx,
+                                                                                                           @AuthenticationPrincipal UserDetails userDetails) {
         TeamPostDto.ResponseTeamPostsInfoWithTeam responseData = teamPostService.getTeamPostWithTeam(nextIdx, isNotice, teamPk, userDetails.getUsername());
 
         return ResponseEntity.ok(
