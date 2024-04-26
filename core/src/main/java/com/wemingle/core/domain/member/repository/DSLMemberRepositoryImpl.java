@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wemingle.core.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +21,13 @@ public class DSLMemberRepositoryImpl implements DSLMemberRepository{
 
     @Override
     public List<Member> getMemberByNickname(Long nextIdx,
-                                            String nickname,
-                                            Pageable pageable) {
+                                            String nickname) {
             return jpaQueryFactory.selectFrom(member)
                     .where(
                             nextIdxLt(nextIdx),
                             member.nickname.contains(nickname)
                     )
-                    .offset(pageable.getOffset())
-                    .limit(pageable.getPageSize())
+                    .limit(3)
                     .orderBy(member.pk.desc())
                     .fetch();
         }

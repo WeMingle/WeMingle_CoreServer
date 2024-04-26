@@ -136,6 +136,11 @@ public class MatchingRequestService {
     }
 
     private Ability getMemberAbilities(List<MemberAbility> memberAbilities, Member member) {
+        if (!member.isAbilityPublic()){
+            log.info(member.getPk().toString());
+            return null;
+        }
+
         return memberAbilities.stream()
                 .filter(memberAbility -> memberAbility.getMember().equals(member))
                 .findFirst()

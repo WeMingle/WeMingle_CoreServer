@@ -8,8 +8,6 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.vo.SignupVo;
 
-import java.util.List;
-
 public interface MemberService {
     boolean verifyAvailableId(String memberId);
     void saveMember(SignupVo.SaveMemberVo saveMemberVo);
@@ -17,10 +15,12 @@ public interface MemberService {
     Member findByRefreshToken(String refreshToken);
     Member findByMemberId(String memberId);
     boolean isRegisteredMember(String memberId, SignupPlatform platform);
-    void saveMemberPreferenceSports(String memberId, List<SportsType> preferenceSports);
+    SignupPlatform findRegisteredPlatformByMember(String memberId);
+    boolean isMatchesPassword(String memberId, String rawPw);
+    void saveMemberPreferenceSports(String memberId, SportsType preferenceSport);
 
     MemberInfoDto getMemberInfo(String memberId);
     void setMemberInfo(String memberId, MemberInfoDto memberInfoDto);
     MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId);
-    MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname);
+    MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname, String memberId);
 }
