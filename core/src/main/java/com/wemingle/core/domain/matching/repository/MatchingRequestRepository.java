@@ -20,7 +20,7 @@ public interface MatchingRequestRepository extends JpaRepository<MatchingRequest
             "order by mr.pk desc")
     List<MatchingRequest> findIndividualRequests(@Param("matchingPost") MatchingPost matchingPost);
     @Query("select mr from MatchingRequest mr join fetch mr.team " +
-            "where mr.matchingPost = :matchingPost and mr.matchingPost.recruiterType = 'TEAM' and mr.team.teamOwner = mr.member and mr.matchingRequestStatus = 'PENDING' " +
+            "where mr.matchingPost = :matchingPost and mr.matchingPost.recruiterType = 'TEAM' and mr.requestMemberType = 'REQUESTER' and mr.matchingRequestStatus = 'PENDING' " +
             "order by mr.pk desc")
     List<MatchingRequest> findTeamRequestsIsOwner(@Param("matchingPost") MatchingPost matchingPost);
     List<MatchingRequest> findByPkIn(List<Long> matchingRequestsPk);
