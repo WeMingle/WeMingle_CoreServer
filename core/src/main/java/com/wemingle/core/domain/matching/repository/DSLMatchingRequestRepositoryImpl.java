@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wemingle.core.domain.matching.controller.requesttype.RequestType;
 import com.wemingle.core.domain.matching.entity.MatchingRequest;
+import com.wemingle.core.domain.matching.entity.RequestMemberType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
@@ -103,8 +104,7 @@ public class DSLMatchingRequestRepositoryImpl implements DSLMatchingRequestRepos
             return null;
         }
 
-        return matchingRequest.matchingPost.in(myMatchingPosts)
-                .and(teamOwnerFilter());
+        return matchingRequest.matchingPost.in(myMatchingPosts).and(requesterFilter());
     }
 
     private BooleanExpression excludeCompleteMatchesFilter(boolean excludeCompleteMatchesFilter){
@@ -113,7 +113,7 @@ public class DSLMatchingRequestRepositoryImpl implements DSLMatchingRequestRepos
                 : null;
     }
 
-    private BooleanExpression teamOwnerFilter(){
-        return matchingRequest.member.eq(matchingRequest.team.teamOwner);
+    private BooleanExpression requesterFilter(){
+        return matchingRequest.requestMemberType.eq(RequestMemberType.REQUESTER);
     }
 }

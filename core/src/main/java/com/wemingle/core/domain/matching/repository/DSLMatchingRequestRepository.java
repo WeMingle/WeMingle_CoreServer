@@ -12,7 +12,6 @@ import java.util.List;
 public interface DSLMatchingRequestRepository {
     Integer findReceivedMatchingCnt(String memberId);
 
-    //matchingRequest 테이블에서 팀장의 매칭 요청 레코드만 조회합니다.
     List<MatchingRequest> findMatchingRequestHistories(Long nextIdx,
                                                        RequestType requestType,
                                                        RecruiterType recruiterType,
