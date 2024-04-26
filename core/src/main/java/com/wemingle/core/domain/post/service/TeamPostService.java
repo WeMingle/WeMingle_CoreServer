@@ -3,6 +3,8 @@ package com.wemingle.core.domain.post.service;
 import com.wemingle.core.domain.bookmark.repository.BookmarkedTeamPostRepository;
 import com.wemingle.core.domain.img.entity.TeamPostImg;
 import com.wemingle.core.domain.img.service.S3ImgService;
+import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.TeamPostDto;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
@@ -13,36 +15,33 @@ import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
+import com.wemingle.core.domain.vote.entity.VoteOption;
+import com.wemingle.core.domain.vote.repository.TeamPostVoteRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import com.wemingle.core.domain.vote.entity.VoteOption;
-import com.wemingle.core.domain.vote.repository.TeamPostVoteRepository;
-import com.wemingle.core.domain.vote.repository.VoteOptionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
 public class TeamPostService {
+    private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
     private final TeamPostRepository teamPostRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final BookmarkedTeamPostRepository bookmarkedTeamPostRepository;
     private final S3ImgService s3ImgService;
     private final TeamPostVoteRepository teamPostVoteRepository;
-    private final VoteOptionRepository voteOptionRepository;
-    private final static int PAGE_SIZE = 30;
 
     public HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> getTeamPostWithMember(Long nextIdx, String memberId){
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
         List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithMember(nextIdx, myTeams);
 
@@ -58,6 +57,7 @@ public class TeamPostService {
                 .teamPostImgUrls(s3ImgService.getTeamPostPicUrl(getImgIds(teamPost)))
                 .likeCnt(teamPost.getLikeCount())
                 .replyCnt(teamPost.getReplyCount())
+                .isWriter(isWriter(teamPost, member))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .build()
@@ -65,11 +65,14 @@ public class TeamPostService {
         return responseData;
     }
 
+    private boolean isWriter(TeamPost teamPost, Member member) {
+        return teamPost.getWriter().getMember().equals(member);
+    }
+
     public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamPk, String memberId){
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
-        TeamMember teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+        Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId);
         List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithTeam(nextIdx, team ,isNotice);
 
         List<TeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findBookmarkedByTeamPost(teamPosts, memberId);
@@ -77,7 +80,6 @@ public class TeamPostService {
         HashMap<Long, TeamPostDto.TeamPostInfo> responseData = new LinkedHashMap<>();
 
         teamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.TeamPostInfo.builder()
-                .teamName(teamPost.getTeam().getTeamName())
                 .title(teamPost.getTitle())
                 .content(teamPost.getContent())
                 .nickname(teamPost.getWriter().getNickname())
@@ -86,13 +88,15 @@ public class TeamPostService {
                 .likeCnt(teamPost.getLikeCount())
                 .replyCnt(teamPost.getReplyCount())
                 .postType(teamPost.getPostType())
+                .isWriter(isWriter(teamPost, teamMember))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .build()
         ));
 
         return TeamPostDto.ResponseTeamPostsInfoWithTeam.builder()
-                .isTeamOwner(isTeamOwner(teamMember))
+                .teamName(team.getTeamName())
+                .hasWritePermission(isTeamOwner(teamMember))
                 .teamPostsInfo(responseData)
                 .build();
     }
@@ -101,8 +105,8 @@ public class TeamPostService {
         return teamPost.getTeamPostImgs().stream().map(TeamPostImg::getImgId).toList();
     }
 
-    private boolean isTeamOwner(TeamMember teamMember) {
-        return !teamMember.getTeamRole().equals(TeamRole.PARTICIPANT);
+    private boolean isWriter(TeamPost teamPost, Optional<TeamMember> teamMember) {
+        return teamMember.isPresent() ? teamPost.getWriter().equals(teamMember.get()) : false;
     }
 
     private boolean isBookmarked(TeamPost teamPost, List<TeamPost> bookmarkedTeamPosts) {
@@ -121,6 +125,10 @@ public class TeamPostService {
                         .resultCnt(voteOption.getVoteResults().size())
                         .build()).toList())
                 .build();
+    }
+
+    private boolean isTeamOwner(Optional<TeamMember> teamMember) {
+        return teamMember.isPresent() ? !teamMember.get().getTeamRole().equals(TeamRole.PARTICIPANT) : false;
     }
 
     @Transactional

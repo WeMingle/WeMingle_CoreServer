@@ -20,6 +20,9 @@ public class DSLTeamPostRepositoryImpl implements DSLTeamPostRepository{
 
     @Override
     public List<TeamPost> getTeamPostWithMember(Long nextIdx, List<Team> myTeams) {
+        if (myTeams.isEmpty())
+            return null;
+
         return jpaQueryFactory.selectFrom(teamPost)
                 .where(
                         nextIdxLt(nextIdx),

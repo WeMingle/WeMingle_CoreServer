@@ -1,12 +1,10 @@
 package com.wemingle.core.domain.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.post.entity.posttype.PostType;
 import com.wemingle.core.domain.post.vo.SaveVoteVo;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -15,6 +13,7 @@ import java.util.UUID;
 
 public class TeamPostDto {
     @Getter
+    @Setter
     @NoArgsConstructor
     public static class ResponseTeamPostsInfoWithMember {
         private String teamName;
@@ -25,11 +24,14 @@ public class TeamPostDto {
         private List<String> teamPostImgUrls;
         private int likeCnt;
         private int replyCnt;
+        @JsonProperty(value = "isBookmarked")
         private boolean isBookmarked;
+        @JsonProperty(value = "isWriter")
+        private boolean isWriter;
         private VoteInfo voteInfo;
 
         @Builder
-        public ResponseTeamPostsInfoWithMember(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, VoteInfo voteInfo) {
+        public ResponseTeamPostsInfoWithMember(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo) {
             this.teamName = teamName;
             this.title = title;
             this.content = content;
@@ -39,6 +41,7 @@ public class TeamPostDto {
             this.likeCnt = likeCnt;
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
+            this.isWriter = isWriter;
             this.voteInfo = voteInfo;
         }
     }
@@ -46,20 +49,22 @@ public class TeamPostDto {
     @Getter
     @NoArgsConstructor
     public static class ResponseTeamPostsInfoWithTeam {
-        private boolean isTeamOwner;
+        private boolean hasWritePermission;
+        private String teamName;
         HashMap<Long, TeamPostInfo> teamPostsInfo;
 
         @Builder
-        public ResponseTeamPostsInfoWithTeam(boolean isTeamOwner, HashMap<Long, TeamPostInfo> teamPostsInfo) {
-            this.isTeamOwner = isTeamOwner;
+        public ResponseTeamPostsInfoWithTeam(boolean hasWritePermission, String teamName, HashMap<Long, TeamPostInfo> teamPostsInfo) {
+            this.hasWritePermission = hasWritePermission;
+            this.teamName = teamName;
             this.teamPostsInfo = teamPostsInfo;
         }
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     public static class TeamPostInfo {
-        private String teamName;
         private String title;
         private String content;
         private String nickname;
@@ -68,12 +73,14 @@ public class TeamPostDto {
         private PostType postType;
         private int likeCnt;
         private int replyCnt;
+        @JsonProperty(value = "isBookmarked")
         private boolean isBookmarked;
+        @JsonProperty(value = "isWriter")
+        private boolean isWriter;
         private VoteInfo voteInfo;
 
         @Builder
-        public TeamPostInfo(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, PostType postType, int likeCnt, int replyCnt, boolean isBookmarked, VoteInfo voteInfo) {
-            this.teamName = teamName;
+        public TeamPostInfo(String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, PostType postType, int likeCnt, int replyCnt, boolean isBookmarked, VoteInfo voteInfo, boolean isWriter) {
             this.title = title;
             this.content = content;
             this.nickname = nickname;
@@ -84,6 +91,7 @@ public class TeamPostDto {
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
             this.voteInfo = voteInfo;
+            this.isWriter = isWriter;
         }
     }
 
