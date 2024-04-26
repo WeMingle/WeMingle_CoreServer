@@ -14,6 +14,7 @@ import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -37,9 +38,9 @@ public class MatchingPostController {
     private final MatchingPostService matchingPostService;
     private final MemberService memberService;
     @PostMapping
-    ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody MatchingPostDto.CreateMatchingPostDto matchingPostDto,
+    ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody @Valid MatchingPostDto.CreateMatchingPostDto matchingPostDto,
                                                                @AuthenticationPrincipal UserDetails userDetails) {
-        matchingPostService.createMatchingPost(matchingPostDto, userDetails.getUsername());
+        matchingPostService.saveMatchingPost(matchingPostDto, userDetails.getUsername());
         return ResponseEntity.ok() //todo 글 상세페이지 조회 api 구현 후 201로 변경하고 url 함께 반환
                 .body(
                         ResponseHandler.builder()

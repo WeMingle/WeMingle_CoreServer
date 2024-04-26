@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.dto;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
@@ -10,8 +11,8 @@ import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
-import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -90,13 +91,18 @@ public class MatchingPostDto {
     public static class CreateMatchingPostDto {
         @NotNull
         private LocalDate matchingDate;
-        @Essential
         private Double latitude;
-        @Essential
         private Double longitude;
-        @Essential
+        @NotBlank
         private String locationName;
-        @NotNull
+        private String dou;
+        private String si;
+        private String gun;
+        private String gu;
+        private String dong;
+        private String eup;
+        private String myeon;
+        private String ri;
         private List<AreaName> areaNameList;
         @NotNull
         private boolean isLocationConsensusPossible;
@@ -115,13 +121,15 @@ public class MatchingPostDto {
         private RecruiterType recruiterType;
         @NotNull
         private RecruitmentType recruitmentType;
-        @NotNull
+        @NotBlank
         private String content;
         @NotNull
         private LocationSelectionType locationSelectionType;
+        @NotNull
+        private SportsType sportsType;
 
         @Builder
-        public CreateMatchingPostDto(LocalDate matchingDate, Double latitude, Double longitude, String locationName, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<String> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType) {
+        public CreateMatchingPostDto(LocalDate matchingDate, Double latitude, Double longitude, String locationName, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<String> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
             this.matchingDate = matchingDate;
             this.latitude = latitude;
             this.longitude = longitude;
@@ -138,14 +146,22 @@ public class MatchingPostDto {
             this.recruitmentType = recruitmentType;
             this.content = content;
             this.locationSelectionType = locationSelectionType;
+            this.sportsType = sportsType;
         }
 
         public MatchingPost of(Team team, TeamMember writer){
-
             MatchingPost matchingPost = MatchingPost.builder()
                     .matchingDate(matchingDate)
                     .expiryDate(expiryDate)
                     .locationName(locationName)
+                    .dou(dou)
+                    .si(si)
+                    .gun(gun)
+                    .gu(gu)
+                    .dong(dong)
+                    .eup(eup)
+                    .myeon(myeon)
+                    .ri(ri)
                     .lat(latitude)
                     .lon(longitude)
                     .content(content)
@@ -155,6 +171,7 @@ public class MatchingPostDto {
                     .gender(gender)
                     .recruiterType(recruiterType)
                     .recruitmentType(recruitmentType)
+                    .sportsCategory(sportsType)
                     .locationSelectionType(locationSelectionType)
                     .writer(writer)
                     .team(team)

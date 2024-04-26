@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -67,6 +68,16 @@ public class ValidExceptionHandler {
         return ResponseEntity.badRequest().body(
                 ResponseHandler.<String>builder()
                         .responseMessage("MissingServletRequestParameterException")
+                        .responseData(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ResponseHandler<String>> MethodArgumentNotValidException(Exception e){
+        return ResponseEntity.badRequest().body(
+                ResponseHandler.<String>builder()
+                        .responseMessage("MethodArgumentNotValidException")
                         .responseData(e.getMessage())
                         .build()
         );

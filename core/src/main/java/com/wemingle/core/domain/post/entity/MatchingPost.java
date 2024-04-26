@@ -42,6 +42,22 @@ public class MatchingPost extends BaseEntity {
     @NotNull
     @Column(name = "LOCATION_NAME")
     private String locationName; // 매칭 장소 이름
+    @Column(name = "DOU")
+    private String dou;
+    @Column(name = "SI")
+    private String si;
+    @Column(name = "GUN")
+    private String gun;
+    @Column(name = "GU")
+    private String gu;
+    @Column(name = "DONG")
+    private String dong;
+    @Column(name = "EUP")
+    private String eup;
+    @Column(name = "MYEON")
+    private String myeon;
+    @Column(name = "RI")
+    private String ri;
 
     @NotNull
     @Column(name = "LAT")
@@ -105,10 +121,18 @@ public class MatchingPost extends BaseEntity {
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @Builder
-    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
+    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
         this.matchingDate = matchingDate;
         this.expiryDate = expiryDate;
         this.locationName = locationName;
+        this.dou = dou;
+        this.si = si;
+        this.gun = gun;
+        this.gu = gu;
+        this.dong = dong;
+        this.eup = eup;
+        this.myeon = myeon;
+        this.ri = ri;
         this.lat = lat;
         this.lon = lon;
         this.content = content;
