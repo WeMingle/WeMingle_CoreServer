@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
@@ -22,6 +22,9 @@ public class S3ImgService {
     private String bucket;
 
     private final S3Presigner s3Presigner;
+    private final S3Client s3Client;
+
+    private static final String TEAM_POST_PATH = "post/team/";
 
     public String getMemberProfilePicUrl(UUID picId) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key("profile/member/" + picId).build();
@@ -57,7 +60,7 @@ public class S3ImgService {
     public List<String> getTeamPostPicUrl(List<UUID> picIds) {
         ArrayList<String> s3Urls = new ArrayList<>();
         for (UUID picId: picIds) {
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key("post/team/" + picId).build();
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_POST_PATH + picId).build();
             GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
             URL url = s3Presigner.presignGetObject(objectPreSignRequest).url();
             s3Urls.add(url.toString());
@@ -69,7 +72,7 @@ public class S3ImgService {
     public HashMap<String, ArrayList<String>> setTeamPostPreSignedUrl(List<String> extensions){
         HashMap<String, ArrayList<String>> teamPostPreSignedUrls = new HashMap<>();
         extensions.forEach(extension -> {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key("post/team/" + UUID.randomUUID() + "." + extension).build();
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(TEAM_POST_PATH + UUID.randomUUID() + "." + extension).build();
             PutObjectPresignRequest objectPresignRequest = PutObjectPresignRequest.builder().putObjectRequest(putObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
             URL url = s3Presigner.presignPutObject(objectPresignRequest).url();
             putValue(teamPostPreSignedUrls, extension, url.toString());
@@ -88,6 +91,18 @@ public class S3ImgService {
             ArrayList<String> startList = new ArrayList<>();
             startList.add(value);
             teamPostPreSignedUrls.put(key, startList);
+        }
+    }
+
+    public void verifyImgExist(List<UUID> imgIds) {
+        for (UUID imgId : imgIds) {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(TEAM_POST_PATH + imgId.toString())
+                    .build();
+
+            s3Client.headObject(headObjectRequest);
+            s3Client.close();
         }
     }
 }
