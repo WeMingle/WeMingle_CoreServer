@@ -123,7 +123,6 @@ public class TeamPostDto {
 
     @Getter
     @NoArgsConstructor
-    @ToString
     public static class RequestTeamPostSave {
         private Long teamPk;
         @NotBlank(message = "글의 제목은 필수입니다.")
@@ -153,6 +152,34 @@ public class TeamPostDto {
                     .isAnonymousVoting(hasAnonymousVoting)
                     .isMultiVoting(hasMultiVoting)
                     .build();
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseSearchTeamPost {
+        private String title;
+        private String content;
+        private String writerName;
+        private LocalDateTime createTime;
+        private int likeCnt;
+        private int replyCnt;
+        @JsonProperty(value = "isBookmarked")
+        private boolean isBookmarked;
+        @JsonProperty(value = "isWriter")
+        private boolean isWriter;
+
+        @Builder
+        public ResponseSearchTeamPost(String title, String content, String writerName, LocalDateTime createTime, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter) {
+            this.title = title;
+            this.content = content;
+            this.writerName = writerName;
+            this.createTime = createTime;
+            this.likeCnt = likeCnt;
+            this.replyCnt = replyCnt;
+            this.isBookmarked = isBookmarked;
+            this.isWriter = isWriter;
         }
     }
 }

@@ -8,4 +8,5 @@ import java.util.List;
 public interface DSLTeamPostRepository {
     List<TeamPost> getTeamPostWithMember(Long nextIdx, List<Team> myTeams);
     List<TeamPost> getTeamPostWithTeam(Long nextIdx, Team team, boolean isNotice);
+    List<TeamPost> getSearchTeamPost(Long nextIdx, Team team, String searchWord);
 }
