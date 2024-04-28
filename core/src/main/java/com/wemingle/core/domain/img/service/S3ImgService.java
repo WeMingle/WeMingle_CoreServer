@@ -67,4 +67,16 @@ public class S3ImgService {
         }
         return s3Urls;
     }
+
+    public List<String> setTeamPostPreSignedUrl(int imgCnt){
+        ArrayList<String> s3Urls = new ArrayList<>();
+        for (int i = 0; i < imgCnt; i++) {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key("post/team/" + UUID.randomUUID()).build();
+            PutObjectPresignRequest objectPresignRequest = PutObjectPresignRequest.builder().putObjectRequest(putObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
+            URL url = s3Presigner.presignPutObject(objectPresignRequest).url();
+            s3Urls.add(url.toString());
+            s3Presigner.close();
+        }
+        return s3Urls;
+    }
 }

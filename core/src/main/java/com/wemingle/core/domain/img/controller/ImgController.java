@@ -4,16 +4,15 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.team.service.TeamService;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.validation.constraints.Max;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -49,6 +48,16 @@ public class ImgController {
         return ResponseEntity.ok(ResponseHandler.builder()
                 .responseMessage("s3 url issuance complete")
                 .responseData(groupProfilePreSignedUrl)
+                .build());
+    }
+
+    @GetMapping("/post/team/upload")
+    public ResponseEntity<ResponseHandler<Object>> getTeamPostPicUploadPreSignUrl(@RequestParam @Max(value = 5, message = "이미지는 최대 5장까지 업로드 가능합니다.") int imgCnt) {
+        List<String> teamPostPreSignedUrls = s3ImgService.setTeamPostPreSignedUrl(imgCnt);
+
+        return ResponseEntity.ok(ResponseHandler.builder()
+                .responseMessage("s3 url issuance complete")
+                .responseData(teamPostPreSignedUrls)
                 .build());
     }
 }
