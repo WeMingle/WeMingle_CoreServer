@@ -12,6 +12,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 @RestController
@@ -83,9 +85,10 @@ public class TeamController {
         );
     }
 
-    @GetMapping
+    @GetMapping("/result")
     public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamInfoByName>> getTeamsByTeamName(@RequestParam(required = false) Long nextIdx,
-                                                                                              @RequestParam @NotBlank String teamName){
+                                                                                              @RequestParam @NotBlank String query){
+        String teamName = URLDecoder.decode(query, StandardCharsets.UTF_8);
         TeamDto.ResponseTeamInfoByName responseData = teamService.getTeamByName(nextIdx, teamName);
 
         return ResponseEntity.ok(
