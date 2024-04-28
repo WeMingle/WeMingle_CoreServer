@@ -191,4 +191,30 @@ public class TeamPostService {
                         .build())
                 .toList();
     }
+
+
+    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(Long nextIdx, Long teamPk, String searchWord, String memberId){
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        List<TeamPost> myBookmarkedTeamPosts = bookmarkedTeamPostRepository.findTeamPostByMember(member);
+        List<TeamPost> searchTeamPosts = teamPostRepository.getSearchTeamPost(nextIdx, team, searchWord);
+        LinkedHashMap<Long, TeamPostDto.ResponseSearchTeamPost> responseData = new LinkedHashMap<>();
+
+        searchTeamPosts.forEach(teampost -> responseData.put(teampost.getPk(), TeamPostDto.ResponseSearchTeamPost
+                .builder()
+                .title(teampost.getTitle())
+                .content(teampost.getContent())
+                .writerName(teampost.getWriter().getNickname())
+                .createTime(teampost.getCreatedTime())
+                .likeCnt(teampost.getLikeCount())
+                .replyCnt(teampost.getReplyCount())
+                .isBookmarked(isBookmarked(teampost, myBookmarkedTeamPosts))
+                .isWriter(isWriter(teampost, member))
+                .build()));
+
+        return responseData;
+    }
 }
