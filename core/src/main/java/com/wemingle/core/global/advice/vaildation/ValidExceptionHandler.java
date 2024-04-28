@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
 //@RestControllerAdvice(assignableTypes = {NicknameController.class, MemberController.class, MatchingController.class, MatchingPostController.class})
 @RestControllerAdvice
@@ -78,6 +79,16 @@ public class ValidExceptionHandler {
         return ResponseEntity.badRequest().body(
                 ResponseHandler.<String>builder()
                         .responseMessage("MethodArgumentNotValidException")
+                        .responseData(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(NoSuchKeyException.class)
+    public ResponseEntity<ResponseHandler<String>> NoSuchKeyException(Exception e){
+        return ResponseEntity.badRequest().body(
+                ResponseHandler.<String>builder()
+                        .responseMessage("imgs don't exist in s3")
                         .responseData(e.getMessage())
                         .build()
         );

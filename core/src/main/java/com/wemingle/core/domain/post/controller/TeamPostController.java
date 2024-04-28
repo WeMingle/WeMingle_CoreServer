@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.controller;
 
+import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.post.dto.TeamPostDto;
 import com.wemingle.core.domain.post.service.TeamPostService;
 import com.wemingle.core.global.responseform.ResponseHandler;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 @Slf4j
 public class TeamPostController {
     private final TeamPostService teamPostService;
+    private final S3ImgService s3ImgService;
 
     @GetMapping
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>> getTeamPostsInMyTeams(@RequestParam(required = false) Long nextIdx,
@@ -54,6 +56,7 @@ public class TeamPostController {
     @PostMapping
     public ResponseEntity<Object> saveTeamPost(@RequestBody @Valid TeamPostDto.RequestTeamPostSave postSaveDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
+        s3ImgService.verifyImgExist(postSaveDto.getImgIds());
         teamPostService.saveTeamPost(postSaveDto, userDetails.getUsername());
 
         return ResponseEntity.noContent().build();
