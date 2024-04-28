@@ -12,9 +12,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.net.URL;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -68,15 +66,28 @@ public class S3ImgService {
         return s3Urls;
     }
 
-    public List<String> setTeamPostPreSignedUrl(int imgCnt){
-        ArrayList<String> s3Urls = new ArrayList<>();
-        for (int i = 0; i < imgCnt; i++) {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key("post/team/" + UUID.randomUUID()).build();
+    public HashMap<String, ArrayList<String>> setTeamPostPreSignedUrl(List<String> extensions){
+        HashMap<String, ArrayList<String>> teamPostPreSignedUrls = new HashMap<>();
+        extensions.forEach(extension -> {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key("post/team/" + UUID.randomUUID() + "." + extension).build();
             PutObjectPresignRequest objectPresignRequest = PutObjectPresignRequest.builder().putObjectRequest(putObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
             URL url = s3Presigner.presignPutObject(objectPresignRequest).url();
-            s3Urls.add(url.toString());
+            putValue(teamPostPreSignedUrls, extension, url.toString());
             s3Presigner.close();
+        });
+
+        return teamPostPreSignedUrls;
+    }
+
+    private void putValue(HashMap<String, ArrayList<String>> teamPostPreSignedUrls, String key, String value){
+        try {
+            ArrayList<String> valueList = teamPostPreSignedUrls.get(key);
+            valueList.add(value);
+            teamPostPreSignedUrls.put(key, valueList);
+        }catch (RuntimeException e){
+            ArrayList<String> startList = new ArrayList<>();
+            startList.add(value);
+            teamPostPreSignedUrls.put(key, startList);
         }
-        return s3Urls;
     }
 }
