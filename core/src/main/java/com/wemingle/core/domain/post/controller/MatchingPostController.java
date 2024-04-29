@@ -113,7 +113,87 @@ public class MatchingPostController {
         );
     }
 
-    //todo 200m 이하일 때 페이징 안하고 글 정보와 좌표 정보 반환
+    @GetMapping("/map/count")
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMapCnt(@RequestParam(required = false) RecruitmentType recruitmentType,
+                                                                           @RequestParam(required = false) Ability ability,
+                                                                           @RequestParam(required = false) Gender gender,
+                                                                           @RequestParam(required = false) RecruiterType recruiterType,
+                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
+                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
+                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
+                                                                           @RequestParam(required = false) Boolean excludeExpired,
+                                                                           @RequestParam("topLat") double topLat,
+                                                                           @RequestParam("bottomLat") double bottomLat,
+                                                                           @RequestParam("leftLon") double leftLon,
+                                                                           @RequestParam("rightLon") double rightLon,
+                                                                           @RequestParam("excludeRegionUnit") boolean excludeRegionUnit,
+                                                                           @RequestParam SportsType sportsType){
+        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostByMapCnt(
+                recruitmentType,
+                ability,
+                gender,
+                recruiterType,
+                startDateFilter,
+                endDateFilter,
+                monthFilter,
+                excludeExpired,
+                lastExpiredDate,
+                sportsType,
+                topLat,
+                bottomLat,
+                leftLon,
+                rightLon,
+                excludeRegionUnit);
+
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .responseMessage("total matching post count retrieval successfully")
+                        .responseData(filteredMatchingPostCnt).build()
+        );
+    }
+
+    @GetMapping("/map/detail")
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMapDetail(@RequestParam(required = false) RecruitmentType recruitmentType,
+                                                                              @RequestParam(required = false) Ability ability,
+                                                                              @RequestParam(required = false) Gender gender,
+                                                                              @RequestParam(required = false) RecruiterType recruiterType,
+                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
+                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
+                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
+                                                                              @RequestParam(required = false) Boolean excludeExpired,
+                                                                              @RequestParam(required = false) Integer callCnt,
+                                                                              @RequestParam("topLat") double topLat,
+                                                                              @RequestParam("bottomLat") double bottomLat,
+                                                                              @RequestParam("leftLon") double leftLon,
+                                                                              @RequestParam("rightLon") double rightLon,
+                                                                              @RequestParam("excludeRegionUnit") boolean excludeRegionUnit,
+                                                                              @RequestParam SportsType sportsType,
+                                                                              @AuthenticationPrincipal UserDetails userDetails) {
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByMapDetail(userDetails.getUsername(),
+                recruitmentType,
+                ability,
+                gender,
+                recruiterType,
+                startDateFilter,
+                endDateFilter,
+                monthFilter,
+                excludeExpired,
+                lastExpiredDate,
+                sportsType,
+                topLat,
+                bottomLat,
+                leftLon,
+                rightLon,
+                excludeRegionUnit);
+
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .responseMessage("matching posts retrieval successfully")
+                        .responseData(getFilteredMatchingPost).build()
+        );
+    }
 
     @GetMapping("/map")
     public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMap(@RequestParam SortOption sortOption,
