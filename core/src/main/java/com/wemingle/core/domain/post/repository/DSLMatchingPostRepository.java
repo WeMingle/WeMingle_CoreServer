@@ -17,7 +17,8 @@ import java.util.List;
 
 public interface DSLMatchingPostRepository {
 
-    List<MatchingPost> findFilteredMatchingPost(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, SortOption sortOption, Long lastViewCnt, LocalDate lastExpiredDate, SportsType sportsType, Pageable pageable);
+    List<MatchingPost> findFilteredMatchingPostByCalendar(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, SortOption sortOption, LocalDate lastExpiredDate, SportsType sportsType, Pageable pageable);
+    List<MatchingPost> findFilteredMatchingPostByMap(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, LocalDate currentDate, LocalDate startDateFilter, LocalDate endDateFilter, YearMonth monthFilter, SortOption sortOption, LocalDate lastExpiredDate, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit, Pageable pageable);
     Integer findFilteredMatchingPostCnt(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate currentDate, LocalDate dateFilter, YearMonth monthFilter, SportsType sportsType);
     List<MatchingPost> findCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, Member member, List<MatchingPost> matchingPostWithReview);
     List<MatchingPost> findMatchingPostInMap(double topLat, double bottomLat, double leftLon, double rightLon);
