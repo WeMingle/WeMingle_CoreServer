@@ -59,12 +59,25 @@ public class MatchingPostController {
                                                                              @RequestParam(required = false) List<AreaName> areaList,
                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateFilter,
                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
-                                                                             @RequestParam(required = false) Boolean excludeExpired,
                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
+                                                                             @RequestParam(required = false) Boolean excludeExpired,
                                                                              @RequestParam(required = false) Integer callCnt,
                                                                              @RequestParam SportsType sportsType,
                                                                              @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostBySortOption(userDetails.getUsername(), lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType);
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByCalendar(userDetails.getUsername(),
+                lastIdx,
+                recruitmentType,
+                ability,
+                gender,
+                recruiterType,
+                areaList,
+                dateFilter,
+                monthFilter,
+                excludeExpired,
+                sortOption,
+                lastExpiredDate,
+                callCnt,
+                sportsType);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
@@ -73,7 +86,7 @@ public class MatchingPostController {
         );
     }
 
-    @GetMapping("/count")
+    @GetMapping("/calendar/count")
     public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalenderCnt(@RequestParam(required = false) RecruitmentType recruitmentType,
                                                                                 @RequestParam(required = false) Ability ability,
                                                                                 @RequestParam(required = false) Gender gender,
@@ -83,12 +96,69 @@ public class MatchingPostController {
                                                                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                                 @RequestParam(required = false) Boolean excludeExpired,
                                                                                 @RequestParam SportsType sportsType){
-        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sportsType);
+        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(recruitmentType,
+                ability,
+                gender,
+                recruiterType,
+                areaList,
+                dateFilter,
+                monthFilter,
+                excludeExpired,
+                sportsType);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
                         .responseMessage("total matching post count retrieval successfully")
                         .responseData(filteredMatchingPostCnt).build()
+        );
+    }
+
+    //todo 200m 이하일 때 페이징 안하고 글 정보와 좌표 정보 반환
+
+    @GetMapping("/map")
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMap(@RequestParam SortOption sortOption,
+                                                                        @RequestParam(required = false) Long lastIdx,
+                                                                        @RequestParam(required = false) RecruitmentType recruitmentType,
+                                                                        @RequestParam(required = false) Ability ability,
+                                                                        @RequestParam(required = false) Gender gender,
+                                                                        @RequestParam(required = false) RecruiterType recruiterType,
+                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
+                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
+                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
+                                                                        @RequestParam(required = false) Boolean excludeExpired,
+                                                                        @RequestParam(required = false) Integer callCnt,
+                                                                        @RequestParam("topLat") double topLat,
+                                                                        @RequestParam("bottomLat") double bottomLat,
+                                                                        @RequestParam("leftLon") double leftLon,
+                                                                        @RequestParam("rightLon") double rightLon,
+                                                                        @RequestParam("excludeRegionUnit") boolean excludeRegionUnit,
+                                                                        @RequestParam SportsType sportsType,
+                                                                        @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByMap(userDetails.getUsername(),
+                lastIdx,
+                recruitmentType,
+                ability,
+                gender,
+                recruiterType,
+                startDateFilter,
+                endDateFilter,
+                monthFilter,
+                excludeExpired,
+                sortOption,
+                lastExpiredDate,
+                callCnt,
+                sportsType,
+                topLat,
+                bottomLat,
+                leftLon,
+                rightLon,
+                excludeRegionUnit);
+
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .responseMessage("matching posts retrieval successfully")
+                        .responseData(getFilteredMatchingPost).build()
         );
     }
 
@@ -106,7 +176,7 @@ public class MatchingPostController {
                 .build());
     }
 
-    @GetMapping("/map")
+    @GetMapping("/map/cluster")
     public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMap(@RequestParam("topLat") double topLat,
                                                                         @RequestParam("bottomLat") double bottomLat,
                                                                         @RequestParam("leftLon") double leftLon,
