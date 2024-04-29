@@ -18,4 +18,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>{
             "where m.member.memberId = :memberId and m.matchingPost.matchingStatus = :matchingStatus and DATE(Now()) < DATE(m.matchingPost.matchingDate) ")
     Integer findScheduledMatchingCnt(@Param("memberId") String memberId, @Param("matchingStatus")MatchingStatus matchingStatus);
     List<Matching> findByMatchingPost(MatchingPost matchingPost);
+
+    @Query("select m from Matching m where m.matchingPost in :matchingPostList and m.member.memberId = :memberId")
+    List<Matching> findByMatchingResultByMemberId(@Param("memberId") String memberId, @Param("matchingPostList") List<MatchingPost> matchingPostList);
 }
