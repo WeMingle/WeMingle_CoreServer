@@ -1,8 +1,8 @@
 package com.wemingle.core.domain.team.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
-import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
