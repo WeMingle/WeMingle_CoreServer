@@ -10,6 +10,7 @@ import com.wemingle.core.domain.review.repository.TeamReviewRepository;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
@@ -227,11 +228,12 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId) {//todo 호왕햄 테스트 알려주기
+    public TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember(team, member);
         UnivEntity teamOwnerUniv = verifiedUniversityEmailRepository.findUnivEntityByMember(team.getTeamOwner())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
         UnivEntity memberUniv = verifiedUniversityEmailRepository.findUnivEntityByMember(member)
@@ -240,6 +242,7 @@ public class TeamServiceImpl implements TeamService{
         return TeamDto.ResponseTeamParticipantCond
                 .builder()
                 .beforeWriteInfo(member.isBeforeWriteInfo())
+                .isTeamMember(teamMember.isPresent())
                 .univCondResult(createUnivCondResult(team.isOnlySameUniv(), memberUniv, teamOwnerUniv))
                 .genderCondResult(createGenderCondResult(team, member.getGender()))
                 .birthYearCondResult(createBirthYearCondResult(team, member.getBirthYear()))

@@ -138,16 +138,18 @@ public class TeamDto {
     @NoArgsConstructor
     public static class ResponseTeamParticipantCond {
         private boolean beforeWriteInfo;
+        private boolean isTeamMember;
         private Boolean univCondResult;
         private GenderCondResult genderCondResult;
         private BirthYearCondResult birthYearCondResult;
 
         @Builder
-        public ResponseTeamParticipantCond(boolean beforeWriteInfo, Boolean univCondResult, GenderCondResult genderCondResult, BirthYearCondResult birthYearCondResult) {
+        public ResponseTeamParticipantCond(boolean beforeWriteInfo, Boolean univCondResult, GenderCondResult genderCondResult, BirthYearCondResult birthYearCondResult, boolean isTeamMember) {
             this.beforeWriteInfo = beforeWriteInfo;
             this.univCondResult = univCondResult;
             this.genderCondResult = genderCondResult;
             this.birthYearCondResult = birthYearCondResult;
+            this.isTeamMember = isTeamMember;
         }
     }
 
