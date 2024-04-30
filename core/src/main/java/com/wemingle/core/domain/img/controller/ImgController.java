@@ -2,6 +2,7 @@ package com.wemingle.core.domain.img.controller;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.service.MemberService;
+import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.util.*;
 public class ImgController {
     private final MemberService memberService;
     private final S3ImgService s3ImgService;
+    private final TeamMemberService teamMemberService;
 
     private static final int MAX_IMG_COUNT = 5;
     @GetMapping("/member/profile/upload/{extension}")
@@ -67,6 +69,16 @@ public class ImgController {
         return ResponseEntity.ok(ResponseHandler.<HashMap<String, ArrayList<String>>>builder()
                 .responseMessage("s3 url issuance complete")
                 .responseData(teamPostPreSignedUrls)
+                .build());
+    }
+
+    @GetMapping("/members/team")
+    public ResponseEntity<ResponseHandler<List<String>>> getTeamMembersRetrievePreSignedUrl(@RequestParam List<Long> teamMembersPk){
+        List<String> responseData = teamMemberService.getTeamMembersImgUrl(teamMembersPk);
+
+        return ResponseEntity.ok(ResponseHandler.<List<String>>builder()
+                .responseMessage("s3 url issuance complete")
+                .responseData(responseData)
                 .build());
     }
 }

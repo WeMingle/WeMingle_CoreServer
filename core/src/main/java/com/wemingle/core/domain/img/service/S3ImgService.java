@@ -24,7 +24,10 @@ public class S3ImgService {
     private final S3Presigner s3Presigner;
     private final S3Client s3Client;
 
+    private static final String MEMBER_PATH = "profile/member/";
     private static final String TEAM_POST_PATH = "post/team/";
+    private static final String TEAM_MEMBER_PATH = "profile/group/";
+    private static final Duration EXPIRY_TIME = Duration.ofMinutes(1L);
 
     public boolean isAvailableExtension(String extension) {
         try {
@@ -36,31 +39,31 @@ public class S3ImgService {
     }
 
     public String getMemberProfilePicUrl(UUID picId) {
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key("profile/member/" + picId).build();
-        GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(MEMBER_PATH + picId).build();
+        GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
         URL url = s3Presigner.presignGetObject(objectPreSignRequest).url();
         s3Presigner.close();
         return url.toString();
     }
     public String setMemberProfilePreSignedUrl(UUID memberProfileUUID) {
-        PutObjectRequest getObjectRequest = PutObjectRequest.builder().bucket(bucket).key("profile/member/"+ memberProfileUUID).build();
-        PutObjectPresignRequest objectPreSignRequest = PutObjectPresignRequest.builder().signatureDuration(Duration.ofMinutes(1)).putObjectRequest(getObjectRequest).build();
+        PutObjectRequest getObjectRequest = PutObjectRequest.builder().bucket(bucket).key(MEMBER_PATH + memberProfileUUID).build();
+        PutObjectPresignRequest objectPreSignRequest = PutObjectPresignRequest.builder().signatureDuration(EXPIRY_TIME).putObjectRequest(getObjectRequest).build();
         URL url = s3Presigner.presignPutObject(objectPreSignRequest).url();
         s3Presigner.close();
         return url.toString();
     }
 
     public String setGroupProfilePreSignedUrl(UUID groupProfileUUID) {
-        PutObjectRequest getObjectRequest = PutObjectRequest.builder().bucket(bucket).key("profile/group/"+groupProfileUUID).build();
-        PutObjectPresignRequest objectResignRequest = PutObjectPresignRequest.builder().signatureDuration(Duration.ofMinutes(1)).putObjectRequest(getObjectRequest).build();
+        PutObjectRequest getObjectRequest = PutObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + groupProfileUUID).build();
+        PutObjectPresignRequest objectResignRequest = PutObjectPresignRequest.builder().signatureDuration(EXPIRY_TIME).putObjectRequest(getObjectRequest).build();
         URL url = s3Presigner.presignPutObject(objectResignRequest).url();
         s3Presigner.close();
         return url.toString();
     }
 
     public String getGroupProfilePicUrl(UUID picId) {
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key("profile/group/" + picId).build();
-        GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + picId).build();
+        GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
         URL url = s3Presigner.presignGetObject(objectPreSignRequest).url();
         s3Presigner.close();
         return url.toString();
@@ -70,7 +73,7 @@ public class S3ImgService {
         ArrayList<String> s3Urls = new ArrayList<>();
         for (UUID picId: picIds) {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_POST_PATH + picId).build();
-            GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
+            GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
             URL url = s3Presigner.presignGetObject(objectPreSignRequest).url();
             s3Urls.add(url.toString());
             s3Presigner.close();
@@ -82,7 +85,7 @@ public class S3ImgService {
         HashMap<String, ArrayList<String>> teamPostPreSignedUrls = new HashMap<>();
         extensions.forEach(extension -> {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(TEAM_POST_PATH + UUID.randomUUID() + "." + extension).build();
-            PutObjectPresignRequest objectPresignRequest = PutObjectPresignRequest.builder().putObjectRequest(putObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
+            PutObjectPresignRequest objectPresignRequest = PutObjectPresignRequest.builder().putObjectRequest(putObjectRequest).signatureDuration(EXPIRY_TIME).build();
             URL url = s3Presigner.presignPutObject(objectPresignRequest).url();
             putValue(teamPostPreSignedUrls, extension, url.toString());
             s3Presigner.close();
@@ -103,15 +106,33 @@ public class S3ImgService {
         }
     }
 
-    public void verifyImgExist(List<UUID> imgIds) {
+    public void verifyImgsExistInTeamPostS3(List<UUID> imgIds) {
         for (UUID imgId : imgIds) {
-            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(TEAM_POST_PATH + imgId.toString())
-                    .build();
+            verifyImgExist(TEAM_POST_PATH, imgId);
+        }
+    }
 
-            s3Client.headObject(headObjectRequest);
+    private void verifyImgExist(String keyPath, UUID imgId) {
+        HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                .bucket(bucket)
+                .key(keyPath + imgId)
+                .build();
+
+        s3Client.headObject(headObjectRequest);
+        s3Client.close();
+    }
+
+    public String getTeamMemberPreSignedUrl(UUID imgId){
+        try {
+            verifyImgExist(TEAM_MEMBER_PATH, imgId);
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + imgId).build();
+            GetObjectPresignRequest preSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
+            String url = s3Presigner.presignGetObject(preSignRequest).url().toString();
             s3Client.close();
+
+            return url;
+        }catch (S3Exception e){
+            return getMemberProfilePicUrl(imgId);
         }
     }
 }

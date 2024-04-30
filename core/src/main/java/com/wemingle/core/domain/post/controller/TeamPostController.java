@@ -56,7 +56,7 @@ public class TeamPostController {
     @PostMapping
     public ResponseEntity<Object> saveTeamPost(@RequestBody @Valid TeamPostDto.RequestTeamPostSave postSaveDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
-        s3ImgService.verifyImgExist(postSaveDto.getImgIds());
+        s3ImgService.verifyImgsExistInTeamPostS3(postSaveDto.getImgIds());
         teamPostService.saveTeamPost(postSaveDto, userDetails.getUsername());
 
         return ResponseEntity.noContent().build();

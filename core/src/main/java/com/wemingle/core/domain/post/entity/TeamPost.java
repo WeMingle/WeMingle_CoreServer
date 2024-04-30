@@ -65,7 +65,7 @@ public class TeamPost extends BaseEntity {
     @JoinColumn(name = "WRITER")
     private TeamMember writer;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "TEAM_POST_VOTE")
     private TeamPostVote teamPostVote;
 
