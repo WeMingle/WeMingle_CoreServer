@@ -21,6 +21,7 @@ public enum ExceptionMessage {
     DATE_OR_MONTH_MUST_EXIST("일별 검색 또는 월별 검색 옵션이 존재해야 합니다."),
     INVALID_MATCHING_POST_STATUS("유효하지 않은 매칭 글 상태입니다"),
     INVALID_MATCHING_REQUEST_STATUS("유효하지 않은 매칭 신청 상태입니다"),
-    INVALID_REQUEST_TYPE("유효하지 않은 요청 타입입니다.");
+    INVALID_REQUEST_TYPE("유효하지 않은 요청 타입입니다."),
+    MATCHING_POST_NOT_FOUND("매칭 글을 찾을 수 없습니다.");
     private final String exceptionMessage;
 }

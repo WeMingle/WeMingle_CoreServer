@@ -284,4 +284,11 @@ public class MatchingPostController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/completion")
+    public ResponseEntity<Object> completeMatchingPost(@RequestBody @Valid MatchingPostDto.RequestComplete requestDto){
+        matchingPostService.completeMatchingPost(requestDto.getMatchingPostPk());
+
+        return ResponseEntity.noContent().build();
+    }
 }

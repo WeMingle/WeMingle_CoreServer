@@ -161,4 +161,7 @@ public class MatchingPost extends BaseEntity {
         setCreatedTime(LocalDateTime.now());
         this.matchingStatus = MatchingStatus.PENDING;
     }
+    public void complete(){
+        this.matchingStatus = MatchingStatus.COMPLETE;
+    }
 }
