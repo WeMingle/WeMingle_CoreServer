@@ -766,4 +766,13 @@ public class MatchingPostService {
     public void rePostMatchingPost(MatchingPost matchingPost){
         matchingPost.updateForRePost();
     }
+
+
+    @Transactional
+    public void completeMatchingPost(Long matchingPostPk){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MATCHING_POST_NOT_FOUND.getExceptionMessage()));
+
+        matchingPost.complete();
+    }
 }

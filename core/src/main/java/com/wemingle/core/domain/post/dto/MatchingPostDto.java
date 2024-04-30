@@ -255,4 +255,17 @@ public class MatchingPostDto {
             this.scheduledRequestDescription = scheduledRequestDescription;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestComplete{
+        @NotNull
+        private Long matchingPostPk;
+
+        @Builder
+        public RequestComplete(Long matchingPostPk) {
+            this.matchingPostPk = matchingPostPk;
+        }
+    }
 }
