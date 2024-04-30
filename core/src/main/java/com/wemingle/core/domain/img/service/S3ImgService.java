@@ -5,14 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.net.URL;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -36,6 +42,12 @@ public class S3ImgService {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public boolean isAvailableExtensions(List<String> extensions) {
+        return extensions.stream().distinct().toList().stream()
+                .map(this::isAvailableExtension)
+                .allMatch(isAvailable -> isAvailable.equals(true));
     }
 
     public String getMemberProfilePicUrl(UUID picId) {
@@ -81,29 +93,21 @@ public class S3ImgService {
         return s3Urls;
     }
 
-    public HashMap<String, ArrayList<String>> setTeamPostPreSignedUrl(List<String> extensions){
-        HashMap<String, ArrayList<String>> teamPostPreSignedUrls = new HashMap<>();
-        extensions.forEach(extension -> {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(TEAM_POST_PATH + UUID.randomUUID() + "." + extension).build();
-            PutObjectPresignRequest objectPresignRequest = PutObjectPresignRequest.builder().putObjectRequest(putObjectRequest).signatureDuration(EXPIRY_TIME).build();
-            URL url = s3Presigner.presignPutObject(objectPresignRequest).url();
-            putValue(teamPostPreSignedUrls, extension, url.toString());
-            s3Presigner.close();
-        });
+    public List<String> setTeamPostPreSignedUrl(int imgCnt){
+        return IntStream.range(0, imgCnt)
+                .mapToObj(i -> {
+                    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(TEAM_POST_PATH + UUID.randomUUID())
+                            .build();
 
-        return teamPostPreSignedUrls;
-    }
+                    PutObjectPresignRequest objectPresignRequest = PutObjectPresignRequest.builder()
+                            .putObjectRequest(putObjectRequest)
+                            .signatureDuration(EXPIRY_TIME)
+                            .build();
 
-    private void putValue(HashMap<String, ArrayList<String>> teamPostPreSignedUrls, String key, String value){
-        try {
-            ArrayList<String> valueList = teamPostPreSignedUrls.get(key);
-            valueList.add(value);
-            teamPostPreSignedUrls.put(key, valueList);
-        }catch (RuntimeException e){
-            ArrayList<String> startList = new ArrayList<>();
-            startList.add(value);
-            teamPostPreSignedUrls.put(key, startList);
-        }
+                    return s3Presigner.presignPutObject(objectPresignRequest).url().toString();
+                }).toList();
     }
 
     public void verifyImgsExistInTeamPostS3(List<UUID> imgIds) {
