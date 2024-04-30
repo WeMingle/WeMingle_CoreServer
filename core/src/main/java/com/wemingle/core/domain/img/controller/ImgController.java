@@ -21,8 +21,9 @@ public class ImgController {
     private final S3ImgService s3ImgService;
 
     private static final int MAX_IMG_COUNT = 5;
-    @GetMapping("/member/profile/upload")
-    public ResponseEntity<ResponseHandler<Object>> getMemberProfilePicUploadPreSignUrl(@AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("/member/profile/upload/{extension}")
+    public ResponseEntity<ResponseHandler<Object>> getMemberProfilePicUploadPreSignUrl(@PathVariable("extension") String extension, @AuthenticationPrincipal UserDetails userDetails) {
+
         UUID profileImgId = memberService.findByMemberId(userDetails.getUsername()).getProfileImgId();
         String memberProfilePreSignedUrl = s3ImgService.setMemberProfilePreSignedUrl(profileImgId);
         return ResponseEntity.ok(ResponseHandler.builder()
@@ -40,8 +41,11 @@ public class ImgController {
                 .build());
     }
 
-    @GetMapping("/team/profile/upload/{teamImgUUID}")
-    public ResponseEntity<ResponseHandler<Object>> getTeamProfilePicUploadPreSignUrl(@PathVariable("teamImgUUID") UUID teamImgUUID, @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("/team/profile/upload/{teamImgUUID}/{extension}")
+    public ResponseEntity<ResponseHandler<Object>> getTeamProfilePicUploadPreSignUrl(@PathVariable("teamImgUUID") UUID teamImgUUID, @PathVariable("extension") String extension, @AuthenticationPrincipal UserDetails userDetails) {
+        if (!s3ImgService.isAvailableExtension(extension)) {
+            return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
+        }
         String groupProfilePreSignedUrl = s3ImgService.setGroupProfilePreSignedUrl(teamImgUUID);
         return ResponseEntity.ok(ResponseHandler.builder()
                 .responseMessage("s3 url issuance complete")

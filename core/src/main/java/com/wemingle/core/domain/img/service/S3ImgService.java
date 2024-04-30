@@ -26,6 +26,15 @@ public class S3ImgService {
 
     private static final String TEAM_POST_PATH = "post/team/";
 
+    public boolean isAvailableExtension(String extension) {
+        try {
+            AllowExtensions.valueOf(extension);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     public String getMemberProfilePicUrl(UUID picId) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key("profile/member/" + picId).build();
         GetObjectPresignRequest objectPreSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(Duration.ofMinutes(1)).build();
