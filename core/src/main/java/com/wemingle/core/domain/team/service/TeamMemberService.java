@@ -45,4 +45,12 @@ public class TeamMemberService {
 
         return responseData;
     }
+
+    public List<String> getTeamMembersImgUrl(List<Long> teamMembersPk){
+        List<TeamMember> teamMembers = teamMemberRepository.findAllById(teamMembersPk);
+
+        return teamMembers.stream()
+                .map(teamMember -> s3ImgService.getTeamMemberPreSignedUrl(teamMember.getProfileImg()))
+                .toList();
+    }
 }
