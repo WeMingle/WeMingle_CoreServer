@@ -97,28 +97,64 @@ public class MatchingPostService {
         );
     }
 
-    public LinkedHashMap<String, Object> getFilteredMatchingPostBySortOption(String memberId,
-                                                                             Long lastIdx,
-                                                                             RecruitmentType recruitmentType,
-                                                                             Ability ability,
-                                                                             Gender gender,
-                                                                             RecruiterType recruiterType,
-                                                                             List<AreaName> areaList,
-                                                                             LocalDate dateFilter,
-                                                                             YearMonth monthFilter,
-                                                                             Boolean excludeExpired,
-                                                                             SortOption sortOption,
-                                                                             LocalDate lastExpiredDate,
-                                                                             Integer callCnt,
-                                                                             SportsType sportsType){
+    public Integer getFilteredMatchingPostByMapCnt(RecruitmentType recruitmentType,
+                                                   Ability ability,
+                                                   Gender gender,
+                                                   RecruiterType recruiterType,
+                                                   LocalDate startDateFilter,
+                                                   LocalDate endDateFilter,
+                                                   YearMonth monthFilter,
+                                                   Boolean excludeExpired,
+                                                   LocalDate lastExpiredDate,
+                                                   SportsType sportsType,
+                                                   double topLat,
+                                                   double bottomLat,
+                                                   double leftLon,
+                                                   double rightLon,
+                                                   boolean excludeRegionUnit) {
+
+        return matchingPostRepository.findFilteredMatchingPostByMapCnt(
+                recruitmentType,
+                ability,
+                gender,
+                recruiterType,
+                excludeExpired == null ? null : LocalDate.now(),
+                startDateFilter,
+                endDateFilter,
+                monthFilter,
+                excludeExpired,
+                lastExpiredDate,
+                sportsType,
+                topLat,
+                bottomLat,
+                leftLon,
+                rightLon,
+                excludeRegionUnit
+        );
+    }
+
+    public LinkedHashMap<String, Object> getFilteredMatchingPostByCalendar(String memberId,
+                                                                           Long lastIdx,
+                                                                           RecruitmentType recruitmentType,
+                                                                           Ability ability,
+                                                                           Gender gender,
+                                                                           RecruiterType recruiterType,
+                                                                           List<AreaName> areaList,
+                                                                           LocalDate dateFilter,
+                                                                           YearMonth monthFilter,
+                                                                           Boolean excludeExpired,
+                                                                           SortOption sortOption,
+                                                                           LocalDate lastExpiredDate,
+                                                                           Integer callCnt,
+                                                                           SportsType sportsType){
         isDateFilterAndMonthFilterCoexist(dateFilter, monthFilter);
 
         List<MatchingPost> filteredMatchingPost;
-        filteredMatchingPost = getMatchingPostBySortOption(lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType);
+        filteredMatchingPost = getMatchingPostByCalendar(lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType);
         
         Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, filteredMatchingPost);
 
-        String nextRetrieveUrlParams = createNextRetrieveUrlParams(getLastIdxInMatchingPostList(filteredMatchingPost), recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, getLastExpiredDateInMatchingPostList(sortOption, filteredMatchingPost), nextUrlCallCnt);
+        String nextRetrieveUrlParams = createNextRetrieveUrlParamsByCalendar(getLastIdxInMatchingPostList(filteredMatchingPost), recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, getLastExpiredDateInMatchingPostList(sortOption, filteredMatchingPost), nextUrlCallCnt);
 
 
         LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
@@ -127,6 +163,171 @@ public class MatchingPostService {
         List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
 
         HashMap<Long, Object> postsMap = createMatchingPostDtoMap(filteredMatchingPost, bookmarkedByMatchingPosts);
+        responseObj.put("post list", postsMap);
+        return responseObj;
+    }
+
+    public LinkedHashMap<String, Object> getFilteredMatchingPostByMap(String memberId,
+                                                                      Long lastIdx,
+                                                                      RecruitmentType recruitmentType,
+                                                                      Ability ability,
+                                                                      Gender gender,
+                                                                      RecruiterType recruiterType,
+                                                                      LocalDate startDateFilter,
+                                                                      LocalDate endDateFilter,
+                                                                      YearMonth monthFilter,
+                                                                      Boolean excludeExpired,
+                                                                      SortOption sortOption,
+                                                                      LocalDate lastExpiredDate,
+                                                                      Integer callCnt,
+                                                                      SportsType sportsType,
+                                                                      double topLat,
+                                                                      double bottomLat,
+                                                                      double leftLon,
+                                                                      double rightLon,
+                                                                      boolean excludeRegionUnit) {
+        List<MatchingPost> filteredMatchingPost;
+        filteredMatchingPost = getMatchingPostByMap(lastIdx, recruitmentType, ability, gender, recruiterType, startDateFilter, endDateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType, topLat, bottomLat, leftLon, rightLon, excludeRegionUnit);
+
+        Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, filteredMatchingPost);
+
+        String nextRetrieveUrlParams = createNextRetrieveUrlParamsByMap(getLastIdxInMatchingPostList(filteredMatchingPost), recruitmentType, ability, gender, recruiterType, startDateFilter, endDateFilter, monthFilter, excludeExpired, sortOption, getLastExpiredDateInMatchingPostList(sortOption, filteredMatchingPost), nextUrlCallCnt, topLat, bottomLat, leftLon, rightLon);
+
+
+        LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
+
+
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
+
+        HashMap<Long, Object> postsMap = createMatchingPostDtoMap(filteredMatchingPost, bookmarkedByMatchingPosts);
+        responseObj.put("post list", postsMap);
+        return responseObj;
+    }
+
+    private List<MatchingPost> getMatchingPostByMap(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, LocalDate startDateFilter, LocalDate endDateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit) {
+        List<MatchingPost> filteredMatchingPost;
+        switch (Objects.requireNonNull(sortOption)) {
+
+            case NEW -> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPostByMap(
+                    lastIdx,
+                    recruitmentType,
+                    ability,
+                    gender,
+                    recruiterType,
+                    excludeExpired == null ? null : LocalDate.now(),
+                    startDateFilter,
+                    endDateFilter,
+                    monthFilter,
+                    sortOption,
+                    lastExpiredDate,
+                    sportsType,
+                    topLat,
+                    bottomLat,
+                    leftLon,
+                    rightLon,
+                    excludeRegionUnit,
+                    PageRequest.of(0, 30)
+            );
+            case DEADLINE -> {
+                int pageNumber = Optional.ofNullable(callCnt).orElse(0);
+                filteredMatchingPost = matchingPostRepository.findFilteredMatchingPostByMap(
+                        null,
+                        recruitmentType,
+                        ability,
+                        gender,
+                        recruiterType,
+                        excludeExpired == null ? null : LocalDate.now(),
+                        startDateFilter,
+                        endDateFilter,
+                        monthFilter,
+                        sortOption,
+                        lastExpiredDate,
+                        sportsType,
+                        topLat,
+                        bottomLat,
+                        leftLon,
+                        rightLon,
+                        excludeRegionUnit,
+                        PageRequest.of(pageNumber, 30)
+                );
+                removeDuplicatePosts(lastIdx, filteredMatchingPost);
+
+                if (filteredMatchingPost.size() < 30) {
+                    filteredMatchingPost.addAll(
+                            matchingPostRepository.findFilteredMatchingPostByMap(
+                                    null,
+                                    recruitmentType,
+                                    ability,
+                                    gender,
+                                    recruiterType,
+                                    excludeExpired == null ? null : LocalDate.now(),
+                                    startDateFilter,
+                                    endDateFilter,
+                                    monthFilter,
+                                    sortOption,
+                                    lastExpiredDate,
+                                    sportsType,
+                                    topLat,
+                                    bottomLat,
+                                    leftLon,
+                                    rightLon,
+                                    excludeRegionUnit,
+                                    PageRequest.of(pageNumber +1, 30)
+                            )
+                    );
+                }
+                filteredMatchingPost = filteredMatchingPost.stream().limit(30).toList();
+            }
+            default -> throw new RuntimeException("unknown enum value");
+        }
+        return filteredMatchingPost;
+    }
+
+    private List<MatchingPost> getMatchingPostByMapDetail(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, LocalDate startDateFilter, LocalDate endDateFilter, YearMonth monthFilter, Boolean excludeExpired, LocalDate lastExpiredDate, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit) {
+        return matchingPostRepository.findFilteredMatchingPostByMapDetail(
+                recruitmentType,
+                ability,
+                gender,
+                recruiterType,
+                excludeExpired == null ? null : LocalDate.now(),
+                startDateFilter,
+                endDateFilter,
+                monthFilter,
+                lastExpiredDate,
+                sportsType,
+                topLat,
+                bottomLat,
+                leftLon,
+                rightLon,
+                excludeRegionUnit
+        );
+    }
+
+    public LinkedHashMap<String, Object> getFilteredMatchingPostByMapDetail(String memberId,
+                                                                            RecruitmentType recruitmentType,
+                                                                            Ability ability,
+                                                                            Gender gender,
+                                                                            RecruiterType recruiterType,
+                                                                            LocalDate startDateFilter,
+                                                                            LocalDate endDateFilter,
+                                                                            YearMonth monthFilter,
+                                                                            Boolean excludeExpired,
+                                                                            LocalDate lastExpiredDate,
+                                                                            SportsType sportsType,
+                                                                            double topLat,
+                                                                            double bottomLat,
+                                                                            double leftLon,
+                                                                            double rightLon,
+                                                                            boolean excludeRegionUnit) {
+        List<MatchingPost> filteredMatchingPost;
+        filteredMatchingPost = getMatchingPostByMapDetail(recruitmentType, ability, gender, recruiterType, startDateFilter, endDateFilter, monthFilter, excludeExpired, lastExpiredDate, sportsType, topLat, bottomLat, leftLon, rightLon, excludeRegionUnit);
+
+        LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, null);
+
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
+        List<Matching> matchingResultByMemberId = matchingRepository.findByMatchingResultByMemberId(memberId, filteredMatchingPost);
+
+        HashMap<Long, Object> postsMap = createMatchingPostDtoMapDetail(filteredMatchingPost, bookmarkedByMatchingPosts, matchingResultByMemberId);
         responseObj.put("post list", postsMap);
         return responseObj;
     }
@@ -175,11 +376,40 @@ public class MatchingPostService {
         return postsMap;
     }
 
-    private List<MatchingPost> getMatchingPostBySortOption(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, SportsType sportsType) {
+    private HashMap<Long, Object> createMatchingPostDtoMapDetail(List<MatchingPost> filteredMatchingPost, List<BookmarkedMatchingPost> bookmarkedByMatchingPosts, List<Matching> matchingResultByMemberId) {
+        HashMap<Long, Object> postsMap = new LinkedHashMap<>();
+
+        filteredMatchingPost.forEach(post -> {
+            boolean isBookmarked = bookmarkedByMatchingPosts.stream().anyMatch(bookmark -> bookmark.getMatchingPost().equals(post));
+            boolean isMatchedBefore = matchingResultByMemberId.stream().anyMatch(matching -> matching.getMatchingPost().equals(post));
+
+            postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostByMapDetailDto.builder()
+                    .writer(post.getWriter().getTeam().getTeamName())
+                    .matchingDate(post.getMatchingDate())
+                    .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
+                    .ability(post.getAbility())
+                    .isLocationConsensusPossible(post.isLocationConsensusPossible())
+                    .contents(post.getContent())
+                    .recruiterType(post.getRecruiterType())
+                    .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
+                    .matchingCnt(post.getTeam().getCompletedMatchingCnt())
+                    .isBookmarked(isBookmarked)
+                    .viewCnt(post.getViewCnt())
+                    .expiryDate(post.getExpiryDate())
+                    .lat(post.getLat())
+                    .lon(post.getLon())
+                    .isMatchedBefore(isMatchedBefore)
+                    .build());
+                }
+        );
+        return postsMap;
+    }
+
+    private List<MatchingPost> getMatchingPostByCalendar(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, SportsType sportsType) {
         List<MatchingPost> filteredMatchingPost;
         switch (Objects.requireNonNull(sortOption)) {
 
-            case NEW -> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
+            case NEW -> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPostByCalendar(
                     lastIdx,
                     recruitmentType,
                     ability,
@@ -191,13 +421,12 @@ public class MatchingPostService {
                     monthFilter,
                     sortOption,
                     null,
-                    null,
                     sportsType,
                     PageRequest.of(0, 30)
             );
             case DEADLINE -> {
                 int pageNumber = Optional.ofNullable(callCnt).orElse(0);
-                filteredMatchingPost = matchingPostRepository.findFilteredMatchingPost(
+                filteredMatchingPost = matchingPostRepository.findFilteredMatchingPostByCalendar(
                     null,
                     recruitmentType,
                     ability,
@@ -208,7 +437,6 @@ public class MatchingPostService {
                     dateFilter,
                     monthFilter,
                     sortOption,
-                    null,
                     lastExpiredDate,
                     sportsType,
                     PageRequest.of(pageNumber, 30)
@@ -217,7 +445,7 @@ public class MatchingPostService {
 
                 if (filteredMatchingPost.size() < 30) {
                     filteredMatchingPost.addAll(
-                            matchingPostRepository.findFilteredMatchingPost(
+                            matchingPostRepository.findFilteredMatchingPostByCalendar(
                                     null,
                                     recruitmentType,
                                     ability,
@@ -228,7 +456,6 @@ public class MatchingPostService {
                                     dateFilter,
                                     monthFilter,
                                     sortOption,
-                                    null,
                                     lastExpiredDate,
                                     sportsType,
                                     PageRequest.of(pageNumber +1, 30)
@@ -259,7 +486,7 @@ public class MatchingPostService {
         return null;
     }
 
-    private String createNextRetrieveUrlParams(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt) {
+    private String createNextRetrieveUrlParamsByCalendar(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt) {
         Map<String, Object> parameters = new LinkedHashMap<>();
         parameters.put("lastIdx", lastIdx);
         parameters.put("recruitmentType", recruitmentType);
@@ -272,6 +499,35 @@ public class MatchingPostService {
         parameters.put("excludeExpired", excludeExpired);
         parameters.put("sortOption", sortOption);
         parameters.put("lastExpireDate", lastExpiredDate);
+        if (sortOption.equals(SortOption.DEADLINE)) {
+            parameters.put("callCnt", callCnt);
+        }
+
+
+        return parameters.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&"));
+    }
+
+    private String createNextRetrieveUrlParamsByMap(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, LocalDate startDateFilter, LocalDate endDateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, double topLat, double bottomLat, double leftLon, double rightLon) {
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("lastIdx", lastIdx);
+        parameters.put("recruitmentType", recruitmentType);
+        parameters.put("ability", ability);
+        parameters.put("gender", gender);
+        parameters.put("recruiterType", recruiterType);
+        parameters.put("startDateFilter", startDateFilter);
+        parameters.put("endDateFilter", endDateFilter);
+        parameters.put("monthFilter", monthFilter);
+        parameters.put("excludeExpired", excludeExpired);
+        parameters.put("sortOption", sortOption);
+        parameters.put("lastExpireDate", lastExpiredDate);
+        parameters.put("topLat", topLat);
+        parameters.put("bottomLat", bottomLat);
+        parameters.put("leftLon", leftLon);
+        parameters.put("rightLon", rightLon);
+
         if (sortOption.equals(SortOption.DEADLINE)) {
             parameters.put("callCnt", callCnt);
         }
@@ -309,13 +565,10 @@ public class MatchingPostService {
 
     public LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> getCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, String memberId){
         Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
-        List<MatchingPost> matchingPostWithMemberId = teamReviewRepository.findMatchingPostWithMemberId(member);
-        PageRequest pageRequest = PageRequest.of(0, 30);
-
-        List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWithMemberId, pageRequest);
-
+        List<MatchingPost> matchingPostWrittenReview = teamReviewRepository.findMatchingPostWithMemberId(member);
+        List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWrittenReview);
         List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
-
+        List<TeamMember> managerOrHigherTeamMembers = teamMemberRepository.findWithManagerOrHigher(getTeamsWithMatchingPosts(matchingPosts));
         LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
 
         matchingPosts.forEach(matchingPost -> responseHashMap.put(matchingPost.getPk(), MatchingPostDto.ResponseCompletedMatchingPost.builder()
@@ -328,15 +581,19 @@ public class MatchingPostService {
                 .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
                 .ability(matchingPost.getAbility())
                 .profileImgUrl(getProfileImgUrl(matchingPost))
-                .detailPostUrl(serverIp + "/post/match/" + matchingPost.getPk())
                 .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate()))
-                .scheduledRequestDescription(getScheduledRequest(matchingPost, member, matchingPostWithMemberId))
+                .scheduledRequestDescription(getScheduledRequest(matchingPost, managerOrHigherTeamMembers, member, matchingPostWrittenReview))
                 .build()));
 
         return responseHashMap;
     }
 
-    private static List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
+    private List<Team> getTeamsWithMatchingPosts(List<MatchingPost> matchingPosts) {
+        return matchingPosts.stream().map(MatchingPost::getTeam).toList();
+    }
+
+
+    private List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
         return matchingPostAreas.stream()
                 .filter(matchingPostArea -> matchingPostArea.getMatchingPost().equals(matchingPost))
                 .map(MatchingPostArea::getAreaName)
@@ -349,7 +606,7 @@ public class MatchingPostService {
                 : s3ImgService.getMemberProfilePicUrl(matchingPost.getTeam().getProfileImgId());
     }
 
-    private static boolean isTeam(MatchingPost matchingPost) {
+    private boolean isTeam(MatchingPost matchingPost) {
         return matchingPost.getTeam().getTeamType().equals(TeamType.TEAM);
     }
 
@@ -366,20 +623,25 @@ public class MatchingPostService {
         }
     }
 
-    private String getScheduledRequest(MatchingPost matchingPost, Member member, List<MatchingPost> matchingPostWithMemberId) {
-        return isTeamOwner(matchingPost, member)
-                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWithMemberId)
-                : createScheduledRequestWithMember();
+    private String getScheduledRequest(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member, List<MatchingPost> matchingPostWrittenReview) {
+        return isTeamOwner(matchingPost, managerOrHigherTeamMembers, member)
+                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWrittenReview)
+                : createScheduledRequestWithMember(matchingPost.getMatchingStatus(), matchingPost, matchingPostWrittenReview);
     }
 
-    private static boolean isTeamOwner(MatchingPost matchingPost, Member member) {
-        return matchingPost.getTeam().getTeamOwner().equals(member);
+    private boolean isTeamOwner(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member) {
+        List<Member> teamMembersInPost = managerOrHigherTeamMembers.stream()
+                .filter(teamMember -> matchingPost.getTeam().equals(teamMember.getTeam()))
+                .map(TeamMember::getMember)
+                .toList();
+
+        return teamMembersInPost.contains(member);
     }
 
     private String createScheduledRequestWithOwner(MatchingStatus matchingStatus,
                                                    LocalDate matchingDate,
                                                    MatchingPost matchingPost,
-                                                   List<MatchingPost> matchingPostWithMemberId) {
+                                                   List<MatchingPost> matchingPostWrittenReview) {
         switch (matchingStatus) {
             case CANCEL -> {
                 return RENEW_MATCHING_POST.getDescription();
@@ -392,7 +654,7 @@ public class MatchingPostService {
                 } else if (remainDays >= 0) {
                     return CANCEL_NOT_PERMITTED_DURATION.getDescription();
                 } else {
-                    return checkReviewWrittenPost(matchingPost, matchingPostWithMemberId);
+                    return checkReviewWrittenPost(matchingPost, matchingPostWrittenReview);
                 }
             }
             default -> throw new RuntimeException(INVALID_MATCHING_POST_STATUS.getExceptionMessage());
@@ -407,12 +669,18 @@ public class MatchingPostService {
         }
     }
 
-    private String createScheduledRequestWithMember() {
-        return NO_PERMISSION.getDescription();
+    private String createScheduledRequestWithMember(MatchingStatus matchingStatus,
+                                                    MatchingPost matchingPost,
+                                                    List<MatchingPost> matchingPostWrittenReview) {
+        if (matchingStatus.equals(MatchingStatus.COMPLETE)) {
+            return checkReviewWrittenPost(matchingPost, matchingPostWrittenReview);
+        } else {
+            return NO_PERMISSION.getDescription();
+        }
     }
 
     @Transactional
-    public void createMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
+    public void saveMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
         RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
         Long teamPk = createMatchingPostDto.getTeamPk();
         List<String> participantsId = createMatchingPostDto.getParticipantsId();

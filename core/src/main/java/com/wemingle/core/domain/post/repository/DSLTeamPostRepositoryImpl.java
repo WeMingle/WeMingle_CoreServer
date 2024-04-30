@@ -20,9 +20,12 @@ public class DSLTeamPostRepositoryImpl implements DSLTeamPostRepository{
 
     @Override
     public List<TeamPost> getTeamPostWithMember(Long nextIdx, List<Team> myTeams) {
+        if (myTeams.isEmpty())
+            return null;
+
         return jpaQueryFactory.selectFrom(teamPost)
                 .where(
-                        nextIdxLt(nextIdx),
+                        nextIdxLoe(nextIdx),
                         teamPost.team.in(myTeams)
                 )
                 .limit(PAGE_SIZE)
@@ -34,7 +37,7 @@ public class DSLTeamPostRepositoryImpl implements DSLTeamPostRepository{
     public List<TeamPost> getTeamPostWithTeam(Long nextIdx, Team team, boolean isNotice) {
         return jpaQueryFactory.selectFrom(teamPost)
                 .where(
-                        nextIdxLt(nextIdx),
+                        nextIdxLoe(nextIdx),
                         teamPost.team.eq(team),
                         isNotice(isNotice)
                 )
@@ -47,7 +50,26 @@ public class DSLTeamPostRepositoryImpl implements DSLTeamPostRepository{
         return isNotice ? teamPost.postType.eq(PostType.NOTICE) : null;
     }
 
-    private BooleanExpression nextIdxLt(Long nextIdx) {
+    private BooleanExpression nextIdxLoe(Long nextIdx) {
         return nextIdx == null ? null : teamPost.pk.loe(nextIdx);
+    }
+
+    @Override
+    public List<TeamPost> getSearchTeamPost(Long nextIdx, Team team, String searchWord) {
+        return jpaQueryFactory.selectFrom(teamPost)
+                .where(
+                        nextIdxLoe(nextIdx),
+                        teamPost.team.eq(team),
+                        searchCond(searchWord)
+                )
+                .limit(30)
+                .orderBy(teamPost.pk.desc())
+                .fetch();
+    }
+
+    private BooleanExpression searchCond(String searchWord){
+        return teamPost.writer.nickname.contains(searchWord)
+                .or(teamPost.content.contains(searchWord))
+                .or(teamPost.title.contains(searchWord));
     }
 }

@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.dto;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
@@ -10,8 +11,8 @@ import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
-import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -84,19 +85,64 @@ public class MatchingPostDto {
         }
     }
 
+    @Setter
+    @Getter
+    public static class ResponseMatchingPostByMapDetailDto{
+        private String profilePicUrl;
+        private String writer;
+        private String contents;
+        private List<AreaName> areaList;
+        private int matchingCnt;
+        private int viewCnt;
+        private LocalDate matchingDate;
+        private LocalDate expiryDate;
+        private RecruiterType recruiterType;
+        private Ability ability;
+        private boolean isLocationConsensusPossible;
+        private boolean isBookmarked;
+        private Double lat;
+        private Double lon;
+        private boolean isMatchedBefore;
+
+
+        @Builder
+        public ResponseMatchingPostByMapDetailDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, int viewCnt, LocalDate matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, Double lat, Double lon, boolean isMatchedBefore) {
+            this.profilePicUrl = profilePicUrl;
+            this.writer = writer;
+            this.contents = contents;
+            this.areaList = areaList;
+            this.matchingCnt = matchingCnt;
+            this.viewCnt = viewCnt;
+            this.matchingDate = matchingDate;
+            this.expiryDate = expiryDate;
+            this.recruiterType = recruiterType;
+            this.ability = ability;
+            this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.isBookmarked = isBookmarked;
+            this.lat = lat;
+            this.lon = lon;
+            this.isMatchedBefore = isMatchedBefore;
+        }
+    }
+
     @Getter
     @Setter
     @NoArgsConstructor
     public static class CreateMatchingPostDto {
         @NotNull
         private LocalDate matchingDate;
-        @Essential
         private Double latitude;
-        @Essential
         private Double longitude;
-        @Essential
+        @NotBlank
         private String locationName;
-        @NotNull
+        private String dou;
+        private String si;
+        private String gun;
+        private String gu;
+        private String dong;
+        private String eup;
+        private String myeon;
+        private String ri;
         private List<AreaName> areaNameList;
         @NotNull
         private boolean isLocationConsensusPossible;
@@ -115,13 +161,15 @@ public class MatchingPostDto {
         private RecruiterType recruiterType;
         @NotNull
         private RecruitmentType recruitmentType;
-        @NotNull
+        @NotBlank
         private String content;
         @NotNull
         private LocationSelectionType locationSelectionType;
+        @NotNull
+        private SportsType sportsType;
 
         @Builder
-        public CreateMatchingPostDto(LocalDate matchingDate, Double latitude, Double longitude, String locationName, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<String> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType) {
+        public CreateMatchingPostDto(LocalDate matchingDate, Double latitude, Double longitude, String locationName, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<String> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
             this.matchingDate = matchingDate;
             this.latitude = latitude;
             this.longitude = longitude;
@@ -138,14 +186,22 @@ public class MatchingPostDto {
             this.recruitmentType = recruitmentType;
             this.content = content;
             this.locationSelectionType = locationSelectionType;
+            this.sportsType = sportsType;
         }
 
         public MatchingPost of(Team team, TeamMember writer){
-
             MatchingPost matchingPost = MatchingPost.builder()
                     .matchingDate(matchingDate)
                     .expiryDate(expiryDate)
                     .locationName(locationName)
+                    .dou(dou)
+                    .si(si)
+                    .gun(gun)
+                    .gu(gu)
+                    .dong(dong)
+                    .eup(eup)
+                    .myeon(myeon)
+                    .ri(ri)
                     .lat(latitude)
                     .lon(longitude)
                     .content(content)
@@ -155,6 +211,7 @@ public class MatchingPostDto {
                     .gender(gender)
                     .recruiterType(recruiterType)
                     .recruitmentType(recruitmentType)
+                    .sportsCategory(sportsType)
                     .locationSelectionType(locationSelectionType)
                     .writer(writer)
                     .team(team)
@@ -180,12 +237,11 @@ public class MatchingPostDto {
         private boolean isLocationConsensusPossible;
         private Ability ability;
         private String profileImgUrl;
-        private String detailPostUrl;
         private String matchingStatus;
         private String scheduledRequestDescription;
 
         @Builder
-        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String detailPostUrl, String matchingStatus, String scheduledRequestDescription) {
+        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String teamName, int completedMatchingCnt, String content, List<AreaName> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String matchingStatus, String scheduledRequestDescription) {
             this.matchingDate = matchingDate;
             this.recruiterType = recruiterType;
             this.teamName = teamName;
@@ -195,10 +251,8 @@ public class MatchingPostDto {
             this.isLocationConsensusPossible = isLocationConsensusPossible;
             this.ability = ability;
             this.profileImgUrl = profileImgUrl;
-            this.detailPostUrl = detailPostUrl;
             this.matchingStatus = matchingStatus;
             this.scheduledRequestDescription = scheduledRequestDescription;
         }
     }
-
 }

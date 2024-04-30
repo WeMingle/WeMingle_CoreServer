@@ -8,8 +8,6 @@ import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,6 +16,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RestController
@@ -120,10 +121,12 @@ public class MemberController {
         );
     }
 
-    @GetMapping
-    ResponseEntity<ResponseHandler<MemberDto.ResponseMemberInfo>> getMemberByNickname(@RequestParam(required = false) Long nextIdx,
-                                                                                      @RequestParam @NotBlank @NotNull @NotEmpty String nickname){
-        MemberDto.ResponseMemberInfo responseData = memberService.getMemberByNickname(nextIdx, nickname);
+    @GetMapping("/result")
+    ResponseEntity<ResponseHandler<MemberDto.ResponseMemberInfo>> getSearchMemberByNickname(@RequestParam(required = false) Long nextIdx,
+                                                                                            @RequestParam @NotBlank String query,
+                                                                                            @AuthenticationPrincipal UserDetails userDetails){
+        String nickname = URLDecoder.decode(query, StandardCharsets.UTF_8);
+        MemberDto.ResponseMemberInfo responseData = memberService.getMemberByNickname(nextIdx, nickname, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<MemberDto.ResponseMemberInfo>builder()

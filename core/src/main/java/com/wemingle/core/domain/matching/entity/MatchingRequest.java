@@ -23,6 +23,9 @@ public class MatchingRequest extends BaseEntity {
     @Column(name = "CONTENT", length = 3000)
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    private RequestMemberType requestMemberType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM")
     private Team team;
@@ -40,12 +43,13 @@ public class MatchingRequest extends BaseEntity {
     private MatchingStatus matchingRequestStatus;
 
     @Builder
-    public MatchingRequest(String content, Team team, Member member, MatchingPost matchingPost) {
+    public MatchingRequest(String content, RequestMemberType requestMemberType, Team team, Member member, MatchingPost matchingPost, MatchingStatus matchingRequestStatus) {
         this.content = content;
+        this.requestMemberType = requestMemberType;
         this.team = team;
         this.member = member;
         this.matchingPost = matchingPost;
-        this.matchingRequestStatus = MatchingStatus.PENDING;
+        this.matchingRequestStatus = matchingRequestStatus;
     }
 
     public void cancelRequest(){

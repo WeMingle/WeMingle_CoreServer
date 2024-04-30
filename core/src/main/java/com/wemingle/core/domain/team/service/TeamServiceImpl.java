@@ -45,8 +45,8 @@ public class TeamServiceImpl implements TeamService{
 
     private static final int PAGE_SIZE = 30;
     @Override
-    public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithMemberId(String memberId) {
-        List<Team> teamList = teamRepository.findByTeamOwner_MemberId(memberId);
+    public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId) {
+        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableWrite(memberId);
 
         HashMap<Long, TeamDto.ResponseTeamInfoDto> responseTeamInfo = new HashMap<>();
 
