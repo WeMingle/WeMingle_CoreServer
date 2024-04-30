@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.bookmark.controller;
 
+import com.wemingle.core.domain.bookmark.dto.GroupBookmarkDto;
 import com.wemingle.core.domain.bookmark.service.BookmarkService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
@@ -34,5 +35,13 @@ public class BookmarkController {
                 .responseMessage("Bookmark list retrieval successfully")
                 .responseData(myBookmarkedList)
                 .build());
+    }
+
+    @GetMapping("/group")
+    ResponseEntity<ResponseHandler<Object>> getGroupBookmarkList(@RequestParam(required = false) Long nextIdx, @RequestParam(required = false) Long teamId, @AuthenticationPrincipal UserDetails userDetails) {
+        List<GroupBookmarkDto> groupBookmarkedList = bookmarkService.getGroupBookmarkedList(nextIdx, userDetails.getUsername(), teamId);
+        return ResponseEntity.ok().body(ResponseHandler.builder()
+                .responseMessage("Group bookmark list retrieval successfully")
+                .responseData(groupBookmarkedList).build());
     }
 }
