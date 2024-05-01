@@ -859,4 +859,8 @@ public class MatchingPostService {
 
         return responseData;
     }
+
+    public int getSearchPostCnt(String query){
+        return matchingPostRepository.findSearchMatchingPostCnt(query);
+    }
 }

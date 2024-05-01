@@ -15,6 +15,7 @@ import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -318,6 +319,18 @@ public class MatchingPostController {
                 ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseRecentPost>>builder()
                         .responseMessage("Recent post retrieval successfully")
                         .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping("/result/count")
+    public ResponseEntity<ResponseHandler<Integer>> getSearchPostCnt(@RequestParam @NotBlank String query){
+        Integer searchPostCnt = matchingPostService.getSearchPostCnt(query);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<Integer>builder()
+                        .responseMessage("Search post cnt retrieval successfully")
+                        .responseData(searchPostCnt)
                         .build()
         );
     }

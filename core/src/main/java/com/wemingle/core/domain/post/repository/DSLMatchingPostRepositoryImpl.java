@@ -279,4 +279,34 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                 .limit(30)
                 .fetch();
     }
+
+    @Override
+    public int findSearchMatchingPostCnt(String query) {
+        Long cnt = jpaQueryFactory.select(matchingPost.count())
+                .from(matchingPost)
+                .where(
+                        isContainWithQuery(query)
+                )
+                .fetchOne();
+        
+        return cnt == null ? 0 : cnt.intValue();
+    }
+
+    private BooleanExpression isContainWithQuery(String query) {
+        return isContainInNickname(query)
+                .or(isContainInContent(query))
+                .or(isContainInArea(query));
+    }
+
+    private BooleanExpression isContainInNickname(String query) {
+        return matchingPost.team.teamName.contains(query).or(matchingPost.writer.nickname.contains(query));
+    }
+
+    private BooleanExpression isContainInContent(String query) {
+        return matchingPost.content.contains(query);
+    }
+
+    private BooleanExpression isContainInArea(String query){
+        return matchingPost.locationName.contains(query).or(matchingPost.areaList.any().areaName.stringValue().contains(query));
+    }
 }

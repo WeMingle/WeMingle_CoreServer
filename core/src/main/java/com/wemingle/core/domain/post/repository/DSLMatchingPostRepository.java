@@ -25,4 +25,5 @@ public interface DSLMatchingPostRepository {
     List<MatchingPost> findCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, Member member, List<MatchingPost> matchingPostWithReview);
     List<MatchingPost> findMatchingPostInMap(double topLat, double bottomLat, double leftLon, double rightLon);
     List<MatchingPost> findRecentMatchingPost(Long nextIdx);
+    int findSearchMatchingPostCnt(String query);
 }
