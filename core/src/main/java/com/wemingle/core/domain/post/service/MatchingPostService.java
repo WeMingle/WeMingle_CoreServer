@@ -13,6 +13,7 @@ import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
 import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
+import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -359,7 +360,7 @@ public class MatchingPostService {
 
                     postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
                             .writer(post.getWriter().getTeam().getTeamName())
-                            .matchingDate(post.getMatchingDate())
+                            .matchingDate(getMatchingDates(post))
                             .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
                             .ability(post.getAbility())
                             .isLocationConsensusPossible(post.isLocationConsensusPossible())
@@ -376,6 +377,10 @@ public class MatchingPostService {
         return postsMap;
     }
 
+    private List<LocalDate> getMatchingDates(MatchingPost matchingPost){
+        return matchingPost.getMatchingDates().stream().map(MatchingPostMatchingDate::getMatchingDate).toList();
+    }
+
     private HashMap<Long, Object> createMatchingPostDtoMapDetail(List<MatchingPost> filteredMatchingPost, List<BookmarkedMatchingPost> bookmarkedByMatchingPosts, List<Matching> matchingResultByMemberId) {
         HashMap<Long, Object> postsMap = new LinkedHashMap<>();
 
@@ -385,7 +390,7 @@ public class MatchingPostService {
 
             postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostByMapDetailDto.builder()
                     .writer(post.getWriter().getTeam().getTeamName())
-                    .matchingDate(post.getMatchingDate())
+                    .matchingDate(getMatchingDates(post))
                     .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
                     .ability(post.getAbility())
                     .isLocationConsensusPossible(post.isLocationConsensusPossible())
@@ -572,7 +577,7 @@ public class MatchingPostService {
         LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
 
         matchingPosts.forEach(matchingPost -> responseHashMap.put(matchingPost.getPk(), MatchingPostDto.ResponseCompletedMatchingPost.builder()
-                .matchingDate(matchingPost.getMatchingDate())
+                .matchingDate(getMatchingDates(matchingPost))
                 .recruiterType(matchingPost.getRecruiterType())
                 .teamName(matchingPost.getTeam().getTeamName())
                 .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
@@ -689,7 +694,7 @@ public class MatchingPostService {
         TeamMember writerInTeam = teamMemberRepository.findByTeamAndMember_MemberId(team, writerId)
                 .orElseThrow(() -> new EntityNotFoundException(TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
 
-        MatchingPost matchingPost = createMatchingPostDto.of(team, writerInTeam);
+        MatchingPost matchingPost = createMatchingPostDto.of(team, writerInTeam, createMatchingPostDto.getMatchingDate());
         matchingPostRepository.save(matchingPost);
 
         Member teamOwner = memberRepository.findByMemberId(writerId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
