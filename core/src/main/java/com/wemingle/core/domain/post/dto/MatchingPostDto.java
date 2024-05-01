@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
@@ -146,6 +147,7 @@ public class MatchingPostDto {
         private String ri;
         private List<AreaName> areaNameList;
         @NotNull
+        @JsonProperty(value = "isLocationConsensusPossible")
         private boolean isLocationConsensusPossible;
         @NotNull
         private Ability ability;
