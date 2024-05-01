@@ -13,6 +13,7 @@ import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
+import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -76,13 +77,14 @@ public class InitDatabase {
         List<TeamMember> teamMemberRepositoryAll = teamMemberRepository.findAll();
         ArrayList<MatchingPost> matchingPost = createMatchingPost(10000, teamMemberRepositoryAll, teamList);
         List<MatchingPostArea> matchingPostArea = createMatchingPostArea(matchingPost);
-        for (int i = 0; i < 10; i++) {
+        List<MatchingPostMatchingDate> matchingDate = createMatchingPostMatchingDate(matchingPost);
+        for (int i = 0; i < 10000; i++) {
             matchingPost.get(i).putArea(matchingPostArea.get(i));
+            matchingPost.get(i).putMatchingDates(List.of(matchingDate.get(i)));
         }
         List<MatchingPost> matchingPosts = matchingPostRepository.saveAll(matchingPost);
 
         bookmarkRepository.saveAll(createBookmark(10000, matchingPosts, memberRepositoryAll));
-
     }
 
     private List<BookmarkedMatchingPost> createBookmark(int amount, List<MatchingPost> matchingPosts, List<Member> members) {
@@ -101,6 +103,10 @@ public class InitDatabase {
 
     private List<MatchingPostArea> createMatchingPostArea(ArrayList<MatchingPost> matchingPosts) {
         return matchingPosts.stream().map(m -> MatchingPostArea.builder().areaName(AreaName.경기).matchingPost(m).build()).toList();
+    }
+
+    private List<MatchingPostMatchingDate> createMatchingPostMatchingDate(ArrayList<MatchingPost> matchingPosts) {
+        return matchingPosts.stream().map(m -> MatchingPostMatchingDate.builder().matchingDate(LocalDate.of(2024, new Random().nextInt(1,12), new Random().nextInt(1,30))).matchingPost(m).build()).toList();
     }
 
     private List<TeamMember> createTeamMember(int amount, List<Member> memberList, List<Team> teams) {
@@ -145,7 +151,6 @@ public class InitDatabase {
         ArrayList<MatchingPost> matchingPosts = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             matchingPosts.add(MatchingPost.builder()
-                    .matchingDate(LocalDate.of(2024, 3, 29))
                     .expiryDate(LocalDate.of(2024, new Random().nextInt(12)+1, new Random().nextInt(29)+1))
                     .locationName("jacob house")
                     .lat(new Random().nextDouble(90))

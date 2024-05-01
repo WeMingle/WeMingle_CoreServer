@@ -13,6 +13,7 @@ import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
 import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
+import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -101,8 +102,7 @@ public class MatchingPostService {
                                                    Ability ability,
                                                    Gender gender,
                                                    RecruiterType recruiterType,
-                                                   LocalDate startDateFilter,
-                                                   LocalDate endDateFilter,
+                                                   List<LocalDate> dateFilter,
                                                    YearMonth monthFilter,
                                                    Boolean excludeExpired,
                                                    LocalDate lastExpiredDate,
@@ -119,8 +119,7 @@ public class MatchingPostService {
                 gender,
                 recruiterType,
                 excludeExpired == null ? null : LocalDate.now(),
-                startDateFilter,
-                endDateFilter,
+                dateFilter,
                 monthFilter,
                 excludeExpired,
                 lastExpiredDate,
@@ -173,8 +172,7 @@ public class MatchingPostService {
                                                                       Ability ability,
                                                                       Gender gender,
                                                                       RecruiterType recruiterType,
-                                                                      LocalDate startDateFilter,
-                                                                      LocalDate endDateFilter,
+                                                                      List<LocalDate> dateFilter,
                                                                       YearMonth monthFilter,
                                                                       Boolean excludeExpired,
                                                                       SortOption sortOption,
@@ -187,11 +185,11 @@ public class MatchingPostService {
                                                                       double rightLon,
                                                                       boolean excludeRegionUnit) {
         List<MatchingPost> filteredMatchingPost;
-        filteredMatchingPost = getMatchingPostByMap(lastIdx, recruitmentType, ability, gender, recruiterType, startDateFilter, endDateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType, topLat, bottomLat, leftLon, rightLon, excludeRegionUnit);
+        filteredMatchingPost = getMatchingPostByMap(lastIdx, recruitmentType, ability, gender, recruiterType, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType, topLat, bottomLat, leftLon, rightLon, excludeRegionUnit);
 
         Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, filteredMatchingPost);
 
-        String nextRetrieveUrlParams = createNextRetrieveUrlParamsByMap(getLastIdxInMatchingPostList(filteredMatchingPost), recruitmentType, ability, gender, recruiterType, startDateFilter, endDateFilter, monthFilter, excludeExpired, sortOption, getLastExpiredDateInMatchingPostList(sortOption, filteredMatchingPost), nextUrlCallCnt, topLat, bottomLat, leftLon, rightLon);
+        String nextRetrieveUrlParams = createNextRetrieveUrlParamsByMap(getLastIdxInMatchingPostList(filteredMatchingPost), recruitmentType, ability, gender, recruiterType, dateFilter, monthFilter, excludeExpired, sortOption, getLastExpiredDateInMatchingPostList(sortOption, filteredMatchingPost), nextUrlCallCnt, topLat, bottomLat, leftLon, rightLon);
 
 
         LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
@@ -204,7 +202,7 @@ public class MatchingPostService {
         return responseObj;
     }
 
-    private List<MatchingPost> getMatchingPostByMap(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, LocalDate startDateFilter, LocalDate endDateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit) {
+    private List<MatchingPost> getMatchingPostByMap(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<LocalDate> dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit) {
         List<MatchingPost> filteredMatchingPost;
         switch (Objects.requireNonNull(sortOption)) {
 
@@ -215,8 +213,7 @@ public class MatchingPostService {
                     gender,
                     recruiterType,
                     excludeExpired == null ? null : LocalDate.now(),
-                    startDateFilter,
-                    endDateFilter,
+                    dateFilter,
                     monthFilter,
                     sortOption,
                     lastExpiredDate,
@@ -237,8 +234,7 @@ public class MatchingPostService {
                         gender,
                         recruiterType,
                         excludeExpired == null ? null : LocalDate.now(),
-                        startDateFilter,
-                        endDateFilter,
+                        dateFilter,
                         monthFilter,
                         sortOption,
                         lastExpiredDate,
@@ -261,8 +257,7 @@ public class MatchingPostService {
                                     gender,
                                     recruiterType,
                                     excludeExpired == null ? null : LocalDate.now(),
-                                    startDateFilter,
-                                    endDateFilter,
+                                    dateFilter,
                                     monthFilter,
                                     sortOption,
                                     lastExpiredDate,
@@ -283,15 +278,14 @@ public class MatchingPostService {
         return filteredMatchingPost;
     }
 
-    private List<MatchingPost> getMatchingPostByMapDetail(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, LocalDate startDateFilter, LocalDate endDateFilter, YearMonth monthFilter, Boolean excludeExpired, LocalDate lastExpiredDate, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit) {
+    private List<MatchingPost> getMatchingPostByMapDetail(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<LocalDate> dateFilter, YearMonth monthFilter, Boolean excludeExpired, LocalDate lastExpiredDate, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit) {
         return matchingPostRepository.findFilteredMatchingPostByMapDetail(
                 recruitmentType,
                 ability,
                 gender,
                 recruiterType,
                 excludeExpired == null ? null : LocalDate.now(),
-                startDateFilter,
-                endDateFilter,
+                dateFilter,
                 monthFilter,
                 lastExpiredDate,
                 sportsType,
@@ -308,8 +302,7 @@ public class MatchingPostService {
                                                                             Ability ability,
                                                                             Gender gender,
                                                                             RecruiterType recruiterType,
-                                                                            LocalDate startDateFilter,
-                                                                            LocalDate endDateFilter,
+                                                                            List<LocalDate> dateFilter,
                                                                             YearMonth monthFilter,
                                                                             Boolean excludeExpired,
                                                                             LocalDate lastExpiredDate,
@@ -320,7 +313,7 @@ public class MatchingPostService {
                                                                             double rightLon,
                                                                             boolean excludeRegionUnit) {
         List<MatchingPost> filteredMatchingPost;
-        filteredMatchingPost = getMatchingPostByMapDetail(recruitmentType, ability, gender, recruiterType, startDateFilter, endDateFilter, monthFilter, excludeExpired, lastExpiredDate, sportsType, topLat, bottomLat, leftLon, rightLon, excludeRegionUnit);
+        filteredMatchingPost = getMatchingPostByMapDetail(recruitmentType, ability, gender, recruiterType, dateFilter, monthFilter, excludeExpired, lastExpiredDate, sportsType, topLat, bottomLat, leftLon, rightLon, excludeRegionUnit);
 
         LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, null);
 
@@ -359,7 +352,7 @@ public class MatchingPostService {
 
                     postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
                             .writer(post.getWriter().getTeam().getTeamName())
-                            .matchingDate(post.getMatchingDate())
+                            .matchingDate(getMatchingDates(post))
                             .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
                             .ability(post.getAbility())
                             .isLocationConsensusPossible(post.isLocationConsensusPossible())
@@ -376,6 +369,10 @@ public class MatchingPostService {
         return postsMap;
     }
 
+    private List<LocalDate> getMatchingDates(MatchingPost matchingPost){
+        return matchingPost.getMatchingDates().stream().map(MatchingPostMatchingDate::getMatchingDate).toList();
+    }
+
     private HashMap<Long, Object> createMatchingPostDtoMapDetail(List<MatchingPost> filteredMatchingPost, List<BookmarkedMatchingPost> bookmarkedByMatchingPosts, List<Matching> matchingResultByMemberId) {
         HashMap<Long, Object> postsMap = new LinkedHashMap<>();
 
@@ -385,7 +382,7 @@ public class MatchingPostService {
 
             postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostByMapDetailDto.builder()
                     .writer(post.getWriter().getTeam().getTeamName())
-                    .matchingDate(post.getMatchingDate())
+                    .matchingDate(getMatchingDates(post))
                     .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
                     .ability(post.getAbility())
                     .isLocationConsensusPossible(post.isLocationConsensusPossible())
@@ -510,15 +507,14 @@ public class MatchingPostService {
                 .collect(Collectors.joining("&"));
     }
 
-    private String createNextRetrieveUrlParamsByMap(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, LocalDate startDateFilter, LocalDate endDateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, double topLat, double bottomLat, double leftLon, double rightLon) {
+    private String createNextRetrieveUrlParamsByMap(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<LocalDate> dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, double topLat, double bottomLat, double leftLon, double rightLon) {
         Map<String, Object> parameters = new LinkedHashMap<>();
         parameters.put("lastIdx", lastIdx);
         parameters.put("recruitmentType", recruitmentType);
         parameters.put("ability", ability);
         parameters.put("gender", gender);
         parameters.put("recruiterType", recruiterType);
-        parameters.put("startDateFilter", startDateFilter);
-        parameters.put("endDateFilter", endDateFilter);
+        parameters.put("dateFilter", dateFilter);
         parameters.put("monthFilter", monthFilter);
         parameters.put("excludeExpired", excludeExpired);
         parameters.put("sortOption", sortOption);
@@ -572,7 +568,7 @@ public class MatchingPostService {
         LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
 
         matchingPosts.forEach(matchingPost -> responseHashMap.put(matchingPost.getPk(), MatchingPostDto.ResponseCompletedMatchingPost.builder()
-                .matchingDate(matchingPost.getMatchingDate())
+                .matchingDate(getMatchingDates(matchingPost))
                 .recruiterType(matchingPost.getRecruiterType())
                 .teamName(matchingPost.getTeam().getTeamName())
                 .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
@@ -581,7 +577,7 @@ public class MatchingPostService {
                 .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
                 .ability(matchingPost.getAbility())
                 .profileImgUrl(getProfileImgUrl(matchingPost))
-                .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate()))
+                .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), getMinMatchingDate(matchingPost)))
                 .scheduledRequestDescription(getScheduledRequest(matchingPost, managerOrHigherTeamMembers, member, matchingPostWrittenReview))
                 .build()));
 
@@ -625,8 +621,15 @@ public class MatchingPostService {
 
     private String getScheduledRequest(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member, List<MatchingPost> matchingPostWrittenReview) {
         return isTeamOwner(matchingPost, managerOrHigherTeamMembers, member)
-                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWrittenReview)
+                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), getMinMatchingDate(matchingPost), matchingPost, matchingPostWrittenReview)
                 : createScheduledRequestWithMember(matchingPost.getMatchingStatus(), matchingPost, matchingPostWrittenReview);
+    }
+
+    private static LocalDate getMinMatchingDate(MatchingPost matchingPost) {
+        return matchingPost.getMatchingDates().stream()
+                .map(MatchingPostMatchingDate::getMatchingDate)
+                .min(Comparator.naturalOrder())
+                .orElseThrow(() -> new RuntimeException(MATCHING_DATE_NOT_FOUND.getExceptionMessage()));
     }
 
     private boolean isTeamOwner(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member) {
@@ -689,7 +692,7 @@ public class MatchingPostService {
         TeamMember writerInTeam = teamMemberRepository.findByTeamAndMember_MemberId(team, writerId)
                 .orElseThrow(() -> new EntityNotFoundException(TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
 
-        MatchingPost matchingPost = createMatchingPostDto.of(team, writerInTeam);
+        MatchingPost matchingPost = createMatchingPostDto.of(team, writerInTeam, createMatchingPostDto.getMatchingDate());
         matchingPostRepository.save(matchingPost);
 
         Member teamOwner = memberRepository.findByMemberId(writerId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
@@ -765,5 +768,14 @@ public class MatchingPostService {
     @Transactional
     public void rePostMatchingPost(MatchingPost matchingPost){
         matchingPost.updateForRePost();
+    }
+
+
+    @Transactional
+    public void completeMatchingPost(Long matchingPostPk){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MATCHING_POST_NOT_FOUND.getExceptionMessage()));
+
+        matchingPost.complete();
     }
 }

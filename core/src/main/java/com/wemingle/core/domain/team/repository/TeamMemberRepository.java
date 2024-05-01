@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     Optional<TeamMember> findByTeamAndMember_MemberId(Team team, String memberId);
+    Optional<TeamMember> findByTeamAndMember(Team team, Member member);
     @Query("select tm from TeamMember tm where tm.member.memberId = :memberId")
     List<TeamMember> findTeamsAsLeaderOrMember(@Param("memberId") String memberId);
     boolean existsByMember(Member member);
@@ -21,4 +22,6 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     List<Team> findTeamsWithAvailableWrite(@Param("memberId") String memberId);
     @Query("select tm from TeamMember tm where tm.team in :teams and (tm.teamRole = 'OWNER' or tm.teamRole = 'MANAGER')")
     List<TeamMember> findWithManagerOrHigher(@Param("teams") List<Team> teams);
+    @Query("select tm from TeamMember tm where tm.team.pk = :teamPk and tm.member.memberId != :memberId")
+    List<TeamMember> findWithTeamWithoutMe(@Param("teamPk") Long teamPk, @Param("memberId") String memberId);
 }

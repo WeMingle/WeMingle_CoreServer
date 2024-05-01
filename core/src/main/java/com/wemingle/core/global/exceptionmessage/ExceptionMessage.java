@@ -11,6 +11,7 @@ public enum ExceptionMessage {
     TEAM_NOT_FOUND("팀을 찾을 수 없습니다."),
     TEMPORARY_TEAM_NOT_FOUND("임시 팀을 찾을 수 없습니다."),
     TEAM_MEMBER_NOT_FOUND("팀에 속한 사용자 찾을 수 없습니다."),
+    MATCHING_DATE_NOT_FOUND("매칭 날짜를 찾을 수 없습니다."),
     UNIV_DOMAIN_NOT_FOUND("미지원 대학 도메인입니다."),
     UNAVAILABLE_NICKNAME("이미 사용중인 닉네임입니다"),
     UNAVAILABLE_EMAIL("이미 가입된 이메일입니다"),
@@ -21,6 +22,7 @@ public enum ExceptionMessage {
     DATE_OR_MONTH_MUST_EXIST("일별 검색 또는 월별 검색 옵션이 존재해야 합니다."),
     INVALID_MATCHING_POST_STATUS("유효하지 않은 매칭 글 상태입니다"),
     INVALID_MATCHING_REQUEST_STATUS("유효하지 않은 매칭 신청 상태입니다"),
-    INVALID_REQUEST_TYPE("유효하지 않은 요청 타입입니다.");
+    INVALID_REQUEST_TYPE("유효하지 않은 요청 타입입니다."),
+    MATCHING_POST_NOT_FOUND("매칭 글을 찾을 수 없습니다.");
     private final String exceptionMessage;
 }

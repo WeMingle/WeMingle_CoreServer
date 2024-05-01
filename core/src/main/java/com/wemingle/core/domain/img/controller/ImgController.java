@@ -2,6 +2,7 @@ package com.wemingle.core.domain.img.controller;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.service.MemberService;
+import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -19,6 +21,7 @@ import java.util.*;
 public class ImgController {
     private final MemberService memberService;
     private final S3ImgService s3ImgService;
+    private final TeamMemberService teamMemberService;
 
     private static final int MAX_IMG_COUNT = 5;
     @GetMapping("/member/profile/upload/{extension}")
@@ -55,18 +58,37 @@ public class ImgController {
 
     @GetMapping("/post/team/upload")
     public ResponseEntity<ResponseHandler<?>> getTeamPostPicUploadPreSignUrl(@RequestParam List<String> extensions) {
-        if (extensions.size() > MAX_IMG_COUNT){
-            return ResponseEntity.ok(
+        int imgCnt = extensions.size();
+
+        if (imgCnt > MAX_IMG_COUNT){
+            return ResponseEntity.badRequest().body(
                     ResponseHandler.builder()
                     .responseMessage("Up to 5 images can upload")
                     .build());
         }
 
-        HashMap<String, ArrayList<String>> teamPostPreSignedUrls = s3ImgService.setTeamPostPreSignedUrl(extensions);
+        if (!s3ImgService.isAvailableExtensions(extensions)) {
+            return ResponseEntity.badRequest()
+                    .body(ResponseHandler.builder()
+                            .responseMessage("extension is not allowed")
+                            .build());
+        }
 
-        return ResponseEntity.ok(ResponseHandler.<HashMap<String, ArrayList<String>>>builder()
+        List<String> teamPostPreSignedUrls = s3ImgService.setTeamPostPreSignedUrl(imgCnt);
+
+        return ResponseEntity.ok(ResponseHandler.<List<String>>builder()
                 .responseMessage("s3 url issuance complete")
                 .responseData(teamPostPreSignedUrls)
+                .build());
+    }
+
+    @GetMapping("/members/team")
+    public ResponseEntity<ResponseHandler<List<String>>> getTeamMembersRetrievePreSignedUrl(@RequestParam List<Long> teamMembersPk){
+        List<String> responseData = teamMemberService.getTeamMembersImgUrl(teamMembersPk);
+
+        return ResponseEntity.ok(ResponseHandler.<List<String>>builder()
+                .responseMessage("s3 url issuance complete")
+                .responseData(responseData)
                 .build());
     }
 }

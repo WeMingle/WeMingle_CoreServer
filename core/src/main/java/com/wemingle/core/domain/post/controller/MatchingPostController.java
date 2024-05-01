@@ -118,8 +118,7 @@ public class MatchingPostController {
                                                                            @RequestParam(required = false) Ability ability,
                                                                            @RequestParam(required = false) Gender gender,
                                                                            @RequestParam(required = false) RecruiterType recruiterType,
-                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
-                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                           @RequestParam(required = false) List<LocalDate> dateFilter,
                                                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
                                                                            @RequestParam(required = false) Boolean excludeExpired,
@@ -134,8 +133,7 @@ public class MatchingPostController {
                 ability,
                 gender,
                 recruiterType,
-                startDateFilter,
-                endDateFilter,
+                dateFilter,
                 monthFilter,
                 excludeExpired,
                 lastExpiredDate,
@@ -158,12 +156,10 @@ public class MatchingPostController {
                                                                               @RequestParam(required = false) Ability ability,
                                                                               @RequestParam(required = false) Gender gender,
                                                                               @RequestParam(required = false) RecruiterType recruiterType,
-                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
-                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                              @RequestParam(required = false) List<LocalDate> dateFilter,
                                                                               @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                               @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
                                                                               @RequestParam(required = false) Boolean excludeExpired,
-                                                                              @RequestParam(required = false) Integer callCnt,
                                                                               @RequestParam("topLat") double topLat,
                                                                               @RequestParam("bottomLat") double bottomLat,
                                                                               @RequestParam("leftLon") double leftLon,
@@ -176,8 +172,7 @@ public class MatchingPostController {
                 ability,
                 gender,
                 recruiterType,
-                startDateFilter,
-                endDateFilter,
+                dateFilter,
                 monthFilter,
                 excludeExpired,
                 lastExpiredDate,
@@ -202,8 +197,7 @@ public class MatchingPostController {
                                                                         @RequestParam(required = false) Ability ability,
                                                                         @RequestParam(required = false) Gender gender,
                                                                         @RequestParam(required = false) RecruiterType recruiterType,
-                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
-                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") List<LocalDate> dateFilter,
                                                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
                                                                         @RequestParam(required = false) Boolean excludeExpired,
@@ -221,8 +215,7 @@ public class MatchingPostController {
                 ability,
                 gender,
                 recruiterType,
-                startDateFilter,
-                endDateFilter,
+                dateFilter,
                 monthFilter,
                 excludeExpired,
                 sortOption,
@@ -281,6 +274,13 @@ public class MatchingPostController {
         }
 
         matchingPostService.rePostMatchingPost(matchingPost);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/completion")
+    public ResponseEntity<Object> completeMatchingPost(@RequestBody @Valid MatchingPostDto.RequestComplete requestDto){
+        matchingPostService.completeMatchingPost(requestDto.getMatchingPostPk());
 
         return ResponseEntity.noContent().build();
     }
