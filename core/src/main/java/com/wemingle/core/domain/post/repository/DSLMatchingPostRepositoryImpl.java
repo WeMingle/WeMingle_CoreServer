@@ -258,12 +258,12 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
 
     private BooleanExpression isNotExpiredCompleteMatches(List<MatchingPost> matchingPostsWithReview) {
         return matchingPostsWithReview.isEmpty()
-                ? (matchingPost.matchingDates.any().matchingDate.max().after(LocalDate.now()).and(matchingPost.matchingStatus.ne(MatchingStatus.PENDING)))
-                    .or(matchingPost.matchingDates.any().matchingDate.min().before(LocalDate.now()).and(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE)))
+                ? (matchingPost.matchingDates.any().matchingDate.min().after(LocalDate.now()).and(matchingPost.matchingStatus.ne(MatchingStatus.PENDING)))
+                    .or(matchingPost.matchingDates.any().matchingDate.max().before(LocalDate.now()).and(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE)))
                 : matchingPost.notIn(matchingPostsWithReview)
                     .and(
-                            ((matchingPost.matchingStatus.ne(MatchingStatus.PENDING)).and(matchingPost.matchingDates.any().matchingDate.max().after(LocalDate.now())))
-                            .or(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE).and(matchingPost.matchingDates.any().matchingDate.min().before(LocalDate.now())))
+                            ((matchingPost.matchingStatus.ne(MatchingStatus.PENDING)).and(matchingPost.matchingDates.any().matchingDate.min().after(LocalDate.now())))
+                            .or(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE).and(matchingPost.matchingDates.any().matchingDate.max().before(LocalDate.now())))
                     );
     }
 

@@ -559,30 +559,30 @@ public class MatchingPostService {
         }
     }
 
-//    public LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> getCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, String memberId){
-//        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
-//        List<MatchingPost> matchingPostWrittenReview = teamReviewRepository.findMatchingPostWithMemberId(member);
-//        List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWrittenReview);
-//        List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
-//        List<TeamMember> managerOrHigherTeamMembers = teamMemberRepository.findWithManagerOrHigher(getTeamsWithMatchingPosts(matchingPosts));
-//        LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
-//
-//        matchingPosts.forEach(matchingPost -> responseHashMap.put(matchingPost.getPk(), MatchingPostDto.ResponseCompletedMatchingPost.builder()
-//                .matchingDate(getMatchingDates(matchingPost))
-//                .recruiterType(matchingPost.getRecruiterType())
-//                .teamName(matchingPost.getTeam().getTeamName())
-//                .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
-//                .content(matchingPost.getContent())
-//                .areaNames(getAreaNames(matchingPost, matchingPostAreas))
-//                .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
-//                .ability(matchingPost.getAbility())
-//                .profileImgUrl(getProfileImgUrl(matchingPost))
-//                .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate()))
-//                .scheduledRequestDescription(getScheduledRequest(matchingPost, managerOrHigherTeamMembers, member, matchingPostWrittenReview))
-//                .build()));
-//
-//        return responseHashMap;
-//    }
+    public LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> getCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, String memberId){
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<MatchingPost> matchingPostWrittenReview = teamReviewRepository.findMatchingPostWithMemberId(member);
+        List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWrittenReview);
+        List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
+        List<TeamMember> managerOrHigherTeamMembers = teamMemberRepository.findWithManagerOrHigher(getTeamsWithMatchingPosts(matchingPosts));
+        LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
+
+        matchingPosts.forEach(matchingPost -> responseHashMap.put(matchingPost.getPk(), MatchingPostDto.ResponseCompletedMatchingPost.builder()
+                .matchingDate(getMatchingDates(matchingPost))
+                .recruiterType(matchingPost.getRecruiterType())
+                .teamName(matchingPost.getTeam().getTeamName())
+                .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+                .content(matchingPost.getContent())
+                .areaNames(getAreaNames(matchingPost, matchingPostAreas))
+                .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+                .ability(matchingPost.getAbility())
+                .profileImgUrl(getProfileImgUrl(matchingPost))
+                .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), getMinMatchingDate(matchingPost)))
+                .scheduledRequestDescription(getScheduledRequest(matchingPost, managerOrHigherTeamMembers, member, matchingPostWrittenReview))
+                .build()));
+
+        return responseHashMap;
+    }
 
     private List<Team> getTeamsWithMatchingPosts(List<MatchingPost> matchingPosts) {
         return matchingPosts.stream().map(MatchingPost::getTeam).toList();
@@ -619,11 +619,18 @@ public class MatchingPostService {
         }
     }
 
-//    private String getScheduledRequest(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member, List<MatchingPost> matchingPostWrittenReview) {
-//        return isTeamOwner(matchingPost, managerOrHigherTeamMembers, member)
-//                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWrittenReview)
-//                : createScheduledRequestWithMember(matchingPost.getMatchingStatus(), matchingPost, matchingPostWrittenReview);
-//    }
+    private String getScheduledRequest(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member, List<MatchingPost> matchingPostWrittenReview) {
+        return isTeamOwner(matchingPost, managerOrHigherTeamMembers, member)
+                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), getMinMatchingDate(matchingPost), matchingPost, matchingPostWrittenReview)
+                : createScheduledRequestWithMember(matchingPost.getMatchingStatus(), matchingPost, matchingPostWrittenReview);
+    }
+
+    private static LocalDate getMinMatchingDate(MatchingPost matchingPost) {
+        return matchingPost.getMatchingDates().stream()
+                .map(MatchingPostMatchingDate::getMatchingDate)
+                .min(Comparator.naturalOrder())
+                .orElseThrow(() -> new RuntimeException(MATCHING_DATE_NOT_FOUND.getExceptionMessage()));
+    }
 
     private boolean isTeamOwner(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member) {
         List<Member> teamMembersInPost = managerOrHigherTeamMembers.stream()
