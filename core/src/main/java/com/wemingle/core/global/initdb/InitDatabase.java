@@ -78,7 +78,7 @@ public class InitDatabase {
         ArrayList<MatchingPost> matchingPost = createMatchingPost(10000, teamMemberRepositoryAll, teamList);
         List<MatchingPostArea> matchingPostArea = createMatchingPostArea(matchingPost);
         List<MatchingPostMatchingDate> matchingDate = createMatchingPostMatchingDate(matchingPost);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10000; i++) {
             matchingPost.get(i).putArea(matchingPostArea.get(i));
             matchingPost.get(i).putMatchingDates(List.of(matchingDate.get(i)));
         }
@@ -106,7 +106,7 @@ public class InitDatabase {
     }
 
     private List<MatchingPostMatchingDate> createMatchingPostMatchingDate(ArrayList<MatchingPost> matchingPosts) {
-        return matchingPosts.stream().map(m -> MatchingPostMatchingDate.builder().matchingDate(LocalDate.of(2024, 4, 30)).matchingPost(m).build()).toList();
+        return matchingPosts.stream().map(m -> MatchingPostMatchingDate.builder().matchingDate(LocalDate.of(2024, new Random().nextInt(1,12), new Random().nextInt(1,30))).matchingPost(m).build()).toList();
     }
 
     private List<TeamMember> createTeamMember(int amount, List<Member> memberList, List<Team> teams) {

@@ -118,8 +118,7 @@ public class MatchingPostController {
                                                                            @RequestParam(required = false) Ability ability,
                                                                            @RequestParam(required = false) Gender gender,
                                                                            @RequestParam(required = false) RecruiterType recruiterType,
-                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
-                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                           @RequestParam(required = false) List<LocalDate> dateFilter,
                                                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
                                                                            @RequestParam(required = false) Boolean excludeExpired,
@@ -134,8 +133,7 @@ public class MatchingPostController {
                 ability,
                 gender,
                 recruiterType,
-                startDateFilter,
-                endDateFilter,
+                dateFilter,
                 monthFilter,
                 excludeExpired,
                 lastExpiredDate,
@@ -158,12 +156,10 @@ public class MatchingPostController {
                                                                               @RequestParam(required = false) Ability ability,
                                                                               @RequestParam(required = false) Gender gender,
                                                                               @RequestParam(required = false) RecruiterType recruiterType,
-                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
-                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                              @RequestParam(required = false) List<LocalDate> dateFilter,
                                                                               @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                               @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
                                                                               @RequestParam(required = false) Boolean excludeExpired,
-                                                                              @RequestParam(required = false) Integer callCnt,
                                                                               @RequestParam("topLat") double topLat,
                                                                               @RequestParam("bottomLat") double bottomLat,
                                                                               @RequestParam("leftLon") double leftLon,
@@ -176,8 +172,7 @@ public class MatchingPostController {
                 ability,
                 gender,
                 recruiterType,
-                startDateFilter,
-                endDateFilter,
+                dateFilter,
                 monthFilter,
                 excludeExpired,
                 lastExpiredDate,
@@ -202,8 +197,7 @@ public class MatchingPostController {
                                                                         @RequestParam(required = false) Ability ability,
                                                                         @RequestParam(required = false) Gender gender,
                                                                         @RequestParam(required = false) RecruiterType recruiterType,
-                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDateFilter,
-                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDateFilter,
+                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") List<LocalDate> dateFilter,
                                                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
                                                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
                                                                         @RequestParam(required = false) Boolean excludeExpired,
@@ -221,8 +215,7 @@ public class MatchingPostController {
                 ability,
                 gender,
                 recruiterType,
-                startDateFilter,
-                endDateFilter,
+                dateFilter,
                 monthFilter,
                 excludeExpired,
                 sortOption,
@@ -242,19 +235,19 @@ public class MatchingPostController {
         );
     }
 
-    @GetMapping("/completion")
-    public ResponseEntity<ResponseHandler<LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost>>> getCompletedMatchingPosts(@RequestParam(required = false) Long nextIdx,
-                                                                                                                                         @RequestParam(required = false) RecruiterType recruiterType,
-                                                                                                                                         @RequestParam boolean excludeCompleteMatchesFilter,
-                                                                                                                                         @AuthenticationPrincipal UserDetails userDetails) {
-        LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> completedMatchingPosts =
-                matchingPostService.getCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, userDetails.getUsername());
-
-        return ResponseEntity.ok(ResponseHandler.<LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost>>builder()
-                .responseMessage("completed matching posts retrieval successfully")
-                .responseData(completedMatchingPosts)
-                .build());
-    }
+//    @GetMapping("/completion")
+//    public ResponseEntity<ResponseHandler<LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost>>> getCompletedMatchingPosts(@RequestParam(required = false) Long nextIdx,
+//                                                                                                                                         @RequestParam(required = false) RecruiterType recruiterType,
+//                                                                                                                                         @RequestParam boolean excludeCompleteMatchesFilter,
+//                                                                                                                                         @AuthenticationPrincipal UserDetails userDetails) {
+//        LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> completedMatchingPosts =
+//                matchingPostService.getCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, userDetails.getUsername());
+//
+//        return ResponseEntity.ok(ResponseHandler.<LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost>>builder()
+//                .responseMessage("completed matching posts retrieval successfully")
+//                .responseData(completedMatchingPosts)
+//                .build());
+//    }
 
     @GetMapping("/map/cluster")
     public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMap(@RequestParam("topLat") double topLat,
