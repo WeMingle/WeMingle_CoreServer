@@ -32,10 +32,6 @@ public class MatchingPost extends BaseEntity {
     private Long pk;
 
     @NotNull
-    @Column(name = "MATCHING_DATE")
-    private LocalDate matchingDate;//매칭이 성사된 날짜
-
-    @NotNull
     @Column(name = "EXPIRY_DATE")
     private LocalDate expiryDate;//마감
 
@@ -120,9 +116,12 @@ public class MatchingPost extends BaseEntity {
     @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
+    @NotNull
+    @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<MatchingPostMatchingDate> matchingDates = new ArrayList<>();
+
     @Builder
-    public MatchingPost(LocalDate matchingDate, LocalDate expiryDate, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
-        this.matchingDate = matchingDate;
+    public MatchingPost(LocalDate expiryDate, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
         this.expiryDate = expiryDate;
         this.locationName = locationName;
         this.dou = dou;
@@ -156,6 +155,9 @@ public class MatchingPost extends BaseEntity {
 
     public void putArea(MatchingPostArea matchingPostArea){
         areaList.add(matchingPostArea);
+    }
+    public void putMatchingDates(List<MatchingPostMatchingDate> matchingDates){
+        this.matchingDates = matchingDates;
     }
     public void updateForRePost(){
         setCreatedTime(LocalDateTime.now());
