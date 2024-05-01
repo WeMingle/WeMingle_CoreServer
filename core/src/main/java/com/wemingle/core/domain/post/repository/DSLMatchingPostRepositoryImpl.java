@@ -184,7 +184,9 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
         if (dateFilter == null && monthFilter == null) {
             return null;
         }
-        return dateFilter == null ? matchingPost.matchingDate.yearMonth().eq(monthFilter.getYear()*100+monthFilter.getMonthValue()) : matchingPost.matchingDate.eq(dateFilter);
+
+        return null;
+//        return dateFilter == null ? matchingPost.matchingDate.yearMonth().eq(monthFilter.getYear()*100+monthFilter.getMonthValue()) : matchingPost.matchingDate.eq(dateFilter);
     }
 
     private BooleanExpression dateFilterIn(LocalDate startDateFilter, LocalDate endDateFilter, YearMonth monthFilter) {
@@ -197,7 +199,9 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
         if (startDateFilter == null && monthFilter == null) {
             return null;
         }
-        return startDateFilter == null ? matchingPost.matchingDate.yearMonth().eq(monthFilter.getYear()*100+monthFilter.getMonthValue()) : matchingPost.matchingDate.between(startDateFilter,endDateFilter);
+
+        return null;
+//        return startDateFilter == null ? matchingPost.matchingDate.yearMonth().eq(monthFilter.getYear()*100+monthFilter.getMonthValue()) : matchingPost.matchingDate.between(startDateFilter,endDateFilter);
     }
 
     private BooleanExpression locationIn(double topLat, double bottomLat, double leftLon, double rightLon) {
@@ -260,12 +264,12 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
 
     private BooleanExpression isNotExpiredCompleteMatches(List<MatchingPost> matchingPostsWithReview) {
         return matchingPostsWithReview.isEmpty()
-                ? (matchingPost.matchingDate.after(LocalDate.now()).and(matchingPost.matchingStatus.ne(MatchingStatus.PENDING)))
-                    .or(matchingPost.matchingDate.before(LocalDate.now()).and(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE)))
+                ? (matchingPost.matchingDates.any().matchingDate.min().after(LocalDate.now()).and(matchingPost.matchingStatus.ne(MatchingStatus.PENDING)))
+                    .or(matchingPost.matchingDates.any().matchingDate.max().before(LocalDate.now()).and(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE)))
                 : matchingPost.notIn(matchingPostsWithReview)
                     .and(
-                            ((matchingPost.matchingStatus.ne(MatchingStatus.PENDING)).and(matchingPost.matchingDate.after(LocalDate.now())))
-                            .or(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE).and(matchingPost.matchingDate.before(LocalDate.now())))
+                            ((matchingPost.matchingStatus.ne(MatchingStatus.PENDING)).and(matchingPost.matchingDates.any().matchingDate.min().after(LocalDate.now())))
+                            .or(matchingPost.matchingStatus.eq(MatchingStatus.COMPLETE).and(matchingPost.matchingDates.any().matchingDate.max().before(LocalDate.now())))
                     );
     }
 
