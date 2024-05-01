@@ -571,7 +571,7 @@ public class MatchingPostService {
         matchingPosts.forEach(matchingPost -> responseHashMap.put(matchingPost.getPk(), MatchingPostDto.ResponseCompletedMatchingPost.builder()
                 .matchingDate(getMatchingDates(matchingPost))
                 .recruiterType(matchingPost.getRecruiterType())
-                .teamName(matchingPost.getTeam().getTeamName())
+                .nickname(getNickname(matchingPost))
                 .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
                 .content(matchingPost.getContent())
 //                .areaNames(getAreaNames(matchingPost, matchingPostAreas))
@@ -787,7 +787,7 @@ public class MatchingPostService {
 
         top15PopularPost.forEach(matchingPost -> responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop15PopularPost.builder()
                 .imgUrl(getProfileImgUrl(matchingPost))
-                .writer(matchingPost.getWriter().getNickname())
+                .nickname(getNickname(matchingPost))
                 .areas(getAreas(matchingPost))
                 .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
                 .matchingDate(getMatchingDates(matchingPost))
@@ -798,6 +798,12 @@ public class MatchingPostService {
                 .build()));
 
         return responseData;
+    }
+
+    private String getNickname(MatchingPost matchingPost){
+        return matchingPost.getRecruiterType().equals(RecruiterType.TEAM)
+                ? matchingPost.getTeam().getTeamName()
+                : matchingPost.getWriter().getNickname();
     }
 
     private List<String> getAreas(MatchingPost matchingPost){
@@ -814,8 +820,8 @@ public class MatchingPostService {
         top200PopularPost.forEach(matchingPost ->
             responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop200PopularPost.builder()
                 .imgUrl(getProfileImgUrl(matchingPost))
-                .writer(matchingPost.getWriter().getNickname())
-                        .content(matchingPost.getContent())
+                .nickname(getNickname(matchingPost))
+                .content(matchingPost.getContent())
                 .areas(getAreas(matchingPost))
                 .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
                 .matchingDate(getMatchingDates(matchingPost))
@@ -845,7 +851,7 @@ public class MatchingPostService {
         recentPost.forEach(matchingPost ->
                 responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseRecentPost.builder()
                         .imgUrl(getProfileImgUrl(matchingPost))
-                        .writer(matchingPost.getWriter().getNickname())
+                        .nickname(getNickname(matchingPost))
                         .content(matchingPost.getContent())
                         .areas(getAreas(matchingPost))
                         .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
