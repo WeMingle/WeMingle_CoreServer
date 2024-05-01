@@ -17,6 +17,7 @@ import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelectionType;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostAreaRepository;
@@ -563,7 +564,7 @@ public class MatchingPostService {
         Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         List<MatchingPost> matchingPostWrittenReview = teamReviewRepository.findMatchingPostWithMemberId(member);
         List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWrittenReview);
-        List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
+//        List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
         List<TeamMember> managerOrHigherTeamMembers = teamMemberRepository.findWithManagerOrHigher(getTeamsWithMatchingPosts(matchingPosts));
         LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
 
@@ -573,7 +574,8 @@ public class MatchingPostService {
                 .teamName(matchingPost.getTeam().getTeamName())
                 .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
                 .content(matchingPost.getContent())
-                .areaNames(getAreaNames(matchingPost, matchingPostAreas))
+//                .areaNames(getAreaNames(matchingPost, matchingPostAreas))
+                .areaNames(getAreas(matchingPost))
                 .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
                 .ability(matchingPost.getAbility())
                 .profileImgUrl(getProfileImgUrl(matchingPost))
@@ -588,13 +590,13 @@ public class MatchingPostService {
         return matchingPosts.stream().map(MatchingPost::getTeam).toList();
     }
 
-
-    private List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
-        return matchingPostAreas.stream()
-                .filter(matchingPostArea -> matchingPostArea.getMatchingPost().equals(matchingPost))
-                .map(MatchingPostArea::getAreaName)
-                .toList();
-    }
+//
+//    private List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
+//        return matchingPostAreas.stream()
+//                .filter(matchingPostArea -> matchingPostArea.getMatchingPost().equals(matchingPost))
+//                .map(MatchingPostArea::getAreaName)
+//                .toList();
+//    }
 
     private String getProfileImgUrl(MatchingPost matchingPost) {
         return isTeam(matchingPost)
@@ -777,5 +779,61 @@ public class MatchingPostService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MATCHING_POST_NOT_FOUND.getExceptionMessage()));
 
         matchingPost.complete();
+    }
+
+    public HashMap<Long, MatchingPostDto.ResponseTop15PopularPost> getTop15PopularPost(){
+        List<MatchingPost> top15PopularPost = matchingPostRepository.findTop15PopularPost();
+        LinkedHashMap<Long, MatchingPostDto.ResponseTop15PopularPost> responseData = new LinkedHashMap<>();
+
+        top15PopularPost.forEach(matchingPost -> responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop15PopularPost.builder()
+                .imgUrl(getProfileImgUrl(matchingPost))
+                .writer(matchingPost.getWriter().getNickname())
+                .areas(getAreas(matchingPost))
+                .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+                .matchingDate(getMatchingDates(matchingPost))
+                .expiryDate(matchingPost.getExpiryDate())
+                .recruiterType(matchingPost.getRecruiterType())
+                .ability(matchingPost.getAbility())
+                .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+                .build()));
+
+        return responseData;
+    }
+
+    private List<String> getAreas(MatchingPost matchingPost){
+        return matchingPost.getLocationSelectionType().equals(LocationSelectionType.SEARCH_BASED)
+                ? List.of(matchingPost.getLocationName())
+                : matchingPost.getAreaList().stream().map(matchingPostArea -> matchingPostArea.getAreaName().toString()).toList();
+    }
+
+    public HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> getTop200PopularPost(String memberId){
+        List<MatchingPost> top200PopularPost = matchingPostRepository.findTop200PopularPost();
+        LinkedHashMap<Long, MatchingPostDto.ResponseTop200PopularPost> responseData = new LinkedHashMap<>();
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(top200PopularPost, memberId);
+
+        top200PopularPost.forEach(matchingPost ->
+            responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop200PopularPost.builder()
+                .imgUrl(getProfileImgUrl(matchingPost))
+                .writer(matchingPost.getWriter().getNickname())
+                        .content(matchingPost.getContent())
+                .areas(getAreas(matchingPost))
+                .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+                .matchingDate(getMatchingDates(matchingPost))
+                .recruiterType(matchingPost.getRecruiterType())
+                .ability(matchingPost.getAbility())
+                .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+                        .isBookmarked(isBookmarked(matchingPost, bookmarkedMatchingPosts))
+                        .isExpired(isExpired(matchingPost))
+                .build()));
+
+        return responseData;
+    }
+
+    private boolean isBookmarked(MatchingPost matchingPost, List<BookmarkedMatchingPost> bookmarkedMatchingPosts) {
+        return bookmarkedMatchingPosts.stream().map(BookmarkedMatchingPost::getMatchingPost).anyMatch(matchingPost::equals);
+    }
+
+    protected boolean isExpired(MatchingPost matchingPost) {
+        return matchingPost.getMatchingStatus().equals(MatchingStatus.COMPLETE) || matchingPost.getExpiryDate().isBefore(LocalDate.now());
     }
 }

@@ -284,4 +284,28 @@ public class MatchingPostController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/popular/home")
+    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseTop15PopularPost>>> getTop15PopularPost(){
+        HashMap<Long, MatchingPostDto.ResponseTop15PopularPost> responseData = matchingPostService.getTop15PopularPost();
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseTop15PopularPost>>builder()
+                        .responseMessage("Popular post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseTop200PopularPost>>> getTop200PopularPost(@AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> responseData = matchingPostService.getTop200PopularPost(userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseTop200PopularPost>>builder()
+                        .responseMessage("Popular post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
 }
