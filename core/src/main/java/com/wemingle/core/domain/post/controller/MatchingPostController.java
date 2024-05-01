@@ -308,4 +308,17 @@ public class MatchingPostController {
                         .build()
         );
     }
+
+    @GetMapping
+    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseRecentPost>>> getRecentPost(@RequestParam(required = false) Long nextIdx,
+                                                                                                            @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, MatchingPostDto.ResponseRecentPost> responseData = matchingPostService.getRecentPost(nextIdx, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseRecentPost>>builder()
+                        .responseMessage("Recent post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
 }

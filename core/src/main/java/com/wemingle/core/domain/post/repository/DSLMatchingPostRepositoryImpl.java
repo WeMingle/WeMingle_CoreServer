@@ -270,4 +270,13 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     private BooleanExpression allCompleteMatches(){
         return matchingPost.matchingStatus.ne(MatchingStatus.PENDING);
     }
+
+    @Override
+    public List<MatchingPost> findRecentMatchingPost(Long nextIdx) {
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .where(nextIdx(nextIdx))
+                .orderBy(matchingPost.pk.desc())
+                .limit(30)
+                .fetch();
+    }
 }

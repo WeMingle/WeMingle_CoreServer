@@ -836,4 +836,27 @@ public class MatchingPostService {
     protected boolean isExpired(MatchingPost matchingPost) {
         return matchingPost.getMatchingStatus().equals(MatchingStatus.COMPLETE) || matchingPost.getExpiryDate().isBefore(LocalDate.now());
     }
+
+    public HashMap<Long, MatchingPostDto.ResponseRecentPost> getRecentPost(Long nextIdx, String memberId){
+        List<MatchingPost> recentPost = matchingPostRepository.findRecentMatchingPost(nextIdx);
+        LinkedHashMap<Long, MatchingPostDto.ResponseRecentPost> responseData = new LinkedHashMap<>();
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(recentPost, memberId);
+
+        recentPost.forEach(matchingPost ->
+                responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseRecentPost.builder()
+                        .imgUrl(getProfileImgUrl(matchingPost))
+                        .writer(matchingPost.getWriter().getNickname())
+                        .content(matchingPost.getContent())
+                        .areas(getAreas(matchingPost))
+                        .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+                        .matchingDate(getMatchingDates(matchingPost))
+                        .recruiterType(matchingPost.getRecruiterType())
+                        .ability(matchingPost.getAbility())
+                        .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+                        .isBookmarked(isBookmarked(matchingPost, bookmarkedMatchingPosts))
+                        .isExpired(isExpired(matchingPost))
+                        .build()));
+
+        return responseData;
+    }
 }

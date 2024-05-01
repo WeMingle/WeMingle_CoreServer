@@ -24,4 +24,5 @@ public interface DSLMatchingPostRepository {
     Integer findFilteredMatchingPostByMapCnt(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, LocalDate currentDate, List<LocalDate> dateFilter, YearMonth monthFilter, Boolean excludeExpired, LocalDate lastExpiredDate, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit);
     List<MatchingPost> findCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, Member member, List<MatchingPost> matchingPostWithReview);
     List<MatchingPost> findMatchingPostInMap(double topLat, double bottomLat, double leftLon, double rightLon);
+    List<MatchingPost> findRecentMatchingPost(Long nextIdx);
 }
