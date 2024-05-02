@@ -353,7 +353,10 @@ public class MatchingPostService {
                     postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
                             .writer(post.getWriter().getTeam().getTeamName())
                             .matchingDate(getMatchingDates(post))
-                            .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
+                            .areaList(
+                                    post.getLocationName().isEmpty() ?
+                                    post.getAreaList().stream().map(matchingPostArea -> matchingPostArea.getAreaName().toString()).toList() : List.of(post.getLocationName())
+                            )
                             .ability(post.getAbility())
                             .isLocationConsensusPossible(post.isLocationConsensusPossible())
                             .contents(post.getContent())
