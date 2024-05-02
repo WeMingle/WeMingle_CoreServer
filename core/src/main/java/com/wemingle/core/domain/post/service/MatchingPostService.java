@@ -357,6 +357,7 @@ public class MatchingPostService {
                             .ability(post.getAbility())
                             .isLocationConsensusPossible(post.isLocationConsensusPossible())
                             .contents(post.getContent())
+                            .matchingStatus(post.getMatchingStatus())
                             .recruiterType(post.getRecruiterType())
                             .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
                             .matchingCnt(post.getTeam().getCompletedMatchingCnt())
