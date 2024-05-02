@@ -67,6 +67,18 @@ public class DSLTeamPostRepositoryImpl implements DSLTeamPostRepository{
                 .fetch();
     }
 
+    @Override
+    public List<TeamPost> findMyTeamPosts(Long nextIdx, Long teamId, String memberId) {
+        return jpaQueryFactory.selectFrom(teamPost)
+                .where(
+                        teamPost.pk.eq(teamId),
+                        teamPost.pk.lt(nextIdx),
+                        teamPost.writer.member.memberId.eq(memberId)
+                ).limit(30)
+                .orderBy(teamPost.pk.desc())
+                .fetch();
+    }
+
     private BooleanExpression searchCond(String searchWord){
         return teamPost.writer.nickname.contains(searchWord)
                 .or(teamPost.content.contains(searchWord))

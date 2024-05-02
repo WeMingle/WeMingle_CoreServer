@@ -15,6 +15,7 @@ import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelect
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -237,12 +238,28 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
         return nextIdx == null ? null : matchingPost.pk.loe(nextIdx);
     }
 
+    private BooleanExpression myPost(String memberId) {
+        return matchingPost.writer.member.memberId.eq(memberId);
+    }
+
     @Override
     public List<MatchingPost> findMatchingPostInMap(double topLat, double bottomLat, double leftLon, double rightLon) {
 
         return jpaQueryFactory.selectFrom(matchingPost)
                 .where(matchingPost.lat.between(bottomLat,topLat).and(matchingPost.lon.between(leftLon,rightLon))
                 )
+                .fetch();
+    }
+
+    @Override
+    public List<MatchingPost> findMyAllMatchingPosts(Long nextIdx, RecruiterType recruiterType, String memberId) {
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .where(
+                        nextIdx(nextIdx),
+                        recruiterTypeEq(recruiterType),
+                        myPost(memberId)
+                ).orderBy(matchingPost.pk.desc())
+                .limit(30)
                 .fetch();
     }
 

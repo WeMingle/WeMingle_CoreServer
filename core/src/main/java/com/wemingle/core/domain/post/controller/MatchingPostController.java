@@ -12,6 +12,7 @@ import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.service.MatchingPostService;
+import com.wemingle.core.domain.post.service.TeamPostService;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.Valid;
@@ -36,6 +37,7 @@ import java.util.List;
 @RequestMapping("/post/match")
 public class MatchingPostController {
     private final MatchingPostService matchingPostService;
+    private final TeamPostService teamPostService;
     private final MemberService memberService;
     @PostMapping
     ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody @Valid MatchingPostDto.CreateMatchingPostDto matchingPostDto,
@@ -47,6 +49,32 @@ public class MatchingPostController {
                                 .responseMessage("matching post successfully created")
                                 .build()
                 );
+    }
+
+    @GetMapping("/my")
+    ResponseEntity<ResponseHandler<Object>> getAllMyPosts(@RequestParam(value = "nextIdx",required = false) Long nextIdx,
+                                                          @RequestParam("recruiterType") RecruiterType recruiterType,
+                                                          @AuthenticationPrincipal UserDetails userDetails) {
+        HashMap<Long, Object> allMyPosts = matchingPostService.getAllMyPosts(nextIdx, recruiterType, userDetails.getUsername());
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .responseMessage("My posts retrieval successfully")
+                        .responseData(allMyPosts)
+                        .build()
+        );
+    }
+
+    @GetMapping("/group")
+    ResponseEntity<ResponseHandler<Object>> getAllMyPosts(@RequestParam("nextIdx") Long nextIdx,
+                                                          @RequestParam("teamId") Long teamId,
+                                                          @AuthenticationPrincipal UserDetails userDetails) {
+        HashMap<Long, Object> myTeamPosts = teamPostService.getMyTeamPosts(nextIdx, teamId, userDetails.getUsername());
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .responseMessage("My team posts retrieval successfully")
+                        .responseData(myTeamPosts)
+                        .build()
+        );
     }
 
     @GetMapping("/calendar")
