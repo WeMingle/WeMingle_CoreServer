@@ -9,6 +9,7 @@ import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelectionType;
+import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
@@ -64,6 +65,7 @@ public class MatchingPostDto {
         private int matchingCnt;
         private int viewCnt;
         private List<LocalDate> matchingDate;
+        private MatchingStatus matchingStatus;
         private LocalDate expiryDate;
         private RecruiterType recruiterType;
         private Ability ability;
@@ -71,7 +73,7 @@ public class MatchingPostDto {
         private boolean isBookmarked;
 
         @Builder
-        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, int viewCnt, List<LocalDate> matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
+        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, int viewCnt, List<LocalDate> matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, MatchingStatus matchingStatus) {
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
             this.contents = contents;
@@ -84,6 +86,7 @@ public class MatchingPostDto {
             this.ability = ability;
             this.isLocationConsensusPossible = isLocationConsensusPossible;
             this.isBookmarked = isBookmarked;
+            this.matchingStatus = matchingStatus;
         }
     }
 
