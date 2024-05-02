@@ -48,6 +48,35 @@ public class TeamPostDto {
 
     @Getter
     @NoArgsConstructor
+    public static class ResponseMyAllPostDto{
+        private String title;
+        private String writer;
+        private UUID writerPic;
+        private LocalDateTime writeTime;
+        private String content;
+        private List<UUID> picList;
+        private Integer likeCnt;
+        private Integer replyCnt;
+        private boolean isBookmarked;
+        private VoteInfo voteInfo;
+
+        @Builder
+        public ResponseMyAllPostDto(String title, String writer, UUID writerPic, LocalDateTime writeTime, String content, List<UUID> picList, Integer likeCnt, Integer replyCnt, boolean isBookmarked, VoteInfo voteInfo) {
+            this.title = title;
+            this.writer = writer;
+            this.writerPic = writerPic;
+            this.writeTime = writeTime;
+            this.content = content;
+            this.picList = picList;
+            this.likeCnt = likeCnt;
+            this.replyCnt = replyCnt;
+            this.isBookmarked = isBookmarked;
+            this.voteInfo = voteInfo;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
     public static class ResponseTeamPostsInfoWithTeam {
         private boolean hasWritePermission;
         private String teamName;

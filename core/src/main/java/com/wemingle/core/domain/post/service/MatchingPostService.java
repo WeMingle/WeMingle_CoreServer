@@ -69,6 +69,13 @@ public class MatchingPostService {
 
     private static final int PERMIT_CANCEL_DURATION = 3;
 
+    public HashMap<Long, Object> getAllMyPosts(Long nextIdx, RecruiterType recruiterType, String memberId) {
+        List<MatchingPost> myAllMatchingPosts = matchingPostRepository.findMyAllMatchingPosts(nextIdx, recruiterType, memberId);
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(myAllMatchingPosts, memberId);
+        return createMatchingPostDtoMap(myAllMatchingPosts, bookmarkedByMatchingPosts);
+
+    }
+
     public MatchingPost getMatchingPostByPostId(Long postId) {
         return matchingPostRepository.findById(postId)
                 .orElseThrow(()->new NoSuchElementException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
@@ -351,7 +358,10 @@ public class MatchingPostService {
                     boolean isBookmarked = bookmarkedByMatchingPosts.stream().anyMatch(bookmark -> bookmark.getMatchingPost().equals(post));
 
                     postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
-                            .writer(post.getWriter().getTeam().getTeamName())
+                            .writer(
+                                    post.getWriter().getTeam().getTeamType().equals(TeamType.INDIVIDUAL) ?
+                                    post.getWriter().getMember().getMemberId() : post.getWriter().getTeam().getTeamName()
+                            )
                             .matchingDate(getMatchingDates(post))
                             .areaList(
                                     post.getLocationName().isEmpty() ?

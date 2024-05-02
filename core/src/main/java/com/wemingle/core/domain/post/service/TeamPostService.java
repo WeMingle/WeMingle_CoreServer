@@ -39,6 +39,37 @@ public class TeamPostService {
     private final S3ImgService s3ImgService;
     private final TeamPostVoteRepository teamPostVoteRepository;
 
+    public HashMap<Long, Object> getMyTeamPosts(Long nextIdx, Long teamId, String memberId) {
+        List<TeamPost> myTeamPosts = teamPostRepository.findMyTeamPosts(nextIdx, teamId, memberId);
+        LinkedHashMap<Long, Object> responseMap = new LinkedHashMap<>();
+        myTeamPosts.forEach(teamPost -> responseMap.put(teamPost.getPk(),TeamPostDto.ResponseMyAllPostDto.builder()
+                        .title(teamPost.getTitle())
+                        .writer(teamPost.getWriter().getTeam().getTeamName())
+                        .writerPic(teamPost.getWriter().getProfileImg())
+                        .writeTime(teamPost.getCreatedTime())
+                        .content(teamPost.getContent())
+                        .picList(teamPost.getTeamPostImgs().stream().map(TeamPostImg::getImgId).toList())
+                        .likeCnt(teamPost.getLikeCount())
+                        .replyCnt(teamPost.getReplyCount())
+                        .isBookmarked(false)
+                        .voteInfo(TeamPostDto.VoteInfo.builder()
+                                .votePk(teamPost.getTeamPostVote()
+                                        .getPk())
+                                .voteOptionInfos(teamPost.getTeamPostVote()
+                                        .getVoteOptions().stream()
+                                        .map(voteOption -> TeamPostDto.VoteOptionInfo.builder()
+                                                .optionName(voteOption.getOptionName())
+                                                .resultCnt(voteOption.getVoteResults().size())
+                                                .build()
+                                        ).toList()
+                                ).build()
+                        )
+                )
+
+        );
+        return responseMap;
+    }
+
     public HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> getTeamPostWithMember(Long nextIdx, String memberId){
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
