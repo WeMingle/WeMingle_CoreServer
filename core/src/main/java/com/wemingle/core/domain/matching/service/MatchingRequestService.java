@@ -6,7 +6,7 @@ import com.wemingle.core.domain.matching.dto.MatchingRequestDto;
 import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStatus;
 import com.wemingle.core.domain.matching.entity.Matching;
 import com.wemingle.core.domain.matching.entity.MatchingRequest;
-import com.wemingle.core.domain.matching.entity.RequestMemberType;
+import com.wemingle.core.domain.matching.entity.requestmembertype.RequestMemberType;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
 import com.wemingle.core.domain.matching.vo.TitleInfo;

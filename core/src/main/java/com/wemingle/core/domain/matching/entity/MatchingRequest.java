@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.matching.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
+import com.wemingle.core.domain.matching.entity.requestmembertype.RequestMemberType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
