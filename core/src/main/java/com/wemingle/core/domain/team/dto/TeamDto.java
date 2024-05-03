@@ -2,6 +2,7 @@ package com.wemingle.core.domain.team.dto;
 
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -178,6 +179,21 @@ public class TeamDto {
             this.isSatisfiedBirthYearCond = isSatisfiedBirthYearCond;
             this.startAge = startAge;
             this.endAge = endAge;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseWritableTeamInfoDto {
+        private String teamName;
+        private String teamImgUrl;
+        private TeamType teamType;
+
+        @Builder
+        public ResponseWritableTeamInfoDto(String teamName, String teamImgUrl, TeamType teamType) {
+            this.teamName = teamName;
+            this.teamImgUrl = teamImgUrl;
+            this.teamType = teamType;
         }
     }
 }
