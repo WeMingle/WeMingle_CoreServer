@@ -26,4 +26,5 @@ public interface DSLMatchingPostRepository {
     List<MatchingPost> findMatchingPostInMap(double topLat, double bottomLat, double leftLon, double rightLon);
     List<MatchingPost> findRecentMatchingPost(Long nextIdx);
     int findSearchMatchingPostCnt(String query);
+    List<MatchingPost> findSearchMatchingPost(String query, Long lastIdx, LocalDate lastExpiredDate, SortOption sortOption, Pageable pageable);
 }

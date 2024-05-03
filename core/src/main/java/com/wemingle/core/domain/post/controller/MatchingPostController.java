@@ -337,4 +337,21 @@ public class MatchingPostController {
                         .build()
         );
     }
+
+    @GetMapping("/result")
+    public ResponseEntity<ResponseHandler<HashMap<String, Object>>> getSearchPost(@RequestParam SortOption sortOption,
+                                                                                  @RequestParam @NotBlank String query,
+                                                                                  @RequestParam(required = false) Long lastIdx,
+                                                                                  @RequestParam(required = false) Integer callCnt,
+                                                                                  @RequestParam(required = false) LocalDate lastExpiredDate,
+                                                                                  @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<String, Object> responseData = matchingPostService.getSearchPost(query, lastIdx, lastExpiredDate, callCnt, sortOption, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<String, Object>>builder()
+                        .responseMessage("Search post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
 }

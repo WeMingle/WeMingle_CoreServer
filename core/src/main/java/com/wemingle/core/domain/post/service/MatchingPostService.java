@@ -69,6 +69,8 @@ public class MatchingPostService {
     private String serverIp;
 
     private static final int PERMIT_CANCEL_DURATION = 3;
+    private static final int PAGE_SIZE = 30;
+    private static final String SEARCH_MATCHING_POST_PATH = "/post/match/result";
 
     public MatchingPost getMatchingPostByPostId(Long postId) {
         return matchingPostRepository.findById(postId)
@@ -801,7 +803,7 @@ public class MatchingPostService {
     }
 
     private String getNickname(MatchingPost matchingPost){
-        return matchingPost.getRecruiterType().equals(RecruiterType.TEAM)
+        return isTeam(matchingPost)
                 ? matchingPost.getTeam().getTeamName()
                 : matchingPost.getWriter().getNickname();
     }
@@ -868,5 +870,100 @@ public class MatchingPostService {
 
     public int getSearchPostCnt(String query){
         return matchingPostRepository.findSearchMatchingPostCnt(query);
+    }
+
+    public HashMap<String, Object> getSearchPost(String query, Long lastIdx, LocalDate lastExpiredDate, Integer callCnt, SortOption sortOption, String memberId){
+        List<MatchingPost> searchMatchingPosts = getSearchMatchingPosts(query, lastIdx, lastExpiredDate, callCnt, sortOption);
+        List<BookmarkedMatchingPost> bookmarked = bookmarkRepository.findBookmarkedByMatchingPosts(searchMatchingPosts, memberId);
+
+        Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, searchMatchingPosts);
+        log.info("{}", nextUrlCallCnt == null ? 0 : nextUrlCallCnt);
+        String nextUrl = createNextRetrieveUrlParamsBySearch(getLastIdxInMatchingPostList(searchMatchingPosts), sortOption, getLastExpiredDateInMatchingPostList(sortOption, searchMatchingPosts), query, nextUrlCallCnt);
+        HashMap<Long, MatchingPostDto.ResponseSearchPost> responsePostList = createResponsePostList(searchMatchingPosts, bookmarked);
+
+        return createResponseData(responsePostList, nextUrl);
+    }
+
+    private HashMap<String, Object> createResponseData(HashMap<Long, MatchingPostDto.ResponseSearchPost> responsePostList, String nextUrl) {
+//        nextUrl = responsePostList.isEmpty() ? null : serverIp + SEARCH_MATCHING_POST_PATH + "?" + nextUrl;
+        nextUrl = responsePostList.isEmpty() ? null : "http://localhost:8080" + SEARCH_MATCHING_POST_PATH + "?" + nextUrl;
+        HashMap<String, Object> responseData = new HashMap<>();
+        responseData.put("nextUrl", nextUrl);
+        responseData.put("postList", responsePostList);
+
+        return responseData;
+    }
+
+    private HashMap<Long, MatchingPostDto.ResponseSearchPost> createResponsePostList(List<MatchingPost> searchMatchingPosts, List<BookmarkedMatchingPost> bookmarked) {
+        LinkedHashMap<Long, MatchingPostDto.ResponseSearchPost> postList = new LinkedHashMap<>();
+        searchMatchingPosts.forEach(post -> postList.put(post.getPk(), MatchingPostDto.ResponseSearchPost.builder()
+                .imgUrl(getProfileImgUrl(post))
+                .nickname(getNickname(post))
+                .content(post.getContent())
+                .areas(getAreas(post))
+                .matchingCnt(post.getTeam().getCompletedMatchingCnt())
+                .matchingDate(getMatchingDates(post))
+                .recruiterType(post.getRecruiterType())
+                .ability(post.getAbility())
+                .isLocationConsensusPossible(post.isLocationConsensusPossible())
+                .isBookmarked(isBookmarked(post, bookmarked))
+                .isExpired(isExpired(post))
+                .build()));
+
+        return postList;
+    }
+
+    private List<MatchingPost> getSearchMatchingPosts(String query, Long lastIdx, LocalDate lastExpiredDate, Integer callCnt, SortOption sortOption) {
+        List<MatchingPost> matchingPosts;
+        switch (sortOption){
+            case NEW -> {
+                matchingPosts = matchingPostRepository.findSearchMatchingPost(
+                        query,
+                        lastIdx,
+                        lastExpiredDate,
+                        sortOption,
+                        PageRequest.of(0, PAGE_SIZE));
+            }
+            case DEADLINE -> {
+                int pageNumber = callCnt == null ? 0 : callCnt;
+                matchingPosts = matchingPostRepository.findSearchMatchingPost(
+                        query,
+                        null,
+                        lastExpiredDate,
+                        sortOption,
+                        PageRequest.of(pageNumber, PAGE_SIZE));
+                removeDuplicatePosts(lastIdx, matchingPosts);
+
+                if (matchingPosts.size() < 30){
+                    matchingPosts.addAll(
+                            matchingPostRepository.findSearchMatchingPost(
+                                    query,
+                                    null,
+                                    lastExpiredDate,
+                                    sortOption,
+                                    PageRequest.of(pageNumber + 1, PAGE_SIZE))
+                    );
+                }
+                matchingPosts = matchingPosts.stream().limit(PAGE_SIZE).toList();
+            }
+            default -> throw new RuntimeException("unknown enum value");
+        }
+        return matchingPosts;
+    }
+
+    private String createNextRetrieveUrlParamsBySearch(Long lastIdx, SortOption sortOption, LocalDate lastExpiredDate, String query, Integer callCnt) {
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("lastIdx", lastIdx);
+        parameters.put("sortOption", sortOption);
+        parameters.put("lastExpiredDate", lastExpiredDate);
+        parameters.put("query", query);
+        if (sortOption.equals(SortOption.DEADLINE)) {
+            parameters.put("callCnt", callCnt);
+        }
+
+        return parameters.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&"));
     }
 }
