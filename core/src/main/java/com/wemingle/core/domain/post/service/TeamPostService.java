@@ -91,6 +91,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, member))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
         ));
         return responseData;
@@ -122,6 +123,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, teamMember))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
         ));
 
@@ -234,16 +236,17 @@ public class TeamPostService {
         List<TeamPost> searchTeamPosts = teamPostRepository.getSearchTeamPost(nextIdx, team, searchWord);
         LinkedHashMap<Long, TeamPostDto.ResponseSearchTeamPost> responseData = new LinkedHashMap<>();
 
-        searchTeamPosts.forEach(teampost -> responseData.put(teampost.getPk(), TeamPostDto.ResponseSearchTeamPost
+        searchTeamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.ResponseSearchTeamPost
                 .builder()
-                .title(teampost.getTitle())
-                .content(teampost.getContent())
-                .writerName(teampost.getWriter().getNickname())
-                .createTime(teampost.getCreatedTime())
-                .likeCnt(teampost.getLikeCount())
-                .replyCnt(teampost.getReplyCount())
-                .isBookmarked(isBookmarked(teampost, myBookmarkedTeamPosts))
-                .isWriter(isWriter(teampost, member))
+                .title(teamPost.getTitle())
+                .content(teamPost.getContent())
+                .writerName(teamPost.getWriter().getNickname())
+                .createTime(teamPost.getCreatedTime())
+                .likeCnt(teamPost.getLikeCount())
+                .replyCnt(teamPost.getReplyCount())
+                .isBookmarked(isBookmarked(teamPost, myBookmarkedTeamPosts))
+                .isWriter(isWriter(teamPost, member))
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()));
 
         return responseData;
