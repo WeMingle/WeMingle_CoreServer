@@ -25,6 +25,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashMap;
@@ -325,7 +327,8 @@ public class MatchingPostController {
 
     @GetMapping("/result/count")
     public ResponseEntity<ResponseHandler<Integer>> getSearchPostCnt(@RequestParam @NotBlank String query){
-        Integer searchPostCnt = matchingPostService.getSearchPostCnt(query);
+        String decodeQuery = URLDecoder.decode(query, StandardCharsets.UTF_8);
+        Integer searchPostCnt = matchingPostService.getSearchPostCnt(decodeQuery);
 
         return ResponseEntity.ok(
                 ResponseHandler.<Integer>builder()
