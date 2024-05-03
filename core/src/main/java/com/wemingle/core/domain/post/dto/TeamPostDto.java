@@ -29,9 +29,10 @@ public class TeamPostDto {
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
         private VoteInfo voteInfo;
+        private String imgUrl;
 
         @Builder
-        public ResponseTeamPostsInfoWithMember(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo) {
+        public ResponseTeamPostsInfoWithMember(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo, String imgUrl) {
             this.teamName = teamName;
             this.title = title;
             this.content = content;
@@ -43,6 +44,7 @@ public class TeamPostDto {
             this.isBookmarked = isBookmarked;
             this.isWriter = isWriter;
             this.voteInfo = voteInfo;
+            this.imgUrl = imgUrl;
         }
     }
 
@@ -107,9 +109,10 @@ public class TeamPostDto {
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
         private VoteInfo voteInfo;
+        private String imgUrl;
 
         @Builder
-        public TeamPostInfo(String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, PostType postType, int likeCnt, int replyCnt, boolean isBookmarked, VoteInfo voteInfo, boolean isWriter) {
+        public TeamPostInfo(String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, PostType postType, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo, String imgUrl) {
             this.title = title;
             this.content = content;
             this.nickname = nickname;
@@ -119,8 +122,9 @@ public class TeamPostDto {
             this.likeCnt = likeCnt;
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
-            this.voteInfo = voteInfo;
             this.isWriter = isWriter;
+            this.voteInfo = voteInfo;
+            this.imgUrl = imgUrl;
         }
     }
 
@@ -198,9 +202,10 @@ public class TeamPostDto {
         private boolean isBookmarked;
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
+        private String imgUrl;
 
         @Builder
-        public ResponseSearchTeamPost(String title, String content, String writerName, LocalDateTime createTime, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter) {
+        public ResponseSearchTeamPost(String title, String content, String writerName, LocalDateTime createTime, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, String imgUrl) {
             this.title = title;
             this.content = content;
             this.writerName = writerName;
@@ -209,6 +214,7 @@ public class TeamPostDto {
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
             this.isWriter = isWriter;
+            this.imgUrl = imgUrl;
         }
     }
 }
