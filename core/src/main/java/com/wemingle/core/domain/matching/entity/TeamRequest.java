@@ -1,7 +1,6 @@
 package com.wemingle.core.domain.matching.entity;
 
 import com.wemingle.core.domain.member.entity.Member;
-import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -26,14 +25,9 @@ public class TeamRequest {
     @JoinColumn(name = "MEMBER")
     private Member requester;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "TEAM_REQUEST_STATUS")
-    private MatchingStatus teamRequestStatus;
-
     @Builder
-    public TeamRequest(Team team, Member requester, MatchingStatus teamRequestStatus) {
+    public TeamRequest(Team team, Member requester) {
         this.team = team;
         this.requester = requester;
-        this.teamRequestStatus = teamRequestStatus;
     }
 }

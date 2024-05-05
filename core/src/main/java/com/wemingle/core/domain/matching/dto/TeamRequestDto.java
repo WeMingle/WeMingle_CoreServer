@@ -1,6 +1,11 @@
 package com.wemingle.core.domain.matching.dto;
 
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +41,26 @@ public class TeamRequestDto {
             this.age = age;
             this.reportCnt = reportCnt;
             this.teamQuestionnaires = teamQuestionnaires;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamRequestSave{
+        private Long teamPk;
+        @NotBlank
+        private String nickname;
+        private HashMap<Long, String> answers;
+
+        public TeamMember of(Member member, Team team){
+            return TeamMember.builder()
+                    .nickname(nickname)
+                    .profileImg(member.getProfileImgId())
+                    .teamRole(TeamRole.PARTICIPANT)
+                    .member(member)
+                    .team(team)
+                    .build();
         }
     }
 }
