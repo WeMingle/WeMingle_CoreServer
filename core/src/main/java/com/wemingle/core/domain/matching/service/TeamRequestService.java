@@ -8,6 +8,7 @@ import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
 import com.wemingle.core.domain.team.repository.TeamQuestionnaireRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
@@ -15,6 +16,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Service
@@ -34,7 +37,7 @@ public class TeamRequestService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
-        List<String> teamQuestions = teamQuestionnaireRepository.findContentByTeam(team);
+        List<TeamQuestionnaire> teamQuestions = teamQuestionnaireRepository.findByTeamOrderByPkAsc(team);
         String findAbility = memberAbilityRepository.findAbilityByMemberAndSport(requester, team.getSportsCategory())
                 .orElse(null);
         VerifiedUniversityEmail verifiedUniversity = verifiedUniversityEmailRepository.findByMemberFetchUniv(requester)
@@ -50,7 +53,7 @@ public class TeamRequestService {
                 .majorArea(getMajorArea(requester))
                 .age(getMemberAge(requester))
                 .reportCnt(requester.getComplaintsCount())
-                .teamQuestionnaires(teamQuestions)
+                .teamQuestionnaires(getTeamQuestions(teamQuestions))
                 .build();
     }
 
@@ -66,5 +69,9 @@ public class TeamRequestService {
         return member.isAbilityPublic() ? findAbility : IS_NOT_PUBLIC;
     }
 
-
+    private HashMap<Long, String> getTeamQuestions(List<TeamQuestionnaire> questionnaires){
+        LinkedHashMap<Long, String> responseData = new LinkedHashMap<>();
+        questionnaires.forEach(question -> responseData.put(question.getPk(), question.getContent()));
+        return responseData;
+    }
 }

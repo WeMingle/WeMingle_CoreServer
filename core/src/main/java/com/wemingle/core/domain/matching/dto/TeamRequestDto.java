@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.HashMap;
 
 public class TeamRequestDto {
     @Getter
@@ -22,10 +22,10 @@ public class TeamRequestDto {
         private String majorArea;
         private String age;
         private int reportCnt;
-        private List<String> teamQuestionnaires;
+        private HashMap<Long, String> teamQuestionnaires;
 
         @Builder
-        public ResponseRequesterInfo(String imgUrl, int matchingCnt, String nickname, String univName, Gender gender, String ability, String majorArea, String age, int reportCnt, List<String> teamQuestionnaires) {
+        public ResponseRequesterInfo(String imgUrl, int matchingCnt, String nickname, String univName, Gender gender, String ability, String majorArea, String age, int reportCnt, HashMap<Long, String> teamQuestionnaires) {
             this.imgUrl = imgUrl;
             this.matchingCnt = matchingCnt;
             this.nickname = nickname;
