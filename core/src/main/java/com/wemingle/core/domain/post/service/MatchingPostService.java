@@ -1024,4 +1024,24 @@ public class MatchingPostService {
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining("&"));
     }
+
+    public boolean isWriter(MatchingPost matchingPost, Member member){
+        return matchingPost.getWriter().getMember().equals(member);
+    }
+
+    public boolean isDeletable(Team writerTeam, List<Matching> matchings){
+        return matchings.stream()
+                .allMatch(matching -> matching.getTeam().equals(writerTeam));
+    }
+
+    @Transactional
+    public void deleteMatchingPost(MatchingPost matchingPost, List<Matching> matchings){
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findByMatchingPost(matchingPost);
+
+        //신고 글 서비스 구현되면 신고 된 내역도 삭제
+        bookmarkRepository.deleteAllInBatch(bookmarkedMatchingPosts);
+        matchingRequestRepository.deleteAllInBatch(matchingRequestRepository.findByMatchingPost(matchingPost));
+        matchingRepository.deleteAllInBatch(matchings);
+        matchingPostRepository.delete(matchingPost);
+    }
 }

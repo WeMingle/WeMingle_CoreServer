@@ -1,6 +1,8 @@
 package com.wemingle.core.domain.post.controller;
 
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
+import com.wemingle.core.domain.matching.entity.Matching;
+import com.wemingle.core.domain.matching.service.MatchingService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
@@ -42,6 +44,7 @@ public class MatchingPostController {
     private final MatchingPostService matchingPostService;
     private final TeamPostService teamPostService;
     private final MemberService memberService;
+    private final MatchingService matchingService;
     @PostMapping
     ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody @Valid MatchingPostDto.CreateMatchingPostDto matchingPostDto,
                                                                @AuthenticationPrincipal UserDetails userDetails) {
@@ -381,5 +384,31 @@ public class MatchingPostController {
                         .responseData(responseData)
                         .build()
         );
+    }
+
+    @DeleteMapping("/{matchingPostPk}")
+    public ResponseEntity<ResponseHandler<Object>> deleteMatchingPost(@PathVariable Long matchingPostPk,
+                                                                      @AuthenticationPrincipal UserDetails userDetails){
+        Member member = memberService.findByMemberId(userDetails.getUsername());
+        MatchingPost matchingPost = matchingPostService.getMatchingPostByPostId(matchingPostPk);
+        List<Matching> matchings = matchingService.getMatchingsByMatchingPost(matchingPost);
+
+        if (!matchingPostService.isWriter(matchingPost, member)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("Only writer can delete post")
+                            .build());
+        }
+
+        if (!matchingPostService.isDeletable(matchingPost.getTeam(), matchings)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("Cannot delete matchingPost that have already been matched")
+                            .build());
+        }
+
+        matchingPostService.deleteMatchingPost(matchingPost, matchings);
+
+        return ResponseEntity.noContent().build();
     }
 }
