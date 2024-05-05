@@ -12,4 +12,5 @@ public interface BookmarkRepository extends JpaRepository<BookmarkedMatchingPost
     @Query("select bm from BookmarkedMatchingPost bm " +
             "where bm.matchingPost in :matchingPostList and bm.member.memberId = :memberId")
     List<BookmarkedMatchingPost> findBookmarkedByMatchingPosts(@Param("matchingPostList") List<MatchingPost> matchingPostList, @Param("memberId") String memberId);
+    List<BookmarkedMatchingPost> findByMatchingPost(MatchingPost matchingPosts);
 }

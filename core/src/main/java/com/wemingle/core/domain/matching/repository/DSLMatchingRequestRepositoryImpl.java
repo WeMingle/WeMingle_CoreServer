@@ -4,7 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wemingle.core.domain.matching.controller.requesttype.RequestType;
 import com.wemingle.core.domain.matching.entity.MatchingRequest;
-import com.wemingle.core.domain.matching.entity.RequestMemberType;
+import com.wemingle.core.domain.matching.entity.requestmembertype.RequestMemberType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;

@@ -27,4 +27,5 @@ public interface DSLMatchingPostRepository {
     List<MatchingPost> findRecentMatchingPost(Long nextIdx);
     int findSearchMatchingPostCnt(String query);
     List<MatchingPost> findSearchMatchingPost(String query, Long lastIdx, LocalDate lastExpiredDate, SortOption sortOption, Pageable pageable);
+    List<MatchingPost> findMyAllMatchingPosts(Long nextIdx, RecruiterType recruiterType, String memberId);
 }

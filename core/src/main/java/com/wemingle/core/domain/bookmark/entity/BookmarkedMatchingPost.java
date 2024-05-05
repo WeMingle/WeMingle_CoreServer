@@ -35,4 +35,8 @@ public class BookmarkedMatchingPost extends BaseEntity {
         this.matchingPost = matchingPost;
         this.member = member;
     }
+
+    public void updateMatchingPost(MatchingPost matchingPost){
+        this.matchingPost = matchingPost;
+    }
 }

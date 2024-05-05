@@ -29,9 +29,10 @@ public class TeamPostDto {
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
         private VoteInfo voteInfo;
+        private String imgUrl;
 
         @Builder
-        public ResponseTeamPostsInfoWithMember(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo) {
+        public ResponseTeamPostsInfoWithMember(String teamName, String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo, String imgUrl) {
             this.teamName = teamName;
             this.title = title;
             this.content = content;
@@ -42,6 +43,36 @@ public class TeamPostDto {
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
             this.isWriter = isWriter;
+            this.voteInfo = voteInfo;
+            this.imgUrl = imgUrl;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseMyAllPostDto{
+        private String title;
+        private String writer;
+        private UUID writerPic;
+        private LocalDateTime writeTime;
+        private String content;
+        private List<UUID> picList;
+        private Integer likeCnt;
+        private Integer replyCnt;
+        private boolean isBookmarked;
+        private VoteInfo voteInfo;
+
+        @Builder
+        public ResponseMyAllPostDto(String title, String writer, UUID writerPic, LocalDateTime writeTime, String content, List<UUID> picList, Integer likeCnt, Integer replyCnt, boolean isBookmarked, VoteInfo voteInfo) {
+            this.title = title;
+            this.writer = writer;
+            this.writerPic = writerPic;
+            this.writeTime = writeTime;
+            this.content = content;
+            this.picList = picList;
+            this.likeCnt = likeCnt;
+            this.replyCnt = replyCnt;
+            this.isBookmarked = isBookmarked;
             this.voteInfo = voteInfo;
         }
     }
@@ -78,9 +109,10 @@ public class TeamPostDto {
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
         private VoteInfo voteInfo;
+        private String imgUrl;
 
         @Builder
-        public TeamPostInfo(String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, PostType postType, int likeCnt, int replyCnt, boolean isBookmarked, VoteInfo voteInfo, boolean isWriter) {
+        public TeamPostInfo(String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, PostType postType, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo, String imgUrl) {
             this.title = title;
             this.content = content;
             this.nickname = nickname;
@@ -90,8 +122,9 @@ public class TeamPostDto {
             this.likeCnt = likeCnt;
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
-            this.voteInfo = voteInfo;
             this.isWriter = isWriter;
+            this.voteInfo = voteInfo;
+            this.imgUrl = imgUrl;
         }
     }
 
@@ -169,9 +202,10 @@ public class TeamPostDto {
         private boolean isBookmarked;
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
+        private String imgUrl;
 
         @Builder
-        public ResponseSearchTeamPost(String title, String content, String writerName, LocalDateTime createTime, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter) {
+        public ResponseSearchTeamPost(String title, String content, String writerName, LocalDateTime createTime, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, String imgUrl) {
             this.title = title;
             this.content = content;
             this.writerName = writerName;
@@ -180,6 +214,7 @@ public class TeamPostDto {
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
             this.isWriter = isWriter;
+            this.imgUrl = imgUrl;
         }
     }
 }

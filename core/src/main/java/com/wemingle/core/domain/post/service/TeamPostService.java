@@ -39,6 +39,37 @@ public class TeamPostService {
     private final S3ImgService s3ImgService;
     private final TeamPostVoteRepository teamPostVoteRepository;
 
+    public HashMap<Long, Object> getMyTeamPosts(Long nextIdx, Long teamId, String memberId) {
+        List<TeamPost> myTeamPosts = teamPostRepository.findMyTeamPosts(nextIdx, teamId, memberId);
+        LinkedHashMap<Long, Object> responseMap = new LinkedHashMap<>();
+        myTeamPosts.forEach(teamPost -> responseMap.put(teamPost.getPk(),TeamPostDto.ResponseMyAllPostDto.builder()
+                        .title(teamPost.getTitle())
+                        .writer(teamPost.getWriter().getTeam().getTeamName())
+                        .writerPic(teamPost.getWriter().getProfileImg())
+                        .writeTime(teamPost.getCreatedTime())
+                        .content(teamPost.getContent())
+                        .picList(teamPost.getTeamPostImgs().stream().map(TeamPostImg::getImgId).toList())
+                        .likeCnt(teamPost.getLikeCount())
+                        .replyCnt(teamPost.getReplyCount())
+                        .isBookmarked(false)
+                        .voteInfo(TeamPostDto.VoteInfo.builder()
+                                .votePk(teamPost.getTeamPostVote()
+                                        .getPk())
+                                .voteOptionInfos(teamPost.getTeamPostVote()
+                                        .getVoteOptions().stream()
+                                        .map(voteOption -> TeamPostDto.VoteOptionInfo.builder()
+                                                .optionName(voteOption.getOptionName())
+                                                .resultCnt(voteOption.getVoteResults().size())
+                                                .build()
+                                        ).toList()
+                                ).build()
+                        )
+                )
+
+        );
+        return responseMap;
+    }
+
     public HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> getTeamPostWithMember(Long nextIdx, String memberId){
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
@@ -60,6 +91,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, member))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
         ));
         return responseData;
@@ -91,6 +123,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, teamMember))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
         ));
 
@@ -203,16 +236,17 @@ public class TeamPostService {
         List<TeamPost> searchTeamPosts = teamPostRepository.getSearchTeamPost(nextIdx, team, searchWord);
         LinkedHashMap<Long, TeamPostDto.ResponseSearchTeamPost> responseData = new LinkedHashMap<>();
 
-        searchTeamPosts.forEach(teampost -> responseData.put(teampost.getPk(), TeamPostDto.ResponseSearchTeamPost
+        searchTeamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.ResponseSearchTeamPost
                 .builder()
-                .title(teampost.getTitle())
-                .content(teampost.getContent())
-                .writerName(teampost.getWriter().getNickname())
-                .createTime(teampost.getCreatedTime())
-                .likeCnt(teampost.getLikeCount())
-                .replyCnt(teampost.getReplyCount())
-                .isBookmarked(isBookmarked(teampost, myBookmarkedTeamPosts))
-                .isWriter(isWriter(teampost, member))
+                .title(teamPost.getTitle())
+                .content(teamPost.getContent())
+                .writerName(teamPost.getWriter().getNickname())
+                .createTime(teamPost.getCreatedTime())
+                .likeCnt(teamPost.getLikeCount())
+                .replyCnt(teamPost.getReplyCount())
+                .isBookmarked(isBookmarked(teamPost, myBookmarkedTeamPosts))
+                .isWriter(isWriter(teamPost, member))
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()));
 
         return responseData;

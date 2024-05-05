@@ -46,24 +46,33 @@ public class TeamServiceImpl implements TeamService{
 
     private static final int PAGE_SIZE = 30;
     @Override
-    public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId) {
-        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableWrite(memberId);
+    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableWrite(member);
 
-        HashMap<Long, TeamDto.ResponseTeamInfoDto> responseTeamInfo = new HashMap<>();
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> responseTeamInfo = new HashMap<>();
 
         teamList.forEach(team -> responseTeamInfo.put(team.getPk(),
-                        TeamDto.ResponseTeamInfoDto.builder()
-                                .teamName(team.getTeamName())
-                                .teamImgUrl(getTeamImgUrl(memberId, team))
+                        TeamDto.ResponseWritableTeamInfoDto.builder()
+                                .teamName(getNicknameUrl(team, member))
+                                .teamImgUrl(getTeamImgUrl(team))
+                                .teamType(team.getTeamType())
                                 .build()));
 
         return responseTeamInfo;
     }
 
-    private String getTeamImgUrl(String memberId, Team team) {
-        return team.getTeamName().equals(memberId) 
+    private String getTeamImgUrl(Team team) {
+        return team.getTeamType().equals(TeamType.INDIVIDUAL)
                 ? s3ImgService.getMemberProfilePicUrl(team.getProfileImgId())
                 : s3ImgService.getGroupProfilePicUrl(team.getProfileImgId());
+    }
+
+    private String getNicknameUrl(Team team, Member member) {
+        return team.getTeamType().equals(TeamType.INDIVIDUAL)
+                ? member.getNickname()
+                : team.getTeamName();
     }
 
     @Override

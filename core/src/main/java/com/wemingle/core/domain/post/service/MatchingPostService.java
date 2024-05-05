@@ -5,7 +5,9 @@ import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.entity.Matching;
+import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
+import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
@@ -21,6 +23,7 @@ import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelect
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostAreaRepository;
+import com.wemingle.core.domain.post.repository.MatchingPostMatchingDateRepository;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.review.repository.TeamReviewRepository;
 import com.wemingle.core.domain.team.entity.Team;
@@ -64,6 +67,9 @@ public class MatchingPostService {
     private final BookmarkRepository bookmarkRepository;
     private final TeamReviewRepository teamReviewRepository;
     private final S3ImgService s3ImgService;
+    private final MatchingPostMatchingDateRepository matchingPostMatchingDateRepository;
+    private final MatchingRequestRepository matchingRequestRepository;
+
 
     @Value("${wemingle.ip}")
     private String serverIp;
@@ -71,6 +77,13 @@ public class MatchingPostService {
     private static final int PERMIT_CANCEL_DURATION = 3;
     private static final int PAGE_SIZE = 30;
     private static final String SEARCH_MATCHING_POST_PATH = "/post/match/result";
+
+    public HashMap<Long, Object> getAllMyPosts(Long nextIdx, RecruiterType recruiterType, String memberId) {
+        List<MatchingPost> myAllMatchingPosts = matchingPostRepository.findMyAllMatchingPosts(nextIdx, recruiterType, memberId);
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(myAllMatchingPosts, memberId);
+        return createMatchingPostDtoMap(myAllMatchingPosts, bookmarkedByMatchingPosts);
+
+    }
 
     public MatchingPost getMatchingPostByPostId(Long postId) {
         return matchingPostRepository.findById(postId)
@@ -354,12 +367,19 @@ public class MatchingPostService {
                     boolean isBookmarked = bookmarkedByMatchingPosts.stream().anyMatch(bookmark -> bookmark.getMatchingPost().equals(post));
 
                     postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
-                            .writer(post.getWriter().getTeam().getTeamName())
+                            .writer(
+                                    post.getWriter().getTeam().getTeamType().equals(TeamType.INDIVIDUAL) ?
+                                    post.getWriter().getMember().getMemberId() : post.getWriter().getTeam().getTeamName()
+                            )
                             .matchingDate(getMatchingDates(post))
-                            .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
+                            .areaList(
+                                    post.getLocationName().isEmpty() ?
+                                    post.getAreaList().stream().map(matchingPostArea -> matchingPostArea.getAreaName().toString()).toList() : List.of(post.getLocationName())
+                            )
                             .ability(post.getAbility())
                             .isLocationConsensusPossible(post.isLocationConsensusPossible())
                             .contents(post.getContent())
+                            .matchingStatus(post.getMatchingStatus())
                             .recruiterType(post.getRecruiterType())
                             .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
                             .matchingCnt(post.getTeam().getCompletedMatchingCnt())
@@ -771,9 +791,47 @@ public class MatchingPostService {
 
     @Transactional
     public void rePostMatchingPost(MatchingPost matchingPost){
-        matchingPost.updateForRePost();
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findByMatchingPost(matchingPost);
+        List<Matching> matchings = matchingRepository.findByMatchingPost(matchingPost);
+        matchingRepository.deleteAllInBatch(matchings);
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findByMatchingPost(matchingPost);
+        matchingRequestRepository.deleteAllInBatch(matchingRequests);
+        //todo 신고 db 완성되면 신고 기록도 삭제
+
+        MatchingPost reCreateMatchingPost = matchingPost.reCreateMatchingPost();
+        matchingPostRepository.save(reCreateMatchingPost);
+
+        updateBookmarkedWithNewPost(bookmarkedMatchingPosts, reCreateMatchingPost);
+        reSaveMatchingDates(matchingPost, reCreateMatchingPost);
+        reSaveAreas(matchingPost, reCreateMatchingPost);
+
+        matchingPostRepository.delete(matchingPost);
     }
 
+    private void updateBookmarkedWithNewPost(List<BookmarkedMatchingPost> bookmarkedMatchingPosts, MatchingPost reCreateMatchingPost) {
+        bookmarkedMatchingPosts.forEach(bookmarkedMatchingPost -> bookmarkedMatchingPost.updateMatchingPost(reCreateMatchingPost));
+    }
+
+    private void reSaveMatchingDates(MatchingPost matchingPost, MatchingPost reCreateMatchingPost) {
+        List<MatchingPostMatchingDate> reCreateMatchingDates =matchingPost.getMatchingDates().stream()
+                .map(matchingDate -> MatchingPostMatchingDate.builder()
+                        .matchingDate(matchingDate.getMatchingDate())
+                        .matchingPost(reCreateMatchingPost).build())
+                .toList();
+
+        matchingPostMatchingDateRepository.saveAll(reCreateMatchingDates);
+    }
+
+    private void reSaveAreas(MatchingPost matchingPost, MatchingPost reCreateMatchingPost) {
+        List<MatchingPostArea> reCreateMatchingAreas = matchingPost.getAreaList().stream()
+                .map(area -> MatchingPostArea.builder()
+                        .matchingPost(reCreateMatchingPost)
+                        .areaName(area.getAreaName())
+                        .build())
+                .toList();
+
+        matchingPostAreaRepository.saveAll(reCreateMatchingAreas);
+    }
 
     @Transactional
     public void completeMatchingPost(Long matchingPostPk){

@@ -18,7 +18,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -149,6 +148,35 @@ public class MatchingPost extends BaseEntity {
         this.sportsCategory = sportsCategory;
     }
 
+    public MatchingPost reCreateMatchingPost(){
+        return MatchingPost.builder()
+                .expiryDate(this.expiryDate)
+                .locationName(this.locationName)
+                .dou(this.dou)
+                .si(this.si)
+                .gun(this.gun)
+                .gu(this.gu)
+                .dong(this.dong)
+                .eup(this.eup)
+                .myeon(this.myeon)
+                .ri(this.ri)
+                .lat(this.lat)
+                .lon(this.lon)
+                .content(this.content)
+                .capacityLimit(this.capacityLimit)
+                .isLocationConsensusPossible(this.isLocationConsensusPossible)
+                .viewCnt(this.viewCnt)
+                .ability(this.ability)
+                .gender(this.gender)
+                .recruitmentType(this.recruitmentType)
+                .recruiterType(this.recruiterType)
+                .locationSelectionType(this.locationSelectionType)
+                .writer(this.writer)
+                .team(this.team)
+                .sportsCategory(this.sportsCategory)
+                .build();
+    }
+
     public void putAreaList(List<MatchingPostArea> matchingPostAreaList){
         this.areaList = matchingPostAreaList;
     }
@@ -158,10 +186,6 @@ public class MatchingPost extends BaseEntity {
     }
     public void putMatchingDates(List<MatchingPostMatchingDate> matchingDates){
         this.matchingDates = matchingDates;
-    }
-    public void updateForRePost(){
-        setCreatedTime(LocalDateTime.now());
-        this.matchingStatus = MatchingStatus.PENDING;
     }
     public void complete(){
         this.matchingStatus = MatchingStatus.COMPLETE;
