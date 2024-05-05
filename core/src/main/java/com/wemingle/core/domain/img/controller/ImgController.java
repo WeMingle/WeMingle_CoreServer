@@ -91,4 +91,18 @@ public class ImgController {
                 .responseData(responseData)
                 .build());
     }
+
+    @GetMapping("member/team/profile/upload/{teamMemberImgUUID}/{extension}")
+    public ResponseEntity<ResponseHandler<Object>> getTeamProfilePicUploadPreSignUrl(@PathVariable("teamMemberImgUUID") UUID teamMemberImgUUID,
+                                                                                     @PathVariable("extension") String extension) {
+        if (!s3ImgService.isAvailableExtension(extension)) {
+            return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
+        }
+
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                .responseMessage("s3 url issuance complete")
+                .responseData(s3ImgService.setTeamMemberProfilePreSignedUrl(teamMemberImgUUID))
+                .build());
+    }
 }

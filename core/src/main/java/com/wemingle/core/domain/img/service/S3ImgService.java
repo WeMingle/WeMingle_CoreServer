@@ -140,4 +140,12 @@ public class S3ImgService {
             return getMemberProfilePicUrl(imgId);
         }
     }
+
+    public String setTeamMemberProfilePreSignedUrl(UUID teamMemberProfileUUID) {
+        PutObjectRequest getObjectRequest = PutObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + teamMemberProfileUUID).build();
+        PutObjectPresignRequest objectResignRequest = PutObjectPresignRequest.builder().signatureDuration(EXPIRY_TIME).putObjectRequest(getObjectRequest).build();
+        URL url = s3Presigner.presignPutObject(objectResignRequest).url();
+        s3Presigner.close();
+        return url.toString();
+    }
 }
