@@ -105,7 +105,6 @@ public class TeamRequestService {
         if (requestSaveDto.getAnswers() != null) {
             if (!requestSaveDto.getAnswers().isEmpty()) {
                 saveTeamQuestionnairesAnswers(requestSaveDto);
-                System.out.println("다잉");
             }
         }
 
