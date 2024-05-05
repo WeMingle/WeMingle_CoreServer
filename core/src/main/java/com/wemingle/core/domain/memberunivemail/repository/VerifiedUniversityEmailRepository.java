@@ -25,4 +25,7 @@ public interface VerifiedUniversityEmailRepository extends JpaRepository<Verifie
     Optional<UnivEntity> findUnivEntityByMember(@Param("member")Member member);
     @Query("select v.member from VerifiedUniversityEmail v where v.univName = :univ and v.member != :member")
     List<Member> findUnivMates(@Param("univ") UnivEntity univ, @Param("member")Member member);
+
+    @Query("select v from VerifiedUniversityEmail v join fetch v.univName where v.member = :member")
+    Optional<VerifiedUniversityEmail> findByMemberFetchUniv(@Param("member") Member member);
 }

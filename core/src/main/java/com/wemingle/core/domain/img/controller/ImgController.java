@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.img.controller;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.responseform.ResponseHandler;
@@ -89,6 +90,22 @@ public class ImgController {
         return ResponseEntity.ok(ResponseHandler.<List<String>>builder()
                 .responseMessage("s3 url issuance complete")
                 .responseData(responseData)
+                .build());
+    }
+
+    @GetMapping("/member/team/request/profile/upload/{extension}")
+    public ResponseEntity<ResponseHandler<Object>> getTeamProfilePicUploadPreSignUrl(@PathVariable("extension") String extension,
+                                                                                     @AuthenticationPrincipal UserDetails userDetails) {
+        if (!s3ImgService.isAvailableExtension(extension)) {
+            return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
+        }
+
+        Member member = memberService.findByMemberId(userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                .responseMessage("s3 url issuance complete")
+                .responseData(s3ImgService.setTeamMemberProfilePreSignedUrl(member.getProfileImgId()))
                 .build());
     }
 }

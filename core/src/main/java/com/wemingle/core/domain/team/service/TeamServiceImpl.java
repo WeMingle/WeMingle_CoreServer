@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.team.service;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
+import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
@@ -43,6 +44,7 @@ public class TeamServiceImpl implements TeamService{
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     private final TeamReviewRepository teamReviewRepository;
     private final TeamRatingRepository teamRatingRepository;
+    private final TeamRequestRepository teamRequestRepository;
 
     private static final int PAGE_SIZE = 30;
     @Override
@@ -252,6 +254,7 @@ public class TeamServiceImpl implements TeamService{
                 .builder()
                 .beforeWriteInfo(member.isBeforeWriteInfo())
                 .isTeamMember(teamMember.isPresent())
+                .isTeamRequest(teamRequestRepository.existsByTeamAndRequester(team,member))
                 .univCondResult(createUnivCondResult(team.isOnlySameUniv(), memberUniv, teamOwnerUniv))
                 .genderCondResult(createGenderCondResult(team, member.getGender()))
                 .birthYearCondResult(createBirthYearCondResult(team, member.getBirthYear()))

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TeamQuestionnaire extends BaseEntity {
+public class TeamQuestionnaireAnswer extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")
@@ -19,16 +19,17 @@ public class TeamQuestionnaire extends BaseEntity {
 
     @NotNull
     @Column
-    private String content;
+    private String answer;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TEAM")
-    Team team;
+    @ManyToOne
+    @JoinColumn(name = "TEAM_QUESTIONNAIRE")
+    private TeamQuestionnaire teamQuestionnaire;
 
     @Builder
-    public TeamQuestionnaire(String content, Team team) {
-        this.content = content;
-        this.team = team;
+    public TeamQuestionnaireAnswer(Long pk, String answer, TeamQuestionnaire teamQuestionnaire) {
+        this.pk = pk;
+        this.answer = answer;
+        this.teamQuestionnaire = teamQuestionnaire;
     }
 }
