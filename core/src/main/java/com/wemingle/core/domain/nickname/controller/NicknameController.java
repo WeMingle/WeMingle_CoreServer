@@ -33,4 +33,17 @@ public class NicknameController {
                 .body(ResponseHandler.builder().responseMessage("사용할 수 없는 닉네임입니다.").build());
 
     }
+
+    @GetMapping("/team/{teamPk}/{nickname}/availability")
+    public ResponseEntity<ResponseHandler<Object>> checkTeamMemberNickname(@PathVariable Long teamPk,
+                                                                           @PathVariable("nickname")
+                                                                           @Size(min = 2, max = 10, message = "2~10글자 사이로 입력하세요")
+                                                                           String nickname) {
+        if (nicknameService.isAvailableNicknameInTeam(teamPk, nickname)) {
+            return ResponseEntity.ok(ResponseHandler.builder().responseMessage("사용 가능한 닉네임입니다.").build());
+        }
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ResponseHandler.builder().responseMessage("사용할 수 없는 닉네임입니다.").build());
+    }
 }

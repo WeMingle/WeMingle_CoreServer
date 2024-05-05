@@ -24,4 +24,5 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     List<TeamMember> findWithManagerOrHigher(@Param("teams") List<Team> teams);
     @Query("select tm from TeamMember tm where tm.team.pk = :teamPk and tm.member.memberId != :memberId")
     List<TeamMember> findWithTeamWithoutMe(@Param("teamPk") Long teamPk, @Param("memberId") String memberId);
+    Optional<TeamMember> findByTeam_PkAndNickname(Long teamPk, String nickname);
 }
