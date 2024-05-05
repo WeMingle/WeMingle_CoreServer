@@ -27,6 +27,8 @@ public class TeamRequestService {
     private final S3ImgService s3ImgService;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
 
+    private final static String IS_NOT_PUBLIC = "미공개";
+
     public TeamRequestDto.ResponseRequesterInfo getTeamRequestPageInfo(Long teamPk, String memberId){
         Member requester = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
@@ -53,14 +55,16 @@ public class TeamRequestService {
     }
 
     private String getMemberAge(Member member){
-        return member.isBirthYearPublic() ? String.valueOf(member.getBirthYear()) : "미공개";
+        return member.isBirthYearPublic() ? String.valueOf(member.getBirthYear()) : IS_NOT_PUBLIC;
     }
 
     private String getMajorArea(Member member){
-        return member.isMajorActivityAreaPublic() ? member.getMajorActivityArea().toString() : "미공개";
+        return member.isMajorActivityAreaPublic() ? member.getMajorActivityArea().toString() : IS_NOT_PUBLIC;
     }
 
     private String getAbility(Member member, String findAbility){
-        return member.isAbilityPublic() ? findAbility : "미공개";
+        return member.isAbilityPublic() ? findAbility : IS_NOT_PUBLIC;
     }
+
+
 }
