@@ -149,7 +149,6 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     private BooleanExpression lastIdxLt(Long nextIdx) {
         return nextIdx == null ? null : matchingPost.pk.lt(nextIdx);
     }
-    private BooleanExpression lastViewCntLoe(Long viewCnt) {return viewCnt == null ? null : matchingPost.viewCnt.loe(viewCnt);}
     private BooleanExpression lastExpiredDateLoe(LocalDate lastExpiredDate) {return lastExpiredDate == null ? null : matchingPost.expiryDate.loe(lastExpiredDate).and(matchingPost.expiryDate.before(LocalDate.now()));}
 
     private BooleanExpression recruitmentTypeEq(RecruitmentType recruitmentType) {
@@ -210,7 +209,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     private OrderSpecifier[] getSortOption(SortOption sortOption) {
         return switch (sortOption) {
             case NEW -> new OrderSpecifier[]{
-                    new OrderSpecifier<>(Order.DESC, matchingPost.createdTime),
+                    new OrderSpecifier<>(Order.DESC, matchingPost.pk),
                     new OrderSpecifier<>(Order.DESC,matchingPost.pk),
             };
             case DEADLINE -> new OrderSpecifier[]{
@@ -230,7 +229,7 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
                         expiredMatchesFilter(excludeCompleteMatchesFilter, matchingPostWithReview)
                 )
                 .limit(30)
-                .orderBy(matchingPost.createdTime.desc())
+                .orderBy(matchingPost.pk.desc())
                 .fetch();
     }
 
@@ -287,4 +286,67 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
     private BooleanExpression allCompleteMatches(){
         return matchingPost.matchingStatus.ne(MatchingStatus.PENDING);
     }
+
+    @Override
+    public List<MatchingPost> findRecentMatchingPost(Long nextIdx) {
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .where(nextIdx(nextIdx))
+                .orderBy(matchingPost.pk.desc())
+                .limit(30)
+                .fetch();
+    }
+
+    @Override
+    public int findSearchMatchingPostCnt(String query) {
+        Long cnt = jpaQueryFactory.select(matchingPost.count())
+                .from(matchingPost)
+                .where(
+                        isContainWithQuery(query)
+                )
+                .fetchOne();
+        
+        return cnt == null ? 0 : cnt.intValue();
+    }
+
+    private BooleanExpression isContainWithQuery(String query) {
+        return isContainInNickname(query)
+                .or(isContainInContent(query))
+                .or(isContainInArea(query));
+    }
+
+    private BooleanExpression isContainInNickname(String query) {
+        return matchingPost.team.teamName.contains(query).or(matchingPost.writer.nickname.contains(query));
+    }
+
+    private BooleanExpression isContainInContent(String query) {
+        return matchingPost.content.contains(query);
+    }
+
+    private BooleanExpression isContainInArea(String query){
+        return matchingPost.locationName.contains(query).or(matchingPost.areaList.any().areaName.stringValue().contains(query));
+    }
+
+    @Override
+    public List<MatchingPost> findSearchMatchingPost(String query, Long lastIdx, LocalDate lastExpiredDate, SortOption sortOption, Pageable pageable) {
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .where(
+                        isContainWithQuery(query),
+                        lastIdxLt(lastIdx),
+                        expiredDateFilter(sortOption, lastExpiredDate)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(getSortOption(sortOption))
+                .fetch();
+    }
+
+    private BooleanExpression expiredDateFilter(SortOption sortOption, LocalDate lastExpiredDate) {
+        return switch (sortOption) {
+            case NEW -> null;
+            case DEADLINE -> lastExpiredDate == null
+                    ? matchingPost.expiryDate.before(LocalDate.now())
+                    : matchingPost.expiryDate.loe(lastExpiredDate).and(matchingPost.expiryDate.before(LocalDate.now()));
+        };
+    }
+
 }

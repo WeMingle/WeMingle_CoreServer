@@ -16,6 +16,7 @@ import com.wemingle.core.domain.post.service.TeamPostService;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,6 +26,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashMap;
@@ -311,5 +314,72 @@ public class MatchingPostController {
         matchingPostService.completeMatchingPost(requestDto.getMatchingPostPk());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/popular/home")
+    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseTop15PopularPost>>> getTop15PopularPost(){
+        HashMap<Long, MatchingPostDto.ResponseTop15PopularPost> responseData = matchingPostService.getTop15PopularPost();
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseTop15PopularPost>>builder()
+                        .responseMessage("Popular post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseTop200PopularPost>>> getTop200PopularPost(@AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> responseData = matchingPostService.getTop200PopularPost(userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseTop200PopularPost>>builder()
+                        .responseMessage("Popular post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseRecentPost>>> getRecentPost(@RequestParam(required = false) Long nextIdx,
+                                                                                                            @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, MatchingPostDto.ResponseRecentPost> responseData = matchingPostService.getRecentPost(nextIdx, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseRecentPost>>builder()
+                        .responseMessage("Recent post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping("/result/count")
+    public ResponseEntity<ResponseHandler<Integer>> getSearchPostCnt(@RequestParam @NotBlank String query){
+        String decodeQuery = URLDecoder.decode(query, StandardCharsets.UTF_8);
+        Integer searchPostCnt = matchingPostService.getSearchPostCnt(decodeQuery);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<Integer>builder()
+                        .responseMessage("Search post cnt retrieval successfully")
+                        .responseData(searchPostCnt)
+                        .build()
+        );
+    }
+
+    @GetMapping("/result")
+    public ResponseEntity<ResponseHandler<HashMap<String, Object>>> getSearchPost(@RequestParam SortOption sortOption,
+                                                                                  @RequestParam @NotBlank String query,
+                                                                                  @RequestParam(required = false) Long lastIdx,
+                                                                                  @RequestParam(required = false) Integer callCnt,
+                                                                                  @RequestParam(required = false) LocalDate lastExpiredDate,
+                                                                                  @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<String, Object> responseData = matchingPostService.getSearchPost(query, lastIdx, lastExpiredDate, callCnt, sortOption, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<String, Object>>builder()
+                        .responseMessage("Search post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
     }
 }

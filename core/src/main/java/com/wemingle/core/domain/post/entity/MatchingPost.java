@@ -112,7 +112,7 @@ public class MatchingPost extends BaseEntity {
     private SportsType sportsCategory;
 
     @NotNull
-    @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
     @NotNull
