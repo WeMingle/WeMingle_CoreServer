@@ -7,6 +7,7 @@ import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.team.entity.Team;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,31 +22,41 @@ public class MatchingRequest extends BaseEntity {
     @Column(name = "pk")
     private Long pk;
 
+    @NotNull
     @Column(name = "CONTENT", length = 3000)
     private String content;
 
+    @Column(name = "CAPACITY_CNT")
+    private int capacityCnt;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     private RequestMemberType requestMemberType;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM")
     private Team team;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER")
     private Member member;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MATCHING_POST")
     private MatchingPost matchingPost;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "MATCHING_REQUEST_STATUS")
     private MatchingStatus matchingRequestStatus;
 
     @Builder
-    public MatchingRequest(String content, RequestMemberType requestMemberType, Team team, Member member, MatchingPost matchingPost, MatchingStatus matchingRequestStatus) {
+    public MatchingRequest(String content, int capacityCnt, RequestMemberType requestMemberType, Team team, Member member, MatchingPost matchingPost, MatchingStatus matchingRequestStatus) {
         this.content = content;
+        this.capacityCnt = capacityCnt;
         this.requestMemberType = requestMemberType;
         this.team = team;
         this.member = member;

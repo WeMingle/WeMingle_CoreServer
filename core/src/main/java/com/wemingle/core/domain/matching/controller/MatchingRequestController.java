@@ -5,13 +5,16 @@ import com.wemingle.core.domain.matching.dto.MatchingRequestDto;
 import com.wemingle.core.domain.matching.service.MatchingRequestService;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @Slf4j
@@ -20,6 +23,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MatchingRequestController {
     private final MatchingRequestService matchingRequestService;
+
+    @Value("${wemingle.ip}")
+    private String serverIp;
+
+    private static final String MATCHING_POST_DETAIL_PATH = "/post/match/";
     @GetMapping("/history")
     public ResponseEntity<ResponseHandler<List<MatchingRequestDto.ResponseMatchingRequestHistory>>> getMatchingRequestHistories(@RequestParam(required = false) Long nextIdx,
                                                                                                                                 @RequestParam(required = false) RequestType requestType,
@@ -60,5 +68,14 @@ public class MatchingRequestController {
         matchingRequestService.approveMatchingRequests(matchingRequestApprove);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<ResponseHandler<String>> saveMatchingRequest(@RequestBody @Valid MatchingRequestDto.RequestMatchingRequestSave requestSaveDto,
+                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        matchingRequestService.saveMatchingRequest(requestSaveDto, userDetails.getUsername());
+
+        String createdUrl = serverIp + MATCHING_POST_DETAIL_PATH + "/" + requestSaveDto.getMatchingPostPk();
+        return ResponseEntity.created(URI.create(createdUrl)).build();
     }
 }

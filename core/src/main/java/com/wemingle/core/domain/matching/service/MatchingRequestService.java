@@ -21,6 +21,8 @@ import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.rating.entity.TeamRating;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.repository.TeamMemberRepository;
+import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -50,6 +52,8 @@ public class MatchingRequestService {
     private final S3ImgService s3ImgService;
     private final TeamRatingRepository teamRatingRepository;
     private final MemberAbilityRepository memberAbilityRepository;
+    private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
     private static final String IS_OWNER_SENT_SUFFIX = "에 매칭 신청을 보냈습니다.";
     private static final String IS_PARTICIPANT_TITLE_PREFIX = "내가 속한 ";
@@ -208,5 +212,61 @@ public class MatchingRequestService {
         MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
         return matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
+    }
+
+    @Transactional
+    public void saveMatchingRequest(MatchingRequestDto.RequestMatchingRequestSave requestSaveDto, String memberId){
+        MatchingPost matchingPost = matchingPostRepository.findById(requestSaveDto.getMatchingPostPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        Team requestTeam = teamRepository.findById(requestSaveDto.getRequestTeamPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Member requester = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<Long> participantsTeamMemberPk = requestSaveDto.getParticipantsPk();
+
+        matchingRequestRepository.save(requestSaveDto.of(requestTeam, requester, matchingPost));
+        switch (matchingPost.getRecruitmentType()){
+            case APPROVAL_BASED -> {
+                if (isExistTeamParticipant(matchingPost.getRecruiterType(), participantsTeamMemberPk)) {
+                    List<Member> participants = teamMemberRepository.findMemberByTeamMemberIdIn(participantsTeamMemberPk);
+                    matchingRequestRepository.saveAll(requestSaveDto.of(requestTeam, participants, matchingPost));
+                }
+            }
+            case FIRST_SERVED_BASED -> {
+                saveMatchingOwner(requestTeam, requester, matchingPost);
+
+                if (isExistTeamParticipant(matchingPost.getRecruiterType(), participantsTeamMemberPk)) {
+                    List<Member> participants = teamMemberRepository.findMemberByTeamMemberIdIn(participantsTeamMemberPk);
+                    matchingRequestRepository.saveAll(requestSaveDto.of(requestTeam, participants, matchingPost));
+
+                    saveMatchingParticipants(requestTeam, participants, matchingPost);
+                }
+            }
+        }
+    }
+
+    private boolean isExistTeamParticipant(RecruiterType recruiterType, List<Long> participantsTeamMemberPk) {
+        return recruiterType.equals(RecruiterType.TEAM) && !participantsTeamMemberPk.isEmpty();
+    }
+
+    private void saveMatchingOwner(Team team, Member member, MatchingPost matchingPost) {
+        Matching matchingTeamOwner = Matching.builder()
+                .matchingPost(matchingPost)
+                .member(member)
+                .team(team)
+                .build();
+
+        matchingRepository.save(matchingTeamOwner);
+    }
+
+    private void saveMatchingParticipants(Team team, List<Member> memberList, MatchingPost matchingPost) {
+        List<Matching> matchingParticipantList = memberList.stream().map(member -> Matching.builder()
+                        .matchingPost(matchingPost)
+                        .member(member)
+                        .team(team)
+                        .build())
+                .toList();
+
+        matchingRepository.saveAll(matchingParticipantList);
     }
 }

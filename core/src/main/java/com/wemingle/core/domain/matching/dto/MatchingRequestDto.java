@@ -1,13 +1,21 @@
 package com.wemingle.core.domain.matching.dto;
 
 import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStatus;
+import com.wemingle.core.domain.matching.entity.MatchingRequest;
+import com.wemingle.core.domain.matching.entity.requestmembertype.RequestMemberType;
 import com.wemingle.core.domain.matching.vo.TitleInfo;
+import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
+import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -114,7 +122,7 @@ public class MatchingRequestDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MatchingRequestApprove {
-        List<Long> matchingRequests;
+        private List<Long> matchingRequests;
     }
 
     @Getter
@@ -122,6 +130,51 @@ public class MatchingRequestDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MatchingRequestDelete {
-        List<Long> matchingRequests;
+        private List<Long> matchingRequests;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestMatchingRequestSave {
+        private Long matchingPostPk;
+        private Long requestTeamPk;
+        private List<Long> participantsPk = new ArrayList<>(); // member pk
+        private int capacityCnt;
+        @NotBlank
+        private String content;
+
+        public MatchingRequest of(Team requestTeam, Member requester, MatchingPost matchingPost){
+            MatchingStatus matchingStatus = matchingPost.getRecruitmentType().equals(RecruitmentType.APPROVAL_BASED)
+                    ? MatchingStatus.PENDING
+                    : MatchingStatus.COMPLETE;
+
+            return MatchingRequest.builder()
+                    .content(content)
+                    .capacityCnt(capacityCnt)
+                    .team(requestTeam)
+                    .matchingRequestStatus(matchingStatus)
+                    .requestMemberType(RequestMemberType.REQUESTER)
+                    .member(requester)
+                    .matchingPost(matchingPost)
+                    .build();
+        }
+
+        public List<MatchingRequest> of(Team requestTeam, List<Member> requesters, MatchingPost matchingPost){
+            MatchingStatus matchingStatus = matchingPost.getRecruitmentType().equals(RecruitmentType.APPROVAL_BASED)
+                    ? MatchingStatus.PENDING
+                    : MatchingStatus.COMPLETE;
+
+            return requesters.stream().map(requester -> MatchingRequest.builder()
+                    .content(content)
+                    .capacityCnt(capacityCnt)
+                    .requestMemberType(RequestMemberType.PARTICIPANT)
+                    .matchingRequestStatus(matchingStatus)
+                    .team(requestTeam)
+                    .member(requester)
+                    .matchingPost(matchingPost)
+                    .build())
+                    .toList();
+        }
     }
 }
