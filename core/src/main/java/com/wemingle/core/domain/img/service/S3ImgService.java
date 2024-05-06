@@ -80,6 +80,7 @@ public class S3ImgService {
         URL url = s3Presigner.presignGetObject(objectPreSignRequest).url();
         s3Presigner.close();
         return url.toString();
+
     }
 
     public List<String> getTeamPostPicUrl(List<UUID> picIds) {
