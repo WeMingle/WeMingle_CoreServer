@@ -1044,4 +1044,12 @@ public class MatchingPostService {
         matchingRepository.deleteAllInBatch(matchings);
         matchingPostRepository.delete(matchingPost);
     }
+
+    @Transactional
+    public void updateMatchingPostContent(Long matchingPostPk, String content){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(MATCHING_POST_NOT_FOUND.getExceptionMessage()));
+
+        matchingPost.updateContent(content);
+    }
 }

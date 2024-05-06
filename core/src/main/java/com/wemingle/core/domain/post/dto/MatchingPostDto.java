@@ -415,4 +415,12 @@ public class MatchingPostDto {
             this.isExpired = isExpired;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestUpdatePost {
+        @NotBlank
+        private String content;
+    }
 }

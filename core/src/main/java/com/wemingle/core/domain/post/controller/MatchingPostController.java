@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@Validated
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -408,6 +410,14 @@ public class MatchingPostController {
         }
 
         matchingPostService.deleteMatchingPost(matchingPost, matchings);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{matchingPostPk}")
+    public ResponseEntity<ResponseHandler<Object>> updateMatchingPostContent(@PathVariable Long matchingPostPk,
+                                                                             @RequestBody @Valid MatchingPostDto.RequestUpdatePost updatePostDto){
+        matchingPostService.updateMatchingPostContent(matchingPostPk, updatePostDto.getContent());
 
         return ResponseEntity.noContent().build();
     }

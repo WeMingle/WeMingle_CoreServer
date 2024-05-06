@@ -190,4 +190,7 @@ public class MatchingPost extends BaseEntity {
     public void complete(){
         this.matchingStatus = MatchingStatus.COMPLETE;
     }
+    public void updateContent(String content){
+        this.content = content;
+    }
 }
