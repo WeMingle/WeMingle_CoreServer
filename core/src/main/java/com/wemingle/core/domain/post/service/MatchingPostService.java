@@ -710,7 +710,7 @@ public class MatchingPostService {
     public void saveMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
         RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
         Long teamPk = createMatchingPostDto.getTeamPk();
-        List<String> participantsId = createMatchingPostDto.getParticipantsId();
+        List<Long> participantsTeamMemberId = createMatchingPostDto.getParticipantsId();
 
         Team team = teamRepository.findById(teamPk).orElseThrow(() -> new EntityNotFoundException(TEAM_NOT_FOUND.getExceptionMessage()));
         TeamMember writerInTeam = teamMemberRepository.findByTeamAndMember_MemberId(team, writerId)
@@ -722,8 +722,8 @@ public class MatchingPostService {
         Member teamOwner = memberRepository.findByMemberId(writerId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         saveMatchingOwner(team, teamOwner, matchingPost);
 
-        if (isExistTeamParticipant(recruiterType, participantsId)){
-            List<Member> memberList = memberRepository.findByMemberIdIn(participantsId);
+        if (isExistTeamParticipant(recruiterType, participantsTeamMemberId)){
+            List<Member> memberList = teamMemberRepository.findMemberByTeamMemberIdIn(participantsTeamMemberId);
             saveMatchingParticipants(team, memberList, matchingPost);
         }
     }
@@ -749,7 +749,7 @@ public class MatchingPostService {
         matchingRepository.saveAll(matchingParticipantList);
     }
 
-    private boolean isExistTeamParticipant(RecruiterType recruiterType, List<String> participantsPk) {
+    private boolean isExistTeamParticipant(RecruiterType recruiterType, List<Long> participantsPk) {
         return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty();
     }
 

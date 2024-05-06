@@ -161,7 +161,7 @@ public class MatchingPostDto {
         private int capacityLimit;
         @NotNull
         private Long teamPk;
-        private List<String> participantsId = new ArrayList<>(); // member pk
+        private List<Long> participantsId = new ArrayList<>(); // member pk
         @NotNull
         private LocalDate expiryDate;
         @NotNull
@@ -176,11 +176,19 @@ public class MatchingPostDto {
         private SportsType sportsType;
 
         @Builder
-        public CreateMatchingPostDto(List<LocalDate> matchingDate, Double latitude, Double longitude, String locationName, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<String> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
+        public CreateMatchingPostDto(List<LocalDate> matchingDate, Double latitude, Double longitude, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<Long> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
             this.matchingDate = matchingDate;
             this.latitude = latitude;
             this.longitude = longitude;
             this.locationName = locationName;
+            this.dou = dou;
+            this.si = si;
+            this.gun = gun;
+            this.gu = gu;
+            this.dong = dong;
+            this.eup = eup;
+            this.myeon = myeon;
+            this.ri = ri;
             this.areaNameList = areaNameList;
             this.isLocationConsensusPossible = isLocationConsensusPossible;
             this.ability = ability;
