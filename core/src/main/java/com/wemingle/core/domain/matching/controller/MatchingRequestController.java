@@ -27,7 +27,7 @@ public class MatchingRequestController {
     @Value("${wemingle.ip}")
     private String serverIp;
 
-    private static final String MATCHING_POST_DETAIL_PATH = "/post/match/";
+    private static final String MATCHING_POST_DETAIL_PATH = "/post/match";
     @GetMapping("/history")
     public ResponseEntity<ResponseHandler<List<MatchingRequestDto.ResponseMatchingRequestHistory>>> getMatchingRequestHistories(@RequestParam(required = false) Long nextIdx,
                                                                                                                                 @RequestParam(required = false) RequestType requestType,
