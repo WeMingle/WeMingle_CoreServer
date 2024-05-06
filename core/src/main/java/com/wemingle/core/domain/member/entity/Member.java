@@ -94,6 +94,10 @@ public class Member extends BaseEntity implements UserDetails {
     private int complaintsCount;
 
     @NotNull
+    @Column(name = "COMPLETED_MATCHING_CNT")
+    private int completedMatchingCnt;
+
+    @NotNull
     @Column(name = "NOTIFY_ALLOW")
     private boolean notifyAllow;
 
@@ -144,6 +148,7 @@ public class Member extends BaseEntity implements UserDetails {
         this.firebaseToken = firebaseToken;
         this.role = role;
         this.complaintsCount = 0;
+        this.completedMatchingCnt = 0;
         this.notifyAllow = notifyAllow;
         this.policyTerms = policyTerms;
         this.numberOfMatches = numberOfMatches;

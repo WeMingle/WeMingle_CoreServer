@@ -24,11 +24,11 @@ public class TeamController {
     private final TeamMemberService teamMemberService;
 
     @GetMapping("/profile/writable")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseTeamInfoDto> teamListInfo = teamService.getTeamInfoWithAvailableWrite(userDetails.getUsername());
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getTeamInfoWithAvailableWrite(userDetails.getUsername());
 
         return ResponseEntity.ok(
-                ResponseHandler.<HashMap<Long, TeamDto.ResponseTeamInfoDto>>builder()
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>builder()
                         .responseMessage("Teams info retrieval successfully")
                         .responseData(teamListInfo)
                         .build()

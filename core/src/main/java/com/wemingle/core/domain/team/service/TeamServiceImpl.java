@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.team.service;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
+import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
@@ -43,27 +44,37 @@ public class TeamServiceImpl implements TeamService{
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     private final TeamReviewRepository teamReviewRepository;
     private final TeamRatingRepository teamRatingRepository;
+    private final TeamRequestRepository teamRequestRepository;
 
     private static final int PAGE_SIZE = 30;
     @Override
-    public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId) {
-        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableWrite(memberId);
+    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableWrite(member);
 
-        HashMap<Long, TeamDto.ResponseTeamInfoDto> responseTeamInfo = new HashMap<>();
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> responseTeamInfo = new HashMap<>();
 
         teamList.forEach(team -> responseTeamInfo.put(team.getPk(),
-                        TeamDto.ResponseTeamInfoDto.builder()
-                                .teamName(team.getTeamName())
-                                .teamImgUrl(getTeamImgUrl(memberId, team))
+                        TeamDto.ResponseWritableTeamInfoDto.builder()
+                                .teamName(getNicknameUrl(team, member))
+                                .teamImgUrl(getTeamImgUrl(team))
+                                .teamType(team.getTeamType())
                                 .build()));
 
         return responseTeamInfo;
     }
 
-    private String getTeamImgUrl(String memberId, Team team) {
-        return team.getTeamName().equals(memberId) 
+    private String getTeamImgUrl(Team team) {
+        return team.getTeamType().equals(TeamType.INDIVIDUAL)
                 ? s3ImgService.getMemberProfilePicUrl(team.getProfileImgId())
                 : s3ImgService.getGroupProfilePicUrl(team.getProfileImgId());
+    }
+
+    private String getNicknameUrl(Team team, Member member) {
+        return team.getTeamType().equals(TeamType.INDIVIDUAL)
+                ? member.getNickname()
+                : team.getTeamName();
     }
 
     @Override
@@ -243,6 +254,7 @@ public class TeamServiceImpl implements TeamService{
                 .builder()
                 .beforeWriteInfo(member.isBeforeWriteInfo())
                 .isTeamMember(teamMember.isPresent())
+                .isTeamRequest(teamRequestRepository.existsByTeamAndRequester(team,member))
                 .univCondResult(createUnivCondResult(team.isOnlySameUniv(), memberUniv, teamOwnerUniv))
                 .genderCondResult(createGenderCondResult(team, member.getGender()))
                 .birthYearCondResult(createBirthYearCondResult(team, member.getBirthYear()))

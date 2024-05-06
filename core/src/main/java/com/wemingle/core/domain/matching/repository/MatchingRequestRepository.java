@@ -28,5 +28,6 @@ public interface MatchingRequestRepository extends JpaRepository<MatchingRequest
             "where mr.matchingPost = :matchingPost and mr.team in :team and mr.matchingRequestStatus = 'PENDING'")
     List<MatchingRequest> findAllRequestsWithTeam(@Param("matchingPost") MatchingPost matchingPost,
                                                   @Param("team") Set<Team> team);
+    List<MatchingRequest> findByMatchingPost(MatchingPost matchingPost);
 
 }

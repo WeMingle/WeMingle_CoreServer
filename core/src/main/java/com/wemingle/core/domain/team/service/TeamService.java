@@ -6,7 +6,7 @@ import com.wemingle.core.domain.team.dto.TeamDto;
 import java.util.HashMap;
 
 public interface TeamService {
-    HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId);
+    HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId);
     TeamDto.ResponseTeamHomeConditions getTeamHomeConditions(String memberId);
     HashMap<Long, TeamDto.ResponseRecommendationTeamInfo> getRecommendTeams(Long nextIdx, String memberId);
     HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> getRecommendTeamsForMember(Long nextIdx, String memberId);

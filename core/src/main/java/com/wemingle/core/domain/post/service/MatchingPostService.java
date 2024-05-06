@@ -5,7 +5,9 @@ import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.entity.Matching;
+import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
+import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
@@ -17,9 +19,11 @@ import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelectionType;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostAreaRepository;
+import com.wemingle.core.domain.post.repository.MatchingPostMatchingDateRepository;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.review.repository.TeamReviewRepository;
 import com.wemingle.core.domain.team.entity.Team;
@@ -63,11 +67,23 @@ public class MatchingPostService {
     private final BookmarkRepository bookmarkRepository;
     private final TeamReviewRepository teamReviewRepository;
     private final S3ImgService s3ImgService;
+    private final MatchingPostMatchingDateRepository matchingPostMatchingDateRepository;
+    private final MatchingRequestRepository matchingRequestRepository;
+
 
     @Value("${wemingle.ip}")
     private String serverIp;
 
     private static final int PERMIT_CANCEL_DURATION = 3;
+    private static final int PAGE_SIZE = 30;
+    private static final String SEARCH_MATCHING_POST_PATH = "/post/match/result";
+
+    public HashMap<Long, Object> getAllMyPosts(Long nextIdx, RecruiterType recruiterType, String memberId) {
+        List<MatchingPost> myAllMatchingPosts = matchingPostRepository.findMyAllMatchingPosts(nextIdx, recruiterType, memberId);
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(myAllMatchingPosts, memberId);
+        return createMatchingPostDtoMap(myAllMatchingPosts, bookmarkedByMatchingPosts);
+
+    }
 
     public MatchingPost getMatchingPostByPostId(Long postId) {
         return matchingPostRepository.findById(postId)
@@ -351,12 +367,19 @@ public class MatchingPostService {
                     boolean isBookmarked = bookmarkedByMatchingPosts.stream().anyMatch(bookmark -> bookmark.getMatchingPost().equals(post));
 
                     postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostDto.builder()
-                            .writer(post.getWriter().getTeam().getTeamName())
+                            .writer(
+                                    post.getWriter().getTeam().getTeamType().equals(TeamType.INDIVIDUAL) ?
+                                    post.getWriter().getMember().getMemberId() : post.getWriter().getTeam().getTeamName()
+                            )
                             .matchingDate(getMatchingDates(post))
-                            .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
+                            .areaList(
+                                    post.getLocationName().isEmpty() ?
+                                    post.getAreaList().stream().map(matchingPostArea -> matchingPostArea.getAreaName().toString()).toList() : List.of(post.getLocationName())
+                            )
                             .ability(post.getAbility())
                             .isLocationConsensusPossible(post.isLocationConsensusPossible())
                             .contents(post.getContent())
+                            .matchingStatus(post.getMatchingStatus())
                             .recruiterType(post.getRecruiterType())
                             .profilePicUrl(post.getRecruiterType().equals(RecruiterType.TEAM) ? s3ImgService.getGroupProfilePicUrl(post.getTeam().getProfileImgId()) : s3ImgService.getMemberProfilePicUrl(post.getTeam().getProfileImgId()))
                             .matchingCnt(post.getTeam().getCompletedMatchingCnt())
@@ -563,17 +586,18 @@ public class MatchingPostService {
         Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         List<MatchingPost> matchingPostWrittenReview = teamReviewRepository.findMatchingPostWithMemberId(member);
         List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWrittenReview);
-        List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
+//        List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
         List<TeamMember> managerOrHigherTeamMembers = teamMemberRepository.findWithManagerOrHigher(getTeamsWithMatchingPosts(matchingPosts));
         LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
 
         matchingPosts.forEach(matchingPost -> responseHashMap.put(matchingPost.getPk(), MatchingPostDto.ResponseCompletedMatchingPost.builder()
                 .matchingDate(getMatchingDates(matchingPost))
                 .recruiterType(matchingPost.getRecruiterType())
-                .teamName(matchingPost.getTeam().getTeamName())
+                .nickname(getNickname(matchingPost))
                 .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
                 .content(matchingPost.getContent())
-                .areaNames(getAreaNames(matchingPost, matchingPostAreas))
+//                .areaNames(getAreaNames(matchingPost, matchingPostAreas))
+                .areaNames(getAreas(matchingPost))
                 .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
                 .ability(matchingPost.getAbility())
                 .profileImgUrl(getProfileImgUrl(matchingPost))
@@ -588,13 +612,13 @@ public class MatchingPostService {
         return matchingPosts.stream().map(MatchingPost::getTeam).toList();
     }
 
-
-    private List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
-        return matchingPostAreas.stream()
-                .filter(matchingPostArea -> matchingPostArea.getMatchingPost().equals(matchingPost))
-                .map(MatchingPostArea::getAreaName)
-                .toList();
-    }
+//
+//    private List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
+//        return matchingPostAreas.stream()
+//                .filter(matchingPostArea -> matchingPostArea.getMatchingPost().equals(matchingPost))
+//                .map(MatchingPostArea::getAreaName)
+//                .toList();
+//    }
 
     private String getProfileImgUrl(MatchingPost matchingPost) {
         return isTeam(matchingPost)
@@ -767,9 +791,47 @@ public class MatchingPostService {
 
     @Transactional
     public void rePostMatchingPost(MatchingPost matchingPost){
-        matchingPost.updateForRePost();
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findByMatchingPost(matchingPost);
+        List<Matching> matchings = matchingRepository.findByMatchingPost(matchingPost);
+        matchingRepository.deleteAllInBatch(matchings);
+        List<MatchingRequest> matchingRequests = matchingRequestRepository.findByMatchingPost(matchingPost);
+        matchingRequestRepository.deleteAllInBatch(matchingRequests);
+        //todo 신고 db 완성되면 신고 기록도 삭제
+
+        MatchingPost reCreateMatchingPost = matchingPost.reCreateMatchingPost();
+        matchingPostRepository.save(reCreateMatchingPost);
+
+        updateBookmarkedWithNewPost(bookmarkedMatchingPosts, reCreateMatchingPost);
+        reSaveMatchingDates(matchingPost, reCreateMatchingPost);
+        reSaveAreas(matchingPost, reCreateMatchingPost);
+
+        matchingPostRepository.delete(matchingPost);
     }
 
+    private void updateBookmarkedWithNewPost(List<BookmarkedMatchingPost> bookmarkedMatchingPosts, MatchingPost reCreateMatchingPost) {
+        bookmarkedMatchingPosts.forEach(bookmarkedMatchingPost -> bookmarkedMatchingPost.updateMatchingPost(reCreateMatchingPost));
+    }
+
+    private void reSaveMatchingDates(MatchingPost matchingPost, MatchingPost reCreateMatchingPost) {
+        List<MatchingPostMatchingDate> reCreateMatchingDates =matchingPost.getMatchingDates().stream()
+                .map(matchingDate -> MatchingPostMatchingDate.builder()
+                        .matchingDate(matchingDate.getMatchingDate())
+                        .matchingPost(reCreateMatchingPost).build())
+                .toList();
+
+        matchingPostMatchingDateRepository.saveAll(reCreateMatchingDates);
+    }
+
+    private void reSaveAreas(MatchingPost matchingPost, MatchingPost reCreateMatchingPost) {
+        List<MatchingPostArea> reCreateMatchingAreas = matchingPost.getAreaList().stream()
+                .map(area -> MatchingPostArea.builder()
+                        .matchingPost(reCreateMatchingPost)
+                        .areaName(area.getAreaName())
+                        .build())
+                .toList();
+
+        matchingPostAreaRepository.saveAll(reCreateMatchingAreas);
+    }
 
     @Transactional
     public void completeMatchingPost(Long matchingPostPk){
@@ -777,5 +839,189 @@ public class MatchingPostService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MATCHING_POST_NOT_FOUND.getExceptionMessage()));
 
         matchingPost.complete();
+    }
+
+    public HashMap<Long, MatchingPostDto.ResponseTop15PopularPost> getTop15PopularPost(){
+        List<MatchingPost> top15PopularPost = matchingPostRepository.findTop15PopularPost();
+        LinkedHashMap<Long, MatchingPostDto.ResponseTop15PopularPost> responseData = new LinkedHashMap<>();
+
+        top15PopularPost.forEach(matchingPost -> responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop15PopularPost.builder()
+                .imgUrl(getProfileImgUrl(matchingPost))
+                .nickname(getNickname(matchingPost))
+                .areas(getAreas(matchingPost))
+                .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+                .matchingDate(getMatchingDates(matchingPost))
+                .expiryDate(matchingPost.getExpiryDate())
+                .recruiterType(matchingPost.getRecruiterType())
+                .ability(matchingPost.getAbility())
+                .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+                .build()));
+
+        return responseData;
+    }
+
+    private String getNickname(MatchingPost matchingPost){
+        return isTeam(matchingPost)
+                ? matchingPost.getTeam().getTeamName()
+                : matchingPost.getWriter().getNickname();
+    }
+
+    private List<String> getAreas(MatchingPost matchingPost){
+        return matchingPost.getLocationSelectionType().equals(LocationSelectionType.SEARCH_BASED)
+                ? List.of(matchingPost.getLocationName())
+                : matchingPost.getAreaList().stream().map(matchingPostArea -> matchingPostArea.getAreaName().toString()).toList();
+    }
+
+    public HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> getTop200PopularPost(String memberId){
+        List<MatchingPost> top200PopularPost = matchingPostRepository.findTop200PopularPost();
+        LinkedHashMap<Long, MatchingPostDto.ResponseTop200PopularPost> responseData = new LinkedHashMap<>();
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(top200PopularPost, memberId);
+
+        top200PopularPost.forEach(matchingPost ->
+            responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop200PopularPost.builder()
+                .imgUrl(getProfileImgUrl(matchingPost))
+                .nickname(getNickname(matchingPost))
+                .content(matchingPost.getContent())
+                .areas(getAreas(matchingPost))
+                .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+                .matchingDate(getMatchingDates(matchingPost))
+                .recruiterType(matchingPost.getRecruiterType())
+                .ability(matchingPost.getAbility())
+                .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+                        .isBookmarked(isBookmarked(matchingPost, bookmarkedMatchingPosts))
+                        .isExpired(isExpired(matchingPost))
+                .build()));
+
+        return responseData;
+    }
+
+    private boolean isBookmarked(MatchingPost matchingPost, List<BookmarkedMatchingPost> bookmarkedMatchingPosts) {
+        return bookmarkedMatchingPosts.stream().map(BookmarkedMatchingPost::getMatchingPost).anyMatch(matchingPost::equals);
+    }
+
+    protected boolean isExpired(MatchingPost matchingPost) {
+        return matchingPost.getMatchingStatus().equals(MatchingStatus.COMPLETE) || matchingPost.getExpiryDate().isBefore(LocalDate.now());
+    }
+
+    public HashMap<Long, MatchingPostDto.ResponseRecentPost> getRecentPost(Long nextIdx, String memberId){
+        List<MatchingPost> recentPost = matchingPostRepository.findRecentMatchingPost(nextIdx);
+        LinkedHashMap<Long, MatchingPostDto.ResponseRecentPost> responseData = new LinkedHashMap<>();
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(recentPost, memberId);
+
+        recentPost.forEach(matchingPost ->
+                responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseRecentPost.builder()
+                        .imgUrl(getProfileImgUrl(matchingPost))
+                        .nickname(getNickname(matchingPost))
+                        .content(matchingPost.getContent())
+                        .areas(getAreas(matchingPost))
+                        .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+                        .matchingDate(getMatchingDates(matchingPost))
+                        .recruiterType(matchingPost.getRecruiterType())
+                        .ability(matchingPost.getAbility())
+                        .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+                        .isBookmarked(isBookmarked(matchingPost, bookmarkedMatchingPosts))
+                        .isExpired(isExpired(matchingPost))
+                        .build()));
+
+        return responseData;
+    }
+
+    public int getSearchPostCnt(String query){
+        return matchingPostRepository.findSearchMatchingPostCnt(query);
+    }
+
+    public HashMap<String, Object> getSearchPost(String query, Long lastIdx, LocalDate lastExpiredDate, Integer callCnt, SortOption sortOption, String memberId){
+        List<MatchingPost> searchMatchingPosts = getSearchMatchingPosts(query, lastIdx, lastExpiredDate, callCnt, sortOption);
+        List<BookmarkedMatchingPost> bookmarked = bookmarkRepository.findBookmarkedByMatchingPosts(searchMatchingPosts, memberId);
+
+        Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, searchMatchingPosts);
+        log.info("{}", nextUrlCallCnt == null ? 0 : nextUrlCallCnt);
+        String nextUrl = createNextRetrieveUrlParamsBySearch(getLastIdxInMatchingPostList(searchMatchingPosts), sortOption, getLastExpiredDateInMatchingPostList(sortOption, searchMatchingPosts), query, nextUrlCallCnt);
+        HashMap<Long, MatchingPostDto.ResponseSearchPost> responsePostList = createResponsePostList(searchMatchingPosts, bookmarked);
+
+        return createResponseData(responsePostList, nextUrl);
+    }
+
+    private HashMap<String, Object> createResponseData(HashMap<Long, MatchingPostDto.ResponseSearchPost> responsePostList, String nextUrl) {
+//        nextUrl = responsePostList.isEmpty() ? null : serverIp + SEARCH_MATCHING_POST_PATH + "?" + nextUrl;
+        nextUrl = responsePostList.isEmpty() ? null : "http://localhost:8080" + SEARCH_MATCHING_POST_PATH + "?" + nextUrl;
+        HashMap<String, Object> responseData = new HashMap<>();
+        responseData.put("nextUrl", nextUrl);
+        responseData.put("postList", responsePostList);
+
+        return responseData;
+    }
+
+    private HashMap<Long, MatchingPostDto.ResponseSearchPost> createResponsePostList(List<MatchingPost> searchMatchingPosts, List<BookmarkedMatchingPost> bookmarked) {
+        LinkedHashMap<Long, MatchingPostDto.ResponseSearchPost> postList = new LinkedHashMap<>();
+        searchMatchingPosts.forEach(post -> postList.put(post.getPk(), MatchingPostDto.ResponseSearchPost.builder()
+                .imgUrl(getProfileImgUrl(post))
+                .nickname(getNickname(post))
+                .content(post.getContent())
+                .areas(getAreas(post))
+                .matchingCnt(post.getTeam().getCompletedMatchingCnt())
+                .matchingDate(getMatchingDates(post))
+                .recruiterType(post.getRecruiterType())
+                .ability(post.getAbility())
+                .isLocationConsensusPossible(post.isLocationConsensusPossible())
+                .isBookmarked(isBookmarked(post, bookmarked))
+                .isExpired(isExpired(post))
+                .build()));
+
+        return postList;
+    }
+
+    private List<MatchingPost> getSearchMatchingPosts(String query, Long lastIdx, LocalDate lastExpiredDate, Integer callCnt, SortOption sortOption) {
+        List<MatchingPost> matchingPosts;
+        switch (sortOption){
+            case NEW -> {
+                matchingPosts = matchingPostRepository.findSearchMatchingPost(
+                        query,
+                        lastIdx,
+                        lastExpiredDate,
+                        sortOption,
+                        PageRequest.of(0, PAGE_SIZE));
+            }
+            case DEADLINE -> {
+                int pageNumber = callCnt == null ? 0 : callCnt;
+                matchingPosts = matchingPostRepository.findSearchMatchingPost(
+                        query,
+                        null,
+                        lastExpiredDate,
+                        sortOption,
+                        PageRequest.of(pageNumber, PAGE_SIZE));
+                removeDuplicatePosts(lastIdx, matchingPosts);
+
+                if (matchingPosts.size() < 30){
+                    matchingPosts.addAll(
+                            matchingPostRepository.findSearchMatchingPost(
+                                    query,
+                                    null,
+                                    lastExpiredDate,
+                                    sortOption,
+                                    PageRequest.of(pageNumber + 1, PAGE_SIZE))
+                    );
+                }
+                matchingPosts = matchingPosts.stream().limit(PAGE_SIZE).toList();
+            }
+            default -> throw new RuntimeException("unknown enum value");
+        }
+        return matchingPosts;
+    }
+
+    private String createNextRetrieveUrlParamsBySearch(Long lastIdx, SortOption sortOption, LocalDate lastExpiredDate, String query, Integer callCnt) {
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("lastIdx", lastIdx);
+        parameters.put("sortOption", sortOption);
+        parameters.put("lastExpiredDate", lastExpiredDate);
+        parameters.put("query", query);
+        if (sortOption.equals(SortOption.DEADLINE)) {
+            parameters.put("callCnt", callCnt);
+        }
+
+        return parameters.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&"));
     }
 }

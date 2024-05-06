@@ -1,10 +1,13 @@
 package com.wemingle.core.domain.team.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -135,21 +138,26 @@ public class TeamDto {
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     public static class ResponseTeamParticipantCond {
         private boolean beforeWriteInfo;
+        @JsonProperty("isTeamMember")
         private boolean isTeamMember;
+        @JsonProperty("isTeamRequest")
+        private boolean isTeamRequest;
         private Boolean univCondResult;
         private GenderCondResult genderCondResult;
         private BirthYearCondResult birthYearCondResult;
 
         @Builder
-        public ResponseTeamParticipantCond(boolean beforeWriteInfo, Boolean univCondResult, GenderCondResult genderCondResult, BirthYearCondResult birthYearCondResult, boolean isTeamMember) {
+        public ResponseTeamParticipantCond(boolean beforeWriteInfo, boolean isTeamMember, boolean isTeamRequest, Boolean univCondResult, GenderCondResult genderCondResult, BirthYearCondResult birthYearCondResult) {
             this.beforeWriteInfo = beforeWriteInfo;
+            this.isTeamMember = isTeamMember;
+            this.isTeamRequest = isTeamRequest;
             this.univCondResult = univCondResult;
             this.genderCondResult = genderCondResult;
             this.birthYearCondResult = birthYearCondResult;
-            this.isTeamMember = isTeamMember;
         }
     }
 
@@ -178,6 +186,21 @@ public class TeamDto {
             this.isSatisfiedBirthYearCond = isSatisfiedBirthYearCond;
             this.startAge = startAge;
             this.endAge = endAge;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseWritableTeamInfoDto {
+        private String teamName;
+        private String teamImgUrl;
+        private TeamType teamType;
+
+        @Builder
+        public ResponseWritableTeamInfoDto(String teamName, String teamImgUrl, TeamType teamType) {
+            this.teamName = teamName;
+            this.teamImgUrl = teamImgUrl;
+            this.teamType = teamType;
         }
     }
 }
