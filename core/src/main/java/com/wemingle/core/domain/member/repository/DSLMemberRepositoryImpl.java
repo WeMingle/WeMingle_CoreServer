@@ -27,7 +27,7 @@ public class DSLMemberRepositoryImpl implements DSLMemberRepository{
                             nextIdxLt(nextIdx),
                             member.nickname.contains(nickname)
                     )
-                    .limit(3)
+                    .limit(10)
                     .orderBy(member.pk.desc())
                     .fetch();
         }

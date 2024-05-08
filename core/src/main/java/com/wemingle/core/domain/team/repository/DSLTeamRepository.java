@@ -8,8 +8,7 @@ import java.util.List;
 
 public interface DSLTeamRepository {
     List<Team> getTeamByTeamName(Long nextIdx,
-                                 String teamName,
-                                 Pageable pageable);
+                                 String teamName);
     List<Team> getRecommendationTeams(Long nextIdx,
                                       List<Team> excludeTeams,
                                       Long remainNum,

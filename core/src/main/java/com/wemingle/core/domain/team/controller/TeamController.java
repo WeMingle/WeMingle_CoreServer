@@ -86,13 +86,13 @@ public class TeamController {
     }
 
     @GetMapping("/result")
-    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamInfoByName>> getTeamsByTeamName(@RequestParam(required = false) Long nextIdx,
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoInSearch>>> getTeamsByTeamName(@RequestParam(required = false) Long nextIdx,
                                                                                               @RequestParam @NotBlank String query){
         String teamName = URLDecoder.decode(query, StandardCharsets.UTF_8);
-        TeamDto.ResponseTeamInfoByName responseData = teamService.getTeamByName(nextIdx, teamName);
+        HashMap<Long, TeamDto.ResponseTeamInfoInSearch> responseData = teamService.getTeamByName(nextIdx, teamName);
 
         return ResponseEntity.ok(
-                ResponseHandler.<TeamDto.ResponseTeamInfoByName>builder()
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseTeamInfoInSearch>>builder()
                         .responseMessage("Teams retrieval successfully")
                         .responseData(responseData)
                         .build()

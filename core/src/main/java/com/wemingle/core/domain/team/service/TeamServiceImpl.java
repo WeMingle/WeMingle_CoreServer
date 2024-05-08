@@ -134,12 +134,11 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public TeamDto.ResponseTeamInfoByName getTeamByName(Long nextIdx, String teamName) {
-        PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
-        List<Team> teams = teamRepository.getTeamByTeamName(nextIdx, teamName, pageRequest);
+    public HashMap<Long, TeamDto.ResponseTeamInfoInSearch> getTeamByName(Long nextIdx, String teamName) {
+        List<Team> teams = teamRepository.getTeamByTeamName(nextIdx, teamName);
 
-        LinkedHashMap<Long, TeamDto.TeamInfoInSearch> teamInfoHashMap = new LinkedHashMap<>();
-        teams.forEach(team -> teamInfoHashMap.put(team.getPk(), TeamDto.TeamInfoInSearch.builder()
+        LinkedHashMap<Long, TeamDto.ResponseTeamInfoInSearch> teamInfoHashMap = new LinkedHashMap<>();
+        teams.forEach(team -> teamInfoHashMap.put(team.getPk(), TeamDto.ResponseTeamInfoInSearch.builder()
                 .teamName(team.getTeamName())
                 .content(team.getContent())
                 .recruitmentType(team.getRecruitmentType())
@@ -147,22 +146,7 @@ public class TeamServiceImpl implements TeamService{
                 .build()
         ));
 
-        boolean hasNextTeam = isExistedNextTeam(teams, teamName);
-
-        return TeamDto.ResponseTeamInfoByName.builder()
-                .teamsInfo(teamInfoHashMap)
-                .hasNextTeam(hasNextTeam)
-                .build();
-    }
-
-    private boolean isExistedNextTeam(List<Team> teams, String teamName) {
-        Optional<Long> minPk = teams.stream().map(Team::getPk).min(Long::compareTo);
-        boolean hasNextData = false;
-        if (minPk.isPresent()) {
-            hasNextData = teamRepository.existsByPkLessThanAndTeamNameContainsAndTeamType(minPk.get(), teamName, TeamType.TEAM);
-        }
-
-        return hasNextData;
+        return teamInfoHashMap;
     }
 
     @Override
