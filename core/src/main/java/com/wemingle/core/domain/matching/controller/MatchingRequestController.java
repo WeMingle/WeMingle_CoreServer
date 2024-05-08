@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -71,8 +72,17 @@ public class MatchingRequestController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseHandler<String>> saveMatchingRequest(@RequestBody @Valid MatchingRequestDto.RequestMatchingRequestSave requestSaveDto,
+    public ResponseEntity<ResponseHandler<Object>> saveMatchingRequest(@RequestBody @Valid MatchingRequestDto.RequestMatchingRequestSave requestSaveDto,
                                                                        @AuthenticationPrincipal UserDetails userDetails){
+        if (matchingRequestService.isMatchingPostCapacityExceededWhenFirstServedBased(requestSaveDto.of())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Capacity exceed the matchingPost capacityLimit")
+                                    .build()
+                    );
+        }
+
         matchingRequestService.saveMatchingRequest(requestSaveDto, userDetails.getUsername());
 
         String createdUrl = serverIp + MATCHING_POST_DETAIL_PATH + "/" + requestSaveDto.getMatchingPostPk();

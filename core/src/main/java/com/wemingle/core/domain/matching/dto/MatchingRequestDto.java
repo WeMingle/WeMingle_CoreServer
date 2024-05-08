@@ -3,6 +3,7 @@ package com.wemingle.core.domain.matching.dto;
 import com.wemingle.core.domain.matching.dto.requesttitlestatus.RequestTitleStatus;
 import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.entity.requestmembertype.RequestMemberType;
+import com.wemingle.core.domain.matching.vo.IsExceedCapacityLimitVo;
 import com.wemingle.core.domain.matching.vo.TitleInfo;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
@@ -143,6 +144,13 @@ public class MatchingRequestDto {
         private int capacityCnt;
         @NotBlank
         private String content;
+
+        public IsExceedCapacityLimitVo of(){
+            return IsExceedCapacityLimitVo.builder()
+                    .matchingPostPk(matchingPostPk)
+                    .capacityCnt(capacityCnt)
+                    .build();
+        }
 
         public MatchingRequest of(Team requestTeam, Member requester, MatchingPost matchingPost){
             MatchingStatus matchingStatus = matchingPost.getRecruitmentType().equals(RecruitmentType.APPROVAL_BASED)

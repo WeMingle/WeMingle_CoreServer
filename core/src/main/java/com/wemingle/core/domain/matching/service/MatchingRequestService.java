@@ -9,6 +9,7 @@ import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.entity.requestmembertype.RequestMemberType;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
+import com.wemingle.core.domain.matching.vo.IsExceedCapacityLimitVo;
 import com.wemingle.core.domain.matching.vo.TitleInfo;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.MemberAbility;
@@ -21,6 +22,7 @@ import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.rating.entity.TeamRating;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
@@ -212,6 +214,17 @@ public class MatchingRequestService {
         MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
         return matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
+    }
+
+    public boolean isMatchingPostCapacityExceededWhenFirstServedBased(IsExceedCapacityLimitVo vo){
+        MatchingPost matchingPost = matchingPostRepository.findById(vo.getMatchingPostPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+
+        Integer approvedMatchingRequestCnt = matchingRequestRepository.findMatchingRequestCnt(matchingPost);
+        int nonNullApprovedRequestCnt = approvedMatchingRequestCnt == null ? 0 : approvedMatchingRequestCnt;
+        boolean isExceedMatchingPostCapacityLimit = nonNullApprovedRequestCnt + vo.getCapacityCnt() > matchingPost.getCapacityLimit();
+
+        return isExceedMatchingPostCapacityLimit && matchingPost.getRecruitmentType().equals(RecruitmentType.FIRST_SERVED_BASED);
     }
 
     @Transactional
