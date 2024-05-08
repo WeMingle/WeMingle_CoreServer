@@ -67,6 +67,10 @@ public class MatchingPost extends BaseEntity {
     private String content;
 
     @NotNull
+    @Column(name = "MY_CAPACITY_COUNT")
+    private int myCapacityCount;
+
+    @NotNull
     @Column(name = "CAPACITY_LIMIT")
     private int capacityLimit;
 
@@ -120,7 +124,7 @@ public class MatchingPost extends BaseEntity {
     private List<MatchingPostMatchingDate> matchingDates = new ArrayList<>();
 
     @Builder
-    public MatchingPost(LocalDate expiryDate, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, Double lat, Double lon, String content, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
+    public MatchingPost(LocalDate expiryDate, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, Double lat, Double lon, String content, int myCapacityCount, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
         this.expiryDate = expiryDate;
         this.locationName = locationName;
         this.dou = dou;
@@ -134,6 +138,7 @@ public class MatchingPost extends BaseEntity {
         this.lat = lat;
         this.lon = lon;
         this.content = content;
+        this.myCapacityCount = myCapacityCount;
         this.capacityLimit = capacityLimit;
         this.isLocationConsensusPossible = isLocationConsensusPossible;
         this.viewCnt = viewCnt;

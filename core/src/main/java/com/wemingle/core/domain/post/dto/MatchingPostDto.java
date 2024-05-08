@@ -156,6 +156,8 @@ public class MatchingPostDto {
         @NotNull
         private Ability ability;
         private Gender gender;
+        @Min(value = 1, message = "myCapacityCount must be greater than 1")
+        private int myCapacityCount;
         @NotNull
         @Min(value = 1, message = "capacityLimit must be greater than 1")
         private int capacityLimit;
@@ -176,7 +178,7 @@ public class MatchingPostDto {
         private SportsType sportsType;
 
         @Builder
-        public CreateMatchingPostDto(List<LocalDate> matchingDate, Double latitude, Double longitude, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<Long> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
+        public CreateMatchingPostDto(List<LocalDate> matchingDate, Double latitude, Double longitude, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int myCapacityCount, int capacityLimit, Long teamPk, List<Long> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
             this.matchingDate = matchingDate;
             this.latitude = latitude;
             this.longitude = longitude;
@@ -193,6 +195,7 @@ public class MatchingPostDto {
             this.isLocationConsensusPossible = isLocationConsensusPossible;
             this.ability = ability;
             this.gender = gender;
+            this.myCapacityCount = myCapacityCount;
             this.capacityLimit = capacityLimit;
             this.teamPk = teamPk;
             this.participantsId = participantsId;
@@ -219,6 +222,7 @@ public class MatchingPostDto {
                     .lat(latitude)
                     .lon(longitude)
                     .content(content)
+                    .myCapacityCount(myCapacityCount)
                     .capacityLimit(capacityLimit)
                     .isLocationConsensusPossible(isLocationConsensusPossible)
                     .ability(ability)
