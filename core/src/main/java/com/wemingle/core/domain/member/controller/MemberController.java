@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 @Slf4j
 @RestController
@@ -122,14 +123,14 @@ public class MemberController {
     }
 
     @GetMapping("/result")
-    ResponseEntity<ResponseHandler<MemberDto.ResponseMemberInfo>> getSearchMemberByNickname(@RequestParam(required = false) Long nextIdx,
+    ResponseEntity<ResponseHandler<HashMap<Long, MemberDto.ResponseMemberInfoInSearch>>> getSearchMemberByNickname(@RequestParam(required = false) Long nextIdx,
                                                                                             @RequestParam @NotBlank String query,
                                                                                             @AuthenticationPrincipal UserDetails userDetails){
         String nickname = URLDecoder.decode(query, StandardCharsets.UTF_8);
-        MemberDto.ResponseMemberInfo responseData = memberService.getMemberByNickname(nextIdx, nickname, userDetails.getUsername());
+        HashMap<Long, MemberDto.ResponseMemberInfoInSearch> responseData = memberService.getMemberByNickname(nextIdx, nickname, userDetails.getUsername());
 
         return ResponseEntity.ok(
-                ResponseHandler.<MemberDto.ResponseMemberInfo>builder()
+                ResponseHandler.<HashMap<Long, MemberDto.ResponseMemberInfoInSearch>>builder()
                         .responseMessage("Member retrieval successfully")
                         .responseData(responseData)
                         .build()
