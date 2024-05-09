@@ -12,6 +12,7 @@ import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
+import com.wemingle.core.domain.univ.service.UnivCertificationService;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -28,9 +29,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class MailVerificationService {
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
+    private final UnivCertificationService univCertificationService;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final int VERIFIED_CODE_LENGTH = 8;
+    private final int VERIFIED_CODE_LENGTH = 4;
     private static final int LIMIT_TIME = 300000;
     private final ConcurrentHashMap<String, VerificationCodeEntry> verificationCodes = new ConcurrentHashMap<>();
     private final JavaMailSender mailSender;
@@ -74,6 +76,21 @@ public class MailVerificationService {
             return verificationCodes.get(memberId).code().equals(verificationCode);
         }
         return false;
+    }
+
+    @Transactional
+    public void saveChangedVerificationMailAddress(Member member, String newEmail, String verificationCode) {
+        VerifiedUniversityEmail verifiedUniversityEmail = verifiedUniversityEmailRepository.findByMember(member)
+                .orElseThrow(() -> new RuntimeException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+
+        if (!validVerificationCode(member.getMemberId(), verificationCode)) {
+            throw new RuntimeException(ExceptionMessage.VERIFICATION_CODE_ERROR.getExceptionMessage());
+        }
+
+        verifiedUniversityEmail.setUnivEmailAddress(newEmail);
+        String domainInMailAddress = univCertificationService.getDomainInMailAddress(newEmail);
+        UnivEntity byDomain = univCertificationService.findByDomain(domainInMailAddress);
+        verifiedUniversityEmail.setUnivName(byDomain);
     }
 
     @Transactional
