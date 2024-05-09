@@ -4,6 +4,7 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.team.entity.TeamMember;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -36,5 +37,5 @@ public class TeamReview extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "REVIEWER")
-    private Member reviewer;
+    private TeamMember reviewer;
 }
