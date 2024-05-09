@@ -76,6 +76,15 @@ public class MemberController {
         );
     }
 
+    @PatchMapping("/password")
+    ResponseEntity<ResponseHandler<Object>> changePassword(@RequestBody ChangePasswordDto changePasswordDto, @AuthenticationPrincipal UserDetails userDetails) {
+        if (!memberService.isMatchesPassword(userDetails.getUsername(), changePasswordDto.getPreviousPassword())) {
+            return ResponseEntity.badRequest().build();
+        }
+        memberService.patchMemberPassword(userDetails.getUsername(), changePasswordDto.getNewPassword());
+        return ResponseEntity.ok(ResponseHandler.builder().responseMessage("password successfully changed").build());
+    }
+
     @PostMapping("/profile")
     ResponseEntity<ResponseHandler<Object>> setMemberProfile(@RequestBody SetMemberProfileDto setMemberProfileDto,
                                        @AuthenticationPrincipal UserDetails userDetails) {

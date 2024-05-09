@@ -25,4 +25,5 @@ public interface MemberService {
     void setMemberInfo(String memberId, MemberInfoDto memberInfoDto);
     MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId);
     HashMap<Long, MemberDto.ResponseMemberInfoInSearch> getMemberByNickname(Long nextIdx, String nickname, String memberId);
+    void patchMemberPassword(String memberId, String newPassword);
 }

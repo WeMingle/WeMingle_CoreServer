@@ -17,6 +17,7 @@ import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -197,5 +198,12 @@ public class MemberServiceImpl implements MemberService {
         ));
 
         return membersInfoHashMap;
+    }
+
+    @Transactional
+    @Override
+    public void patchMemberPassword(String memberId, String newPassword) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new RuntimeException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        member.setPassword(newPassword);
     }
 }
