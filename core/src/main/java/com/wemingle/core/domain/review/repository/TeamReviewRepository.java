@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface TeamReviewRepository extends JpaRepository<TeamReview, Long> {
+public interface TeamReviewRepository extends JpaRepository<TeamReview, Long>,DSLReviewRepository {
     @Query("select tr.matchingPost from TeamReview tr where tr.reviewer = :member")
     List<MatchingPost> findMatchingPostWithMemberId(@Param("member") Member member);
     @Query("select count(*) from TeamReview tr where tr.reviewee = :team")
