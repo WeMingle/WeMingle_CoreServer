@@ -216,15 +216,26 @@ public class MatchingRequestService {
         return matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
     }
 
+    public boolean isCompletedMatchingPost(Long matchingPostPk){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+
+        return matchingPost.isComplete();
+    }
+
     public boolean isMatchingPostCapacityExceededWhenFirstServedBased(IsExceedCapacityLimitVo vo){
         MatchingPost matchingPost = matchingPostRepository.findById(vo.getMatchingPostPk())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
 
-        Integer approvedMatchingRequestCnt = matchingRequestRepository.findMatchingRequestCnt(matchingPost);
-        int nonNullApprovedRequestCnt = approvedMatchingRequestCnt == null ? 0 : approvedMatchingRequestCnt;
-        boolean isExceedMatchingPostCapacityLimit = nonNullApprovedRequestCnt + vo.getCapacityCnt() > matchingPost.getCapacityLimit();
+        int approveRequestCnt = getApproveRequestCnt(matchingPost);
+        boolean isExceedMatchingPostCapacityLimit = approveRequestCnt + vo.getCapacityCnt() > matchingPost.getCapacityLimit();
 
         return isExceedMatchingPostCapacityLimit && matchingPost.getRecruitmentType().equals(RecruitmentType.FIRST_SERVED_BASED);
+    }
+
+    public int getApproveRequestCnt(MatchingPost matchingPost){
+        Integer approvedMatchingRequestCnt = matchingRequestRepository.findMatchingRequestCnt(matchingPost);
+        return approvedMatchingRequestCnt == null ? 0 : approvedMatchingRequestCnt;
     }
 
     @Transactional
@@ -236,6 +247,10 @@ public class MatchingRequestService {
         Member requester = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         List<Long> participantsTeamMemberPk = requestSaveDto.getParticipantsPk();
+
+        if (isMatchingPostCompleteCond(requestSaveDto.getCapacityCnt(), matchingPost)){
+            matchingPost.complete();
+        }
 
         matchingRequestRepository.save(requestSaveDto.of(requestTeam, requester, matchingPost));
         switch (matchingPost.getRecruitmentType()){
@@ -281,5 +296,11 @@ public class MatchingRequestService {
                 .toList();
 
         matchingRepository.saveAll(matchingParticipantList);
+    }
+
+    private boolean isMatchingPostCompleteCond(int requestCapacityCnt, MatchingPost matchingPost) {
+        int approveRequestCnt = getApproveRequestCnt(matchingPost);
+        log.info("approve {}", approveRequestCnt);
+        return approveRequestCnt + requestCapacityCnt == matchingPost.getCapacityLimit();
     }
 }

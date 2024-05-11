@@ -74,6 +74,15 @@ public class MatchingRequestController {
     @PostMapping
     public ResponseEntity<ResponseHandler<Object>> saveMatchingRequest(@RequestBody @Valid MatchingRequestDto.RequestMatchingRequestSave requestSaveDto,
                                                                        @AuthenticationPrincipal UserDetails userDetails){
+        if (matchingRequestService.isCompletedMatchingPost(requestSaveDto.getMatchingPostPk())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Matching post is already completed")
+                                    .build()
+                    );
+        }
+
         if (matchingRequestService.isMatchingPostCapacityExceededWhenFirstServedBased(requestSaveDto.of())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(

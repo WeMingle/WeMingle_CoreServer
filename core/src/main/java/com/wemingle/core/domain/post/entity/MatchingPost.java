@@ -198,4 +198,7 @@ public class MatchingPost extends BaseEntity {
     public void updateContent(String content){
         this.content = content;
     }
+    public boolean isComplete(){
+        return this.matchingStatus.equals(MatchingStatus.COMPLETE);
+    }
 }
