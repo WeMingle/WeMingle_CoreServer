@@ -421,4 +421,17 @@ public class MatchingPostController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{matchingPostPk}")
+    public ResponseEntity<ResponseHandler<MatchingPostDto.ResponseMatchingPostDetail>> getMatchingPostDetail(@PathVariable Long matchingPostPk,
+                                                                                                             @AuthenticationPrincipal UserDetails userDetails){
+        MatchingPostDto.ResponseMatchingPostDetail responseData = matchingPostService.getMatchingPostDetail(matchingPostPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<MatchingPostDto.ResponseMatchingPostDetail>builder()
+                        .responseMessage("Matching post detail retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+                );
+    }
 }

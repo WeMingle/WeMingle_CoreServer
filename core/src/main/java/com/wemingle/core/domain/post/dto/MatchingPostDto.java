@@ -435,4 +435,52 @@ public class MatchingPostDto {
         @NotBlank
         private String content;
     }
+
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseMatchingPostDetail{
+        private LocalDate teamCreateDate;
+        private int teamMemberCnt;
+        private String teamImgUrl;
+        private String teamName;
+        private double teamRating;
+        private int reviewCnt;
+        private List<LocalDate> matchingDates;
+        private List<String> areas;
+        private Ability ability;
+        private int participantsCnt;
+        private List<String> participantsImgUrls;
+        private RecruiterType recruiterType;
+        private LocalDate expiryDate;
+        private RecruitmentType recruitmentType;
+        @JsonProperty(value = "isBookmarked")
+        private boolean isBookmarked;
+        @JsonProperty(value = "isWriter")
+        private boolean isWriter;
+        @JsonProperty(value = "isCompleted")
+        private boolean isCompleted;
+
+        @Builder
+        public ResponseMatchingPostDetail(LocalDate teamCreateDate, int teamMemberCnt, String teamImgUrl, String teamName, double teamRating, int reviewCnt, List<LocalDate> matchingDates, List<String> areas, Ability ability, int participantsCnt, List<String> participantsImgUrls, RecruiterType recruiterType, LocalDate expiryDate, RecruitmentType recruitmentType, boolean isBookmarked, boolean isWriter, boolean isCompleted) {
+            this.teamCreateDate = teamCreateDate;
+            this.teamMemberCnt = teamMemberCnt;
+            this.teamImgUrl = teamImgUrl;
+            this.teamName = teamName;
+            this.teamRating = teamRating;
+            this.reviewCnt = reviewCnt;
+            this.matchingDates = matchingDates;
+            this.areas = areas;
+            this.ability = ability;
+            this.participantsCnt = participantsCnt;
+            this.participantsImgUrls = participantsImgUrls;
+            this.recruiterType = recruiterType;
+            this.expiryDate = expiryDate;
+            this.recruitmentType = recruitmentType;
+            this.isBookmarked = isBookmarked;
+            this.isWriter = isWriter;
+            this.isCompleted = isCompleted;
+        }
+    }
 }

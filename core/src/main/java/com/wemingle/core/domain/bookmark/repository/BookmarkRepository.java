@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.bookmark.repository;
 
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +14,5 @@ public interface BookmarkRepository extends JpaRepository<BookmarkedMatchingPost
             "where bm.matchingPost in :matchingPostList and bm.member.memberId = :memberId")
     List<BookmarkedMatchingPost> findBookmarkedByMatchingPosts(@Param("matchingPostList") List<MatchingPost> matchingPostList, @Param("memberId") String memberId);
     List<BookmarkedMatchingPost> findByMatchingPost(MatchingPost matchingPosts);
+    boolean existsByMatchingPostAndMember(MatchingPost matchingPost, Member member);
 }

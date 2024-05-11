@@ -203,18 +203,4 @@ public class TeamDto {
             this.teamType = teamType;
         }
     }
-
-    public static class ResponseMatchingPostDetail{
-        private LocalDate createDate;
-        private int teamMemberCnt;
-        private String teamImgUrl;
-        private String teamName;
-        private double teamRating;
-        private int reviewCnt;
-        private String content;
-        @JsonProperty(value = "isBookmarked")
-        private boolean isBookmarked;
-        @JsonProperty(value = "isWriter")
-        private boolean isWriter;
-    }
 }

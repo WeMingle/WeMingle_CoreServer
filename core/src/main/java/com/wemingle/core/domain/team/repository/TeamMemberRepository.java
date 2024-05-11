@@ -30,4 +30,5 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     List<Team> findTeamsWithAvailableRequest(@Param("member") Member memberId, @Param("teamType") TeamType teamType);
     @Query("select tm.member from TeamMember tm where tm.pk in :teamMembersPk")
     List<Member> findMemberByTeamMemberIdIn(@Param("teamMembersPk")List<Long> teamMemberPks);
+    List<TeamMember> findByTeamAndMemberIn(Team team, List<Member> members);
 }
