@@ -300,7 +300,6 @@ public class MatchingRequestService {
 
     private boolean isMatchingPostCompleteCond(int requestCapacityCnt, MatchingPost matchingPost) {
         int approveRequestCnt = getApproveRequestCnt(matchingPost);
-        log.info("approve {}", approveRequestCnt);
         return approveRequestCnt + requestCapacityCnt == matchingPost.getCapacityLimit();
     }
 }
