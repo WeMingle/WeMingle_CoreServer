@@ -16,6 +16,7 @@ import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamQuestionnaireRepository;
@@ -174,10 +175,11 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk) {
+    public TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk, String memberId) {
         TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId);
         Integer reviewCnt = teamReviewRepository.findTeamReviewCntWithReviewee(team);
         Double totalRating = teamRatingRepository.findTotalRatingWithTeam(team);
 
@@ -185,20 +187,25 @@ public class TeamServiceImpl implements TeamService{
                 .createDate(team.getCreatedTime().toLocalDate())
                 .teamMemberCnt(team.getTeamMembers().size())
                 .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .teamBackgroundImgUrl(s3ImgService.getTeamBackgroundPreSignedUrl(team.getBackgroundImgId()))
                 .teamName(team.getTeamName())
                 .teamRating(teamRatingUtil.adjustTeamRating(getNonNullTotalRating(totalRating)))
                 .reviewCnt(getNonNullReviewCnt(reviewCnt))
                 .content(team.getContent())
+                .isManager(isManager(teamMember))
                 .build();
     }
 
     private double getNonNullTotalRating(Double totalRating){
         return totalRating == null ? 0 : totalRating;
     }
-
     private int getNonNullReviewCnt(Integer reviewCnt) {
         return reviewCnt == null ? 0 : reviewCnt;
     }
+    private boolean isManager(Optional<TeamMember> teamMember){
+        return teamMember.isPresent() ? !teamMember.get().getTeamRole().equals(TeamRole.PARTICIPANT) : false;
+    }
+
 
     @Transactional
     @Override

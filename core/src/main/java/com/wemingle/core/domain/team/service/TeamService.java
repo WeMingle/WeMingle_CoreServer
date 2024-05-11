@@ -13,7 +13,7 @@ public interface TeamService {
     HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> getRecommendTeamsForMember(Long nextIdx, String memberId);
     HashMap<Long, TeamDto.ResponseTeamInfoInSearch> getTeamByName(Long nextIdx, String teamName);
     HashMap<Long, TeamDto.ResponseTeamByMemberUniv> getTeamWithMemberUniv(Long nextIdx, String memberId);
-    TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk);
+    TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk, String memberId);
     void saveTeam(String ownerId, CreateTeamDto createTeamDto);
     TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId);
     HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, String memberId);

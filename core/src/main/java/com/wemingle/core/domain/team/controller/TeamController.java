@@ -112,8 +112,9 @@ public class TeamController {
     }
 
     @GetMapping("/{teamPk}")
-    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk) {
-        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk);
+    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk,
+                                                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamDto.TeamInfo>builder()

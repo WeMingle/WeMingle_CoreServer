@@ -151,6 +151,10 @@ public class S3ImgService {
     }
 
     public String getTeamBackgroundPreSignedUrl(UUID teamBackgroundUUID) {
+        if (teamBackgroundUUID == null){
+            return null;
+        }
+
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_BACKGROUND_PATH + teamBackgroundUUID).build();
         GetObjectPresignRequest preSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
         URL url = s3Presigner.presignGetObject(preSignRequest).url();

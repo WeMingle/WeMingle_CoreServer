@@ -101,25 +101,31 @@ public class TeamDto {
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     public static class TeamInfo {
         private LocalDate createDate;
         private int teamMemberCnt;
         private String teamImgUrl;
+        private String teamBackgroundImgUrl;
         private String teamName;
         private double teamRating;
         private int reviewCnt;
         private String content;
+        @JsonProperty(value = "isManager")
+        private boolean isManager;
 
         @Builder
-        public TeamInfo(LocalDate createDate, int teamMemberCnt, String teamImgUrl, String teamName, double teamRating, int reviewCnt, String content) {
+        public TeamInfo(LocalDate createDate, int teamMemberCnt, String teamImgUrl, String teamBackgroundImgUrl, String teamName, double teamRating, int reviewCnt, String content, boolean isManager) {
             this.createDate = createDate;
             this.teamMemberCnt = teamMemberCnt;
             this.teamImgUrl = teamImgUrl;
+            this.teamBackgroundImgUrl = teamBackgroundImgUrl;
             this.teamName = teamName;
             this.teamRating = teamRating;
             this.reviewCnt = reviewCnt;
             this.content = content;
+            this.isManager = isManager;
         }
     }
 
