@@ -305,4 +305,10 @@ public class TeamServiceImpl implements TeamService{
 
         return responseTeamInfo;
     }
+
+    @Override
+    public Team findByTeamPk(Long teamPk) {
+        return teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+    }
 }

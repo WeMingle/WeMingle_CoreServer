@@ -51,6 +51,9 @@ public class Team extends BaseEntity {
     @Column(name = "PROFILE_IMG_ID", columnDefinition = "VARBINARY(255) NOT NULL")
     private UUID profileImgId;
 
+    @Column(name = "BACKGROUND_IMG_ID")
+    private UUID backgroundImgId;
+
     @NotNull
     @Column(name = "CONTENT", length = 3000)
     private String content;
