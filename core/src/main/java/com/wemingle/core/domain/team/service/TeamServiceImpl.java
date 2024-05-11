@@ -15,6 +15,7 @@ import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
+import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamQuestionnaireRepository;
@@ -241,10 +242,19 @@ public class TeamServiceImpl implements TeamService{
                 .beforeWriteInfo(member.isBeforeWriteInfo())
                 .isTeamMember(teamMember.isPresent())
                 .isTeamRequest(teamRequestRepository.existsByTeamAndRequester(team,member))
+                .isExceedCapacity(!isRequestableTeam(team))
                 .univCondResult(createUnivCondResult(team.isOnlySameUniv(), memberUniv, teamOwnerUniv))
                 .genderCondResult(createGenderCondResult(team, member.getGender()))
                 .birthYearCondResult(createBirthYearCondResult(team, member.getBirthYear()))
                 .build();
+    }
+
+    private boolean isRequestableTeam(Team team){
+        return !isExceedTeamMemberCnt(team) && team.getRecruitmentType().equals(RecruitmentType.FIRST_SERVED_BASED);
+    }
+
+    private static boolean isExceedTeamMemberCnt(Team team) {
+        return team.getTeamMembers().size() >= team.getCapacityLimit();
     }
 
     private Boolean createUnivCondResult(boolean onlySameUniv, UnivEntity memberUniv, UnivEntity teamOwnerUniv) {

@@ -75,7 +75,7 @@ public class MatchingRequestController {
     public ResponseEntity<ResponseHandler<Object>> saveMatchingRequest(@RequestBody @Valid MatchingRequestDto.RequestMatchingRequestSave requestSaveDto,
                                                                        @AuthenticationPrincipal UserDetails userDetails){
         if (matchingRequestService.isCompletedMatchingPost(requestSaveDto.getMatchingPostPk())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(
                             ResponseHandler.builder()
                                     .responseMessage("Matching post is already completed")
@@ -84,7 +84,7 @@ public class MatchingRequestController {
         }
 
         if (matchingRequestService.isMatchingPostCapacityExceededWhenFirstServedBased(requestSaveDto.of())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(
                             ResponseHandler.builder()
                                     .responseMessage("Capacity exceed the matchingPost capacityLimit")

@@ -132,4 +132,15 @@ public class TeamRequestService {
         });
         teamQuestionnaireAnswerRepository.saveAll(teamQuestionnaireAnswers);
     }
+
+    public boolean isRequestableTeam(Long teamPk){
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        return !isExceedTeamMemberCnt(team) && team.getRecruitmentType().equals(RecruitmentType.FIRST_SERVED_BASED);
+    }
+
+    private static boolean isExceedTeamMemberCnt(Team team) {
+        return team.getTeamMembers().size() >= team.getCapacityLimit();
+    }
 }

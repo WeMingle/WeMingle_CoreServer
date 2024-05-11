@@ -132,15 +132,18 @@ public class TeamDto {
         private boolean isTeamMember;
         @JsonProperty("isTeamRequest")
         private boolean isTeamRequest;
+        @JsonProperty("isExceedCapacity")
+        private boolean isExceedCapacity;
         private Boolean univCondResult;
         private GenderCondResult genderCondResult;
         private BirthYearCondResult birthYearCondResult;
 
         @Builder
-        public ResponseTeamParticipantCond(boolean beforeWriteInfo, boolean isTeamMember, boolean isTeamRequest, Boolean univCondResult, GenderCondResult genderCondResult, BirthYearCondResult birthYearCondResult) {
+        public ResponseTeamParticipantCond(boolean beforeWriteInfo, boolean isTeamMember, boolean isTeamRequest, boolean isExceedCapacity, Boolean univCondResult, GenderCondResult genderCondResult, BirthYearCondResult birthYearCondResult) {
             this.beforeWriteInfo = beforeWriteInfo;
             this.isTeamMember = isTeamMember;
             this.isTeamRequest = isTeamRequest;
+            this.isExceedCapacity = isExceedCapacity;
             this.univCondResult = univCondResult;
             this.genderCondResult = genderCondResult;
             this.birthYearCondResult = birthYearCondResult;
