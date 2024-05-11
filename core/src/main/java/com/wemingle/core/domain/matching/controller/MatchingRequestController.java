@@ -97,4 +97,19 @@ public class MatchingRequestController {
         String createdUrl = serverIp + MATCHING_POST_DETAIL_PATH + "/" + requestSaveDto.getMatchingPostPk();
         return ResponseEntity.created(URI.create(createdUrl)).build();
     }
+
+    @GetMapping("/team/requestable")
+    public ResponseEntity<Object> isTeamMatchRequested(@RequestParam Long matchingPostPk,
+                                                       @RequestParam Long teamPk){
+        if (matchingRequestService.isTeamMatchRequested(matchingPostPk, teamPk)){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("This team already requested to the matching post")
+                                    .build()
+                    );
+        }
+
+        return ResponseEntity.noContent().build();
+    }
 }

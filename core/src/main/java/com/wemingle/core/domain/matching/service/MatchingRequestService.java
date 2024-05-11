@@ -302,4 +302,13 @@ public class MatchingRequestService {
         int approveRequestCnt = getApproveRequestCnt(matchingPost);
         return approveRequestCnt + requestCapacityCnt == matchingPost.getCapacityLimit();
     }
+
+    public boolean isTeamMatchRequested(Long matchingPostPk, Long teamPk){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        return matchingRequestRepository.existsByMatchingPostAndTeam(matchingPost, team);
+    }
 }
