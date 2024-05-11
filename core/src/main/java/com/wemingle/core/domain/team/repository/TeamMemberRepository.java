@@ -3,6 +3,7 @@ package com.wemingle.core.domain.team.repository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,4 +26,9 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     @Query("select tm from TeamMember tm where tm.team.pk = :teamPk and tm.member.memberId != :memberId")
     List<TeamMember> findWithTeamWithoutMe(@Param("teamPk") Long teamPk, @Param("memberId") String memberId);
     Optional<TeamMember> findByTeam_PkAndNickname(Long teamPk, String nickname);
+    @Query("select tm.team from TeamMember tm where tm.member = :member and tm.teamRole != 'PARTICIPANT' and tm.team.teamType = :teamType")
+    List<Team> findTeamsWithAvailableRequest(@Param("member") Member memberId, @Param("teamType") TeamType teamType);
+    @Query("select tm.member from TeamMember tm where tm.pk in :teamMembersPk")
+    List<Member> findMemberByTeamMemberIdIn(@Param("teamMembersPk")List<Long> teamMemberPks);
+    List<TeamMember> findByTeamAndMemberIn(Team team, List<Member> members);
 }

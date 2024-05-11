@@ -1,6 +1,8 @@
 package com.wemingle.core.domain.post.controller;
 
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
+import com.wemingle.core.domain.matching.entity.Matching;
+import com.wemingle.core.domain.matching.service.MatchingService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
@@ -24,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
@@ -34,6 +37,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@Validated
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -42,6 +46,7 @@ public class MatchingPostController {
     private final MatchingPostService matchingPostService;
     private final TeamPostService teamPostService;
     private final MemberService memberService;
+    private final MatchingService matchingService;
     @PostMapping
     ResponseEntity<ResponseHandler<Object>> createMatchingPost(@RequestBody @Valid MatchingPostDto.CreateMatchingPostDto matchingPostDto,
                                                                @AuthenticationPrincipal UserDetails userDetails) {
@@ -381,5 +386,52 @@ public class MatchingPostController {
                         .responseData(responseData)
                         .build()
         );
+    }
+
+    @DeleteMapping("/{matchingPostPk}")
+    public ResponseEntity<ResponseHandler<Object>> deleteMatchingPost(@PathVariable Long matchingPostPk,
+                                                                      @AuthenticationPrincipal UserDetails userDetails){
+        Member member = memberService.findByMemberId(userDetails.getUsername());
+        MatchingPost matchingPost = matchingPostService.getMatchingPostByPostId(matchingPostPk);
+        List<Matching> matchings = matchingService.getMatchingsByMatchingPost(matchingPost);
+
+        if (!matchingPostService.isWriter(matchingPost, member)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("Only writer can delete post")
+                            .build());
+        }
+
+        if (!matchingPostService.isDeletable(matchingPost.getTeam(), matchings)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("Cannot delete matchingPost that have already been matched")
+                            .build());
+        }
+
+        matchingPostService.deleteMatchingPost(matchingPost, matchings);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{matchingPostPk}")
+    public ResponseEntity<ResponseHandler<Object>> updateMatchingPostContent(@PathVariable Long matchingPostPk,
+                                                                             @RequestBody @Valid MatchingPostDto.RequestUpdatePost updatePostDto){
+        matchingPostService.updateMatchingPostContent(matchingPostPk, updatePostDto.getContent());
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{matchingPostPk}")
+    public ResponseEntity<ResponseHandler<MatchingPostDto.ResponseMatchingPostDetail>> getMatchingPostDetail(@PathVariable Long matchingPostPk,
+                                                                                                             @AuthenticationPrincipal UserDetails userDetails){
+        MatchingPostDto.ResponseMatchingPostDetail responseData = matchingPostService.getMatchingPostDetail(matchingPostPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<MatchingPostDto.ResponseMatchingPostDetail>builder()
+                        .responseMessage("Matching post detail retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+                );
     }
 }

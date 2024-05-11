@@ -5,7 +5,9 @@ import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
+import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.review.repository.TeamReviewRepository;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
@@ -45,7 +47,7 @@ public class TeamServiceImpl implements TeamService{
     private final TeamReviewRepository teamReviewRepository;
     private final TeamRatingRepository teamRatingRepository;
     private final TeamRequestRepository teamRequestRepository;
-
+    private final MatchingPostRepository matchingPostRepository;
     private static final int PAGE_SIZE = 30;
     @Override
     public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId) {
@@ -57,7 +59,7 @@ public class TeamServiceImpl implements TeamService{
 
         teamList.forEach(team -> responseTeamInfo.put(team.getPk(),
                         TeamDto.ResponseWritableTeamInfoDto.builder()
-                                .teamName(getNicknameUrl(team, member))
+                                .teamName(getNickname(team, member))
                                 .teamImgUrl(getTeamImgUrl(team))
                                 .teamType(team.getTeamType())
                                 .build()));
@@ -71,7 +73,7 @@ public class TeamServiceImpl implements TeamService{
                 : s3ImgService.getGroupProfilePicUrl(team.getProfileImgId());
     }
 
-    private String getNicknameUrl(Team team, Member member) {
+    private String getNickname(Team team, Member member) {
         return team.getTeamType().equals(TeamType.INDIVIDUAL)
                 ? member.getNickname()
                 : team.getTeamName();
@@ -271,5 +273,26 @@ public class TeamServiceImpl implements TeamService{
                     .endAge(teamCondEndAge)
                     .build()
                 : null;
+    }
+
+    @Override
+    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, String memberId) {
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+
+        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableRequest(member, TeamType.valueOf(matchingPost.getRecruiterType().toString()));
+
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> responseTeamInfo = new HashMap<>();
+
+        teamList.forEach(team -> responseTeamInfo.put(team.getPk(),
+                TeamDto.ResponseWritableTeamInfoDto.builder()
+                        .teamName(getNickname(team, member))
+                        .teamImgUrl(getTeamImgUrl(team))
+                        .teamType(team.getTeamType())
+                        .build()));
+
+        return responseTeamInfo;
     }
 }

@@ -9,6 +9,7 @@ import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.entity.requestmembertype.RequestMemberType;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
+import com.wemingle.core.domain.matching.vo.IsExceedCapacityLimitVo;
 import com.wemingle.core.domain.matching.vo.TitleInfo;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.MemberAbility;
@@ -21,6 +22,9 @@ import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.rating.entity.TeamRating;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.domain.team.repository.TeamMemberRepository;
+import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -50,6 +54,8 @@ public class MatchingRequestService {
     private final S3ImgService s3ImgService;
     private final TeamRatingRepository teamRatingRepository;
     private final MemberAbilityRepository memberAbilityRepository;
+    private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
     private static final String IS_OWNER_SENT_SUFFIX = "에 매칭 신청을 보냈습니다.";
     private static final String IS_PARTICIPANT_TITLE_PREFIX = "내가 속한 ";
@@ -208,5 +214,101 @@ public class MatchingRequestService {
         MatchingPost matchingPost = matchingRequests.stream().map(MatchingRequest::getMatchingPost).findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
         return matchingRequestRepository.findAllRequestsWithTeam(matchingPost, teams);
+    }
+
+    public boolean isCompletedMatchingPost(Long matchingPostPk){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+
+        return matchingPost.isComplete();
+    }
+
+    public boolean isMatchingPostCapacityExceededWhenFirstServedBased(IsExceedCapacityLimitVo vo){
+        MatchingPost matchingPost = matchingPostRepository.findById(vo.getMatchingPostPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+
+        int approveRequestCnt = getApproveRequestCnt(matchingPost);
+        boolean isExceedMatchingPostCapacityLimit = approveRequestCnt + vo.getCapacityCnt() > matchingPost.getCapacityLimit();
+
+        return isExceedMatchingPostCapacityLimit && matchingPost.getRecruitmentType().equals(RecruitmentType.FIRST_SERVED_BASED);
+    }
+
+    public int getApproveRequestCnt(MatchingPost matchingPost){
+        Integer approvedMatchingRequestCnt = matchingRequestRepository.findMatchingRequestCnt(matchingPost);
+        return approvedMatchingRequestCnt == null ? 0 : approvedMatchingRequestCnt;
+    }
+
+    @Transactional
+    public void saveMatchingRequest(MatchingRequestDto.RequestMatchingRequestSave requestSaveDto, String memberId){
+        MatchingPost matchingPost = matchingPostRepository.findById(requestSaveDto.getMatchingPostPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        Team requestTeam = teamRepository.findById(requestSaveDto.getRequestTeamPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Member requester = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<Long> participantsTeamMemberPk = requestSaveDto.getParticipantsPk();
+
+        if (isMatchingPostCompleteCond(requestSaveDto.getCapacityCnt(), matchingPost)){
+            matchingPost.complete();
+        }
+
+        matchingRequestRepository.save(requestSaveDto.of(requestTeam, requester, matchingPost));
+        switch (matchingPost.getRecruitmentType()){
+            case APPROVAL_BASED -> {
+                if (isExistTeamParticipant(matchingPost.getRecruiterType(), participantsTeamMemberPk)) {
+                    List<Member> participants = teamMemberRepository.findMemberByTeamMemberIdIn(participantsTeamMemberPk);
+                    matchingRequestRepository.saveAll(requestSaveDto.of(requestTeam, participants, matchingPost));
+                }
+            }
+            case FIRST_SERVED_BASED -> {
+                saveMatchingOwner(requestTeam, requester, matchingPost);
+
+                if (isExistTeamParticipant(matchingPost.getRecruiterType(), participantsTeamMemberPk)) {
+                    List<Member> participants = teamMemberRepository.findMemberByTeamMemberIdIn(participantsTeamMemberPk);
+                    matchingRequestRepository.saveAll(requestSaveDto.of(requestTeam, participants, matchingPost));
+
+                    saveMatchingParticipants(requestTeam, participants, matchingPost);
+                }
+            }
+        }
+    }
+
+    private boolean isExistTeamParticipant(RecruiterType recruiterType, List<Long> participantsTeamMemberPk) {
+        return recruiterType.equals(RecruiterType.TEAM) && !participantsTeamMemberPk.isEmpty();
+    }
+
+    private void saveMatchingOwner(Team team, Member member, MatchingPost matchingPost) {
+        Matching matchingTeamOwner = Matching.builder()
+                .matchingPost(matchingPost)
+                .member(member)
+                .team(team)
+                .build();
+
+        matchingRepository.save(matchingTeamOwner);
+    }
+
+    private void saveMatchingParticipants(Team team, List<Member> memberList, MatchingPost matchingPost) {
+        List<Matching> matchingParticipantList = memberList.stream().map(member -> Matching.builder()
+                        .matchingPost(matchingPost)
+                        .member(member)
+                        .team(team)
+                        .build())
+                .toList();
+
+        matchingRepository.saveAll(matchingParticipantList);
+    }
+
+    private boolean isMatchingPostCompleteCond(int requestCapacityCnt, MatchingPost matchingPost) {
+        int approveRequestCnt = getApproveRequestCnt(matchingPost);
+        return approveRequestCnt + requestCapacityCnt == matchingPost.getCapacityLimit();
+    }
+
+    public boolean isTeamMatchRequested(Long matchingPostPk, Long teamPk){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        return matchingRequestRepository.existsByMatchingPostAndTeam(matchingPost, team);
     }
 }

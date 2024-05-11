@@ -1,8 +1,10 @@
 package com.wemingle.core.domain.matching.repository;
 
 import com.wemingle.core.domain.matching.entity.Matching;
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
+import com.wemingle.core.domain.team.entity.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +23,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>{
 
     @Query("select m from Matching m where m.matchingPost in :matchingPostList and m.member.memberId = :memberId")
     List<Matching> findByMatchingResultByMemberId(@Param("memberId") String memberId, @Param("matchingPostList") List<MatchingPost> matchingPostList);
+    @Query("select m.member from Matching m where m.team = :team and m.matchingPost = :matchingPost")
+    List<Member> findMatchingPostTeamParticipants(@Param("team") Team team, @Param("matchingPost") MatchingPost matchingPost);
 }
