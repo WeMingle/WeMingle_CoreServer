@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 
 public class TeamDto {
     @Getter
@@ -196,6 +197,54 @@ public class TeamDto {
             this.teamName = teamName;
             this.teamImgUrl = teamImgUrl;
             this.teamType = teamType;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseTeamSetting {
+        private LocalDate createDate;
+        private int teamMembersCnt;
+        private String teamImgUrl;
+        private String teamBackgroundImgUrl;
+        private String teamName;
+        private String content;
+        private RecruitmentType recruitmentType;
+        private String univCond;
+        private Gender genderCond;
+        private BirthCond birthCond;
+        private int capacityLimit;
+        private HashMap<Long, String> teamQuestionnaire;
+
+        @Builder
+        public ResponseTeamSetting(LocalDate createDate, int teamMembersCnt, String teamImgUrl, String teamBackgroundImgUrl, String teamName, String content, RecruitmentType recruitmentType, String univCond, Gender genderCond, BirthCond birthCond, int capacityLimit, HashMap<Long, String> teamQuestionnaire) {
+            this.createDate = createDate;
+            this.teamMembersCnt = teamMembersCnt;
+            this.teamImgUrl = teamImgUrl;
+            this.teamBackgroundImgUrl = teamBackgroundImgUrl;
+            this.teamName = teamName;
+            this.content = content;
+            this.recruitmentType = recruitmentType;
+            this.univCond = univCond;
+            this.genderCond = genderCond;
+            this.birthCond = birthCond;
+            this.capacityLimit = capacityLimit;
+            this.teamQuestionnaire = teamQuestionnaire;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class BirthCond {
+        private int startAge;
+        private int endAge;
+
+        @Builder
+        public BirthCond(int startAge, int endAge) {
+            this.startAge = startAge;
+            this.endAge = endAge;
         }
     }
 }

@@ -18,4 +18,5 @@ public interface TeamService {
     TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId);
     HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, String memberId);
     Team findByTeamPk(Long teamPk);
+    TeamDto.ResponseTeamSetting getTeamSetting(Long teamPk);
 }

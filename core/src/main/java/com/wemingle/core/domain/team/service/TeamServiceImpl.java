@@ -4,6 +4,7 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -317,5 +318,52 @@ public class TeamServiceImpl implements TeamService{
     public Team findByTeamPk(Long teamPk) {
         return teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+    }
+
+    @Override
+    public TeamDto.ResponseTeamSetting getTeamSetting(Long teamPk){
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        return TeamDto.ResponseTeamSetting.builder()
+                .createDate(team.getCreatedTime().toLocalDate())
+                .teamMembersCnt(team.getTeamMembers().size())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .teamBackgroundImgUrl(s3ImgService.getTeamBackgroundPreSignedUrl(team.getBackgroundImgId()))
+                .teamName(team.getTeamName())
+                .content(team.getContent())
+                .recruitmentType(team.getRecruitmentType())
+                .univCond(getTeamUnivCond(team))
+                .genderCond(getTeamGenderCond(team))
+                .birthCond(getTeamBirthCond(team))
+                .capacityLimit(team.getCapacityLimit())
+                .teamQuestionnaire(getTeamQuestionnaire(team))
+                .build();
+    }
+
+    public String getTeamUnivCond(Team team){
+        VerifiedUniversityEmail verifiedUniversityEmail = verifiedUniversityEmailRepository.findByMemberFetchUniv(team.getTeamOwner())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
+
+        return team.isOnlySameUniv() ? verifiedUniversityEmail.getUnivName().getUnivName() : null;
+    }
+
+    public Gender getTeamGenderCond(Team team){
+        return team.hasGenderCond() ? team.getGender() : null;
+    }
+
+    public TeamDto.BirthCond getTeamBirthCond(Team team){
+        return team.hasAgeCond()
+                ? TeamDto.BirthCond.builder().startAge(team.getStartAge()).endAge(team.getEndAge()).build()
+                : null;
+    }
+
+    public HashMap<Long, String> getTeamQuestionnaire(Team team){
+        List<TeamQuestionnaire> teamQuestionnaires = teamQuestionnaireRepository.findByTeamOrderByPkAsc(team);
+
+        LinkedHashMap<Long, String> responseData = new LinkedHashMap<>();
+        teamQuestionnaires.forEach(teamQuestionnaire -> responseData.put(teamQuestionnaire.getPk(), teamQuestionnaire.getContent()));
+
+        return responseData;
     }
 }

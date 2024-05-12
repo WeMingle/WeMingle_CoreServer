@@ -156,4 +156,16 @@ public class TeamController {
                         .build()
         );
     }
+
+    @GetMapping("/setting/{teamPk}")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamSetting>> getTeamSetting(@PathVariable Long teamPk){
+        TeamDto.ResponseTeamSetting responseData = teamService.getTeamSetting(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.ResponseTeamSetting>builder()
+                        .responseMessage("Team setting info retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
 }
