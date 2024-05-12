@@ -4,6 +4,7 @@ import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import jakarta.persistence.*;
@@ -111,5 +112,11 @@ public class Team extends BaseEntity {
 
     public boolean hasAgeCond(){
         return this.startAge != 0 && this.endAge != 0;
+    }
+    public void updateTeamSetting(TeamDto.RequestTeamSettingUpdate updateDto){
+        this.teamName = updateDto.getTeamName();
+        this.content = updateDto.getContent();
+        this.recruitmentType = updateDto.getRecruitmentType();
+        this.capacityLimit = updateDto.getCapacityLimit();
     }
 }

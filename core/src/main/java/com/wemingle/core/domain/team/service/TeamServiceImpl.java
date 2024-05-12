@@ -366,4 +366,30 @@ public class TeamServiceImpl implements TeamService{
 
         return responseData;
     }
+
+    @Override
+    @Transactional
+    public void updateTeamSetting(TeamDto.RequestTeamSettingUpdate updateDto){
+        Team team = teamRepository.findById(updateDto.getTeamPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        team.updateTeamSetting(updateDto);
+
+        List<Long> deleteQuestionnairePks = updateDto.getDeleteQuestionnairePks();
+        if (deleteQuestionnairePks != null && !deleteQuestionnairePks.isEmpty()) {
+            List<TeamQuestionnaire> teamQuestionnaires = teamQuestionnaireRepository.findAllById(deleteQuestionnairePks);
+            teamQuestionnaires.forEach(TeamQuestionnaire::isDeleted);
+        }
+
+        List<String> newQuestionnaires = updateDto.getNewQuestionnaires();
+        if (newQuestionnaires != null && !newQuestionnaires.isEmpty()) {
+            List<TeamQuestionnaire> saveNewQuestionnaires = newQuestionnaires.stream().map(questionnaire -> TeamQuestionnaire.builder()
+                            .team(team)
+                            .content(questionnaire)
+                            .build())
+                    .toList();
+
+            teamQuestionnaireRepository.saveAll(saveNewQuestionnaires);
+        }
+    }
 }

@@ -168,4 +168,11 @@ public class TeamController {
                         .build()
         );
     }
+
+    @PatchMapping("/setting")
+    public ResponseEntity<Object> updateTeamSetting(@RequestBody TeamDto.RequestTeamSettingUpdate updateDto){
+        teamService.updateTeamSetting(updateDto);
+
+        return ResponseEntity.noContent().build();
+    }
 }

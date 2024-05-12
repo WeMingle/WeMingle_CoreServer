@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 
 public class TeamDto {
     @Getter
@@ -245,6 +246,30 @@ public class TeamDto {
         public BirthCond(int startAge, int endAge) {
             this.startAge = startAge;
             this.endAge = endAge;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamSettingUpdate {
+        private Long teamPk;
+        private String teamName;
+        private String content;
+        private RecruitmentType recruitmentType;
+        private int capacityLimit;
+        private List<Long> deleteQuestionnairePks;
+        private List<String> newQuestionnaires;
+
+        @Builder
+        public RequestTeamSettingUpdate(Long teamPk, String teamName, String content, RecruitmentType recruitmentType, int capacityLimit, List<Long> deleteQuestionnairePks, List<String> newQuestionnaires) {
+            this.teamPk = teamPk;
+            this.teamName = teamName;
+            this.content = content;
+            this.recruitmentType = recruitmentType;
+            this.capacityLimit = capacityLimit;
+            this.deleteQuestionnairePks = deleteQuestionnairePks;
+            this.newQuestionnaires = newQuestionnaires;
         }
     }
 }

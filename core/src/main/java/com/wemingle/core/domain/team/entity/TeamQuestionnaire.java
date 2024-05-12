@@ -21,6 +21,9 @@ public class TeamQuestionnaire extends BaseEntity {
     @Column
     private String content;
 
+    @Column(name = "IS_DELETED")
+    private boolean isDeleted;
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM")
@@ -30,5 +33,9 @@ public class TeamQuestionnaire extends BaseEntity {
     public TeamQuestionnaire(String content, Team team) {
         this.content = content;
         this.team = team;
+    }
+
+    public void isDeleted(){
+        this.isDeleted = true;
     }
 }
