@@ -17,7 +17,7 @@ public interface TeamService {
     TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk, String memberId);
     void saveTeam(String ownerId, CreateTeamDto createTeamDto);
     TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId);
-    HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, String memberId);
+    HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, SportsType sportsType, String memberId);
     Team findByTeamPk(Long teamPk);
     TeamDto.ResponseTeamSetting getTeamSetting(Long teamPk);
     void updateTeamSetting(TeamDto.RequestTeamSettingUpdate updateDto);

@@ -148,8 +148,9 @@ public class TeamController {
 
     @GetMapping("/profile/requestable")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getRequestableTeamsInfo(@RequestParam Long matchingPostPk,
+                                                                                                                       @RequestParam SportsType sportsType,
                                                                                                                        @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getRequestableTeamsInfo(matchingPostPk, userDetails.getUsername());
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getRequestableTeamsInfo(matchingPostPk, sportsType, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>builder()

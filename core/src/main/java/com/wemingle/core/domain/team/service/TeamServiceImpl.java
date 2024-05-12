@@ -295,13 +295,13 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, String memberId) {
+    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, SportsType sportsType, String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
 
-        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableRequest(member, TeamType.valueOf(matchingPost.getRecruiterType().toString()));
+        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableRequest(member, sportsType, TeamType.valueOf(matchingPost.getRecruiterType().toString()));
 
         HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> responseTeamInfo = new HashMap<>();
 
