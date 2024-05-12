@@ -26,4 +26,6 @@ public interface TeamRepository extends JpaRepository<Team, Long>, DSLTeamReposi
 
     @Query("select t from Team t where t.teamName = :ownerId and t.teamOwner.memberId = :ownerId")
     Optional<Team> findTemporaryTeam(@Param("ownerId") String ownerId);
+    @Query("select t from Team t order by t.completedMatchingCnt desc limit 15")
+    List<Team> find15PopularTeamOrIndividual();
 }

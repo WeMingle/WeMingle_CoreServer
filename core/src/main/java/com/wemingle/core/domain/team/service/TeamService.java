@@ -21,4 +21,5 @@ public interface TeamService {
     Team findByTeamPk(Long teamPk);
     TeamDto.ResponseTeamSetting getTeamSetting(Long teamPk);
     void updateTeamSetting(TeamDto.RequestTeamSettingUpdate updateDto);
+    HashMap<Long, TeamDto.Response15PopularTeamInfo> get15PopularTeamOrIndividual();
 }

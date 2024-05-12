@@ -59,6 +59,9 @@ public class Team extends BaseEntity {
     @Column(name = "CONTENT", length = 3000)
     private String content;
 
+    @Column(name = "VIEW_CNT")
+    private int viewCnt;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private TeamType teamType;

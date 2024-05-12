@@ -178,4 +178,16 @@ public class TeamController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/popular")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.Response15PopularTeamInfo>>> get15PopularTeamOrIndividual(){
+        HashMap<Long, TeamDto.Response15PopularTeamInfo> responseData = teamService.get15PopularTeamOrIndividual();
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.Response15PopularTeamInfo>>builder()
+                        .responseMessage("Popular team or individual retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
 }
