@@ -112,8 +112,9 @@ public class TeamController {
     }
 
     @GetMapping("/{teamPk}")
-    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk) {
-        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk);
+    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk,
+                                                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamDto.TeamInfo>builder()
@@ -154,5 +155,24 @@ public class TeamController {
                         .responseData(teamListInfo)
                         .build()
         );
+    }
+
+    @GetMapping("/setting/{teamPk}")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamSetting>> getTeamSetting(@PathVariable Long teamPk){
+        TeamDto.ResponseTeamSetting responseData = teamService.getTeamSetting(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.ResponseTeamSetting>builder()
+                        .responseMessage("Team setting info retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @PatchMapping("/setting")
+    public ResponseEntity<Object> updateTeamSetting(@RequestBody TeamDto.RequestTeamSettingUpdate updateDto){
+        teamService.updateTeamSetting(updateDto);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -4,6 +4,7 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -16,6 +17,7 @@ import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
+import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamQuestionnaireRepository;
@@ -174,10 +176,11 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk) {
+    public TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk, String memberId) {
         TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId);
         Integer reviewCnt = teamReviewRepository.findTeamReviewCntWithReviewee(team);
         Double totalRating = teamRatingRepository.findTotalRatingWithTeam(team);
 
@@ -185,20 +188,25 @@ public class TeamServiceImpl implements TeamService{
                 .createDate(team.getCreatedTime().toLocalDate())
                 .teamMemberCnt(team.getTeamMembers().size())
                 .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .teamBackgroundImgUrl(s3ImgService.getTeamBackgroundPreSignedUrl(team.getBackgroundImgId()))
                 .teamName(team.getTeamName())
                 .teamRating(teamRatingUtil.adjustTeamRating(getNonNullTotalRating(totalRating)))
                 .reviewCnt(getNonNullReviewCnt(reviewCnt))
                 .content(team.getContent())
+                .isManager(isManager(teamMember))
                 .build();
     }
 
     private double getNonNullTotalRating(Double totalRating){
         return totalRating == null ? 0 : totalRating;
     }
-
     private int getNonNullReviewCnt(Integer reviewCnt) {
         return reviewCnt == null ? 0 : reviewCnt;
     }
+    private boolean isManager(Optional<TeamMember> teamMember){
+        return teamMember.isPresent() ? !teamMember.get().getTeamRole().equals(TeamRole.PARTICIPANT) : false;
+    }
+
 
     @Transactional
     @Override
@@ -304,5 +312,84 @@ public class TeamServiceImpl implements TeamService{
                         .build()));
 
         return responseTeamInfo;
+    }
+
+    @Override
+    public Team findByTeamPk(Long teamPk) {
+        return teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+    }
+
+    @Override
+    public TeamDto.ResponseTeamSetting getTeamSetting(Long teamPk){
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        return TeamDto.ResponseTeamSetting.builder()
+                .createDate(team.getCreatedTime().toLocalDate())
+                .teamMembersCnt(team.getTeamMembers().size())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(team.getProfileImgId()))
+                .teamBackgroundImgUrl(s3ImgService.getTeamBackgroundPreSignedUrl(team.getBackgroundImgId()))
+                .teamName(team.getTeamName())
+                .content(team.getContent())
+                .recruitmentType(team.getRecruitmentType())
+                .univCond(getTeamUnivCond(team))
+                .genderCond(getTeamGenderCond(team))
+                .birthCond(getTeamBirthCond(team))
+                .capacityLimit(team.getCapacityLimit())
+                .teamQuestionnaire(getTeamQuestionnaire(team))
+                .build();
+    }
+
+    public String getTeamUnivCond(Team team){
+        VerifiedUniversityEmail verifiedUniversityEmail = verifiedUniversityEmailRepository.findByMemberFetchUniv(team.getTeamOwner())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
+
+        return team.isOnlySameUniv() ? verifiedUniversityEmail.getUnivName().getUnivName() : null;
+    }
+
+    public Gender getTeamGenderCond(Team team){
+        return team.hasGenderCond() ? team.getGender() : null;
+    }
+
+    public TeamDto.BirthCond getTeamBirthCond(Team team){
+        return team.hasAgeCond()
+                ? TeamDto.BirthCond.builder().startAge(team.getStartAge()).endAge(team.getEndAge()).build()
+                : null;
+    }
+
+    public HashMap<Long, String> getTeamQuestionnaire(Team team){
+        List<TeamQuestionnaire> teamQuestionnaires = teamQuestionnaireRepository.findActiveByTeam(team);
+
+        LinkedHashMap<Long, String> responseData = new LinkedHashMap<>();
+        teamQuestionnaires.forEach(teamQuestionnaire -> responseData.put(teamQuestionnaire.getPk(), teamQuestionnaire.getContent()));
+
+        return responseData;
+    }
+
+    @Override
+    @Transactional
+    public void updateTeamSetting(TeamDto.RequestTeamSettingUpdate updateDto){
+        Team team = teamRepository.findById(updateDto.getTeamPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        team.updateTeamSetting(updateDto);
+
+        List<Long> deleteQuestionnairePks = updateDto.getDeleteQuestionnairePks();
+        if (deleteQuestionnairePks != null && !deleteQuestionnairePks.isEmpty()) {
+            List<TeamQuestionnaire> teamQuestionnaires = teamQuestionnaireRepository.findAllById(deleteQuestionnairePks);
+            teamQuestionnaires.forEach(TeamQuestionnaire::isDeleted);
+        }
+
+        List<String> newQuestionnaires = updateDto.getNewQuestionnaires();
+        if (newQuestionnaires != null && !newQuestionnaires.isEmpty()) {
+            List<TeamQuestionnaire> saveNewQuestionnaires = newQuestionnaires.stream().map(questionnaire -> TeamQuestionnaire.builder()
+                            .team(team)
+                            .content(questionnaire)
+                            .build())
+                    .toList();
+
+            teamQuestionnaireRepository.saveAll(saveNewQuestionnaires);
+        }
     }
 }

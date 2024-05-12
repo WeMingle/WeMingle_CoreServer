@@ -3,7 +3,9 @@ package com.wemingle.core.domain.img.controller;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
+import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.service.TeamMemberService;
+import com.wemingle.core.domain.team.service.TeamService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ public class ImgController {
     private final MemberService memberService;
     private final S3ImgService s3ImgService;
     private final TeamMemberService teamMemberService;
+    private final TeamService teamService;
 
     private static final int MAX_IMG_COUNT = 5;
     @GetMapping("/member/profile/upload/{extension}")
@@ -107,5 +110,22 @@ public class ImgController {
                 .responseMessage("s3 url issuance complete")
                 .responseData(s3ImgService.setTeamMemberProfilePreSignedUrl(member.getProfileImgId()))
                 .build());
+    }
+
+    @GetMapping("/team/background/upload/{teamPk}/{extension}")
+    public ResponseEntity<ResponseHandler<Object>> getTeamBackgroundUploadPreSignUrl(@PathVariable("teamPk") Long teamPk,
+                                                                                     @PathVariable("extension") String extension,
+                                                                                     @AuthenticationPrincipal UserDetails userDetails) {
+        if (!s3ImgService.isAvailableExtension(extension)) {
+            return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
+        }
+
+        Team team = teamService.findByTeamPk(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.builder()
+                        .responseMessage("s3 url issuance complete")
+                        .responseData(s3ImgService.setTeamBackgroundPreSignedUrl(team.getBackgroundImgId()))
+                        .build());
     }
 }

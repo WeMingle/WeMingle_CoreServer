@@ -4,6 +4,7 @@ import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import jakarta.persistence.*;
@@ -51,6 +52,9 @@ public class Team extends BaseEntity {
     @Column(name = "PROFILE_IMG_ID", columnDefinition = "VARBINARY(255) NOT NULL")
     private UUID profileImgId;
 
+    @Column(name = "BACKGROUND_IMG_ID")
+    private UUID backgroundImgId;
+
     @NotNull
     @Column(name = "CONTENT", length = 3000)
     private String content;
@@ -82,6 +86,7 @@ public class Team extends BaseEntity {
         this.capacityLimit = capacityLimit;
         this.completedMatchingCnt = 0;
         this.profileImgId = profileImgId;
+        this.backgroundImgId = UUID.randomUUID();
         this.content = content;
         this.teamType = teamType;
         this.recruitmentType = recruitmentType;
@@ -107,5 +112,11 @@ public class Team extends BaseEntity {
 
     public boolean hasAgeCond(){
         return this.startAge != 0 && this.endAge != 0;
+    }
+    public void updateTeamSetting(TeamDto.RequestTeamSettingUpdate updateDto){
+        this.teamName = updateDto.getTeamName();
+        this.content = updateDto.getContent();
+        this.recruitmentType = updateDto.getRecruitmentType();
+        this.capacityLimit = updateDto.getCapacityLimit();
     }
 }
