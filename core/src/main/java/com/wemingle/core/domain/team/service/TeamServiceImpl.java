@@ -359,7 +359,7 @@ public class TeamServiceImpl implements TeamService{
     }
 
     public HashMap<Long, String> getTeamQuestionnaire(Team team){
-        List<TeamQuestionnaire> teamQuestionnaires = teamQuestionnaireRepository.findByTeamOrderByPkAsc(team);
+        List<TeamQuestionnaire> teamQuestionnaires = teamQuestionnaireRepository.findActiveByTeam(team);
 
         LinkedHashMap<Long, String> responseData = new LinkedHashMap<>();
         teamQuestionnaires.forEach(teamQuestionnaire -> responseData.put(teamQuestionnaire.getPk(), teamQuestionnaire.getContent()));
