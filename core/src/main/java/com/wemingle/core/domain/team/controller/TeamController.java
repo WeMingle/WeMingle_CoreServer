@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.team.controller;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
@@ -24,8 +25,9 @@ public class TeamController {
     private final TeamMemberService teamMemberService;
 
     @GetMapping("/profile/writable")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getTeamInfoWithAvailableWrite(userDetails.getUsername());
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getTeamInfoByMemberId(@RequestParam SportsType sportsType,
+                                                                                                                     @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getTeamInfoWithAvailableWrite(sportsType, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>builder()
@@ -146,8 +148,9 @@ public class TeamController {
 
     @GetMapping("/profile/requestable")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getRequestableTeamsInfo(@RequestParam Long matchingPostPk,
+                                                                                                                       @RequestParam SportsType sportsType,
                                                                                                                        @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getRequestableTeamsInfo(matchingPostPk, userDetails.getUsername());
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getRequestableTeamsInfo(matchingPostPk, sportsType, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>builder()

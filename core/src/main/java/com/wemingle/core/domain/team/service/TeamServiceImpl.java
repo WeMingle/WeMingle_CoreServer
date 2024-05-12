@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.team.service;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
@@ -53,10 +54,10 @@ public class TeamServiceImpl implements TeamService{
     private final MatchingPostRepository matchingPostRepository;
     private static final int PAGE_SIZE = 30;
     @Override
-    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId) {
+    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(SportsType sportsType, String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
-        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableWrite(member);
+        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableWrite(sportsType, member);
 
         HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> responseTeamInfo = new HashMap<>();
 
@@ -294,13 +295,13 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, String memberId) {
+    public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, SportsType sportsType, String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
 
-        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableRequest(member, TeamType.valueOf(matchingPost.getRecruiterType().toString()));
+        List<Team> teamList = teamMemberRepository.findTeamsWithAvailableRequest(member, sportsType, TeamType.valueOf(matchingPost.getRecruiterType().toString()));
 
         HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> responseTeamInfo = new HashMap<>();
 
