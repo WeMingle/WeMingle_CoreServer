@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.team.service;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
@@ -7,7 +8,7 @@ import com.wemingle.core.domain.team.entity.Team;
 import java.util.HashMap;
 
 public interface TeamService {
-    HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(String memberId);
+    HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(SportsType sportsType, String memberId);
     TeamDto.ResponseTeamHomeConditions getTeamHomeConditions(String memberId);
     HashMap<Long, TeamDto.ResponseRecommendationTeamInfo> getRecommendTeams(Long nextIdx, String memberId);
     HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> getRecommendTeamsForMember(Long nextIdx, String memberId);
