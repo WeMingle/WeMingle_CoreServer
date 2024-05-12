@@ -156,12 +156,14 @@ public class MatchingPostDto {
         @NotNull
         private Ability ability;
         private Gender gender;
+        @Min(value = 1, message = "myCapacityCount must be greater than 1")
+        private int myCapacityCount;
         @NotNull
         @Min(value = 1, message = "capacityLimit must be greater than 1")
         private int capacityLimit;
         @NotNull
         private Long teamPk;
-        private List<String> participantsId = new ArrayList<>(); // member pk
+        private List<Long> participantsId = new ArrayList<>(); // member pk
         @NotNull
         private LocalDate expiryDate;
         @NotNull
@@ -176,15 +178,24 @@ public class MatchingPostDto {
         private SportsType sportsType;
 
         @Builder
-        public CreateMatchingPostDto(List<LocalDate> matchingDate, Double latitude, Double longitude, String locationName, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int capacityLimit, Long teamPk, List<String> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
+        public CreateMatchingPostDto(List<LocalDate> matchingDate, Double latitude, Double longitude, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int myCapacityCount, int capacityLimit, Long teamPk, List<Long> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
             this.matchingDate = matchingDate;
             this.latitude = latitude;
             this.longitude = longitude;
             this.locationName = locationName;
+            this.dou = dou;
+            this.si = si;
+            this.gun = gun;
+            this.gu = gu;
+            this.dong = dong;
+            this.eup = eup;
+            this.myeon = myeon;
+            this.ri = ri;
             this.areaNameList = areaNameList;
             this.isLocationConsensusPossible = isLocationConsensusPossible;
             this.ability = ability;
             this.gender = gender;
+            this.myCapacityCount = myCapacityCount;
             this.capacityLimit = capacityLimit;
             this.teamPk = teamPk;
             this.participantsId = participantsId;
@@ -211,6 +222,7 @@ public class MatchingPostDto {
                     .lat(latitude)
                     .lon(longitude)
                     .content(content)
+                    .myCapacityCount(myCapacityCount)
                     .capacityLimit(capacityLimit)
                     .isLocationConsensusPossible(isLocationConsensusPossible)
                     .ability(ability)
@@ -413,6 +425,62 @@ public class MatchingPostDto {
             this.isLocationConsensusPossible = isLocationConsensusPossible;
             this.isBookmarked = isBookmarked;
             this.isExpired = isExpired;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestUpdatePost {
+        @NotBlank
+        private String content;
+    }
+
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseMatchingPostDetail{
+        private LocalDate teamCreateDate;
+        private int teamMemberCnt;
+        private String teamImgUrl;
+        private String teamName;
+        private double teamRating;
+        private int reviewCnt;
+        private List<LocalDate> matchingDates;
+        private List<String> areas;
+        private Ability ability;
+        private int participantsCnt;
+        private List<String> participantsImgUrls;
+        private RecruiterType recruiterType;
+        private LocalDate expiryDate;
+        private RecruitmentType recruitmentType;
+        @JsonProperty(value = "isBookmarked")
+        private boolean isBookmarked;
+        @JsonProperty(value = "isWriter")
+        private boolean isWriter;
+        @JsonProperty(value = "isCompleted")
+        private boolean isCompleted;
+
+        @Builder
+        public ResponseMatchingPostDetail(LocalDate teamCreateDate, int teamMemberCnt, String teamImgUrl, String teamName, double teamRating, int reviewCnt, List<LocalDate> matchingDates, List<String> areas, Ability ability, int participantsCnt, List<String> participantsImgUrls, RecruiterType recruiterType, LocalDate expiryDate, RecruitmentType recruitmentType, boolean isBookmarked, boolean isWriter, boolean isCompleted) {
+            this.teamCreateDate = teamCreateDate;
+            this.teamMemberCnt = teamMemberCnt;
+            this.teamImgUrl = teamImgUrl;
+            this.teamName = teamName;
+            this.teamRating = teamRating;
+            this.reviewCnt = reviewCnt;
+            this.matchingDates = matchingDates;
+            this.areas = areas;
+            this.ability = ability;
+            this.participantsCnt = participantsCnt;
+            this.participantsImgUrls = participantsImgUrls;
+            this.recruiterType = recruiterType;
+            this.expiryDate = expiryDate;
+            this.recruitmentType = recruitmentType;
+            this.isBookmarked = isBookmarked;
+            this.isWriter = isWriter;
+            this.isCompleted = isCompleted;
         }
     }
 }

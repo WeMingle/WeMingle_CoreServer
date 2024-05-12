@@ -17,6 +17,7 @@ import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
@@ -186,34 +184,26 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname, String memberId) {
+    public HashMap<Long, MemberDto.ResponseMemberInfoInSearch> getMemberByNickname(Long nextIdx, String nickname, String memberId) {
         Member findMember = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         List<Member> members = memberRepository.getMemberByNickname(nextIdx, nickname);
 
-        LinkedHashMap<Long, MemberDto.MemberInfoInSearch> membersInfoHashMap = new LinkedHashMap<>();
-        members.forEach(member -> membersInfoHashMap.put(member.getPk(), MemberDto.MemberInfoInSearch.builder()
+        LinkedHashMap<Long, MemberDto.ResponseMemberInfoInSearch> membersInfoHashMap = new LinkedHashMap<>();
+        members.forEach(member -> membersInfoHashMap.put(member.getPk(), MemberDto.ResponseMemberInfoInSearch.builder()
                 .nickname(member.getNickname())
                 .profileImg(s3ImgService.getMemberProfilePicUrl(member.getProfileImgId()))
                 .isMe(member.equals(findMember))
                 .build()
         ));
 
-        boolean hasNextMember = isExistedNextMember(members, nickname);
-
-        return MemberDto.ResponseMemberInfo.builder()
-                .membersInfo(membersInfoHashMap)
-                .hasNextMember(hasNextMember)
-                .build();
+        return membersInfoHashMap;
     }
 
-    private boolean isExistedNextMember(List<Member> members, String nickname) {
-        Optional<Long> minPk = members.stream().map(Member::getPk).min(Long::compareTo);
-        boolean hasNextData = false;
-        if (minPk.isPresent()) {
-            hasNextData = memberRepository.existsByPkLessThanAndNicknameContains(minPk.get(), nickname);
-        }
-
-        return hasNextData;
+    @Transactional
+    @Override
+    public void patchMemberPassword(String memberId, String newPassword) {
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new RuntimeException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        member.setPassword(newPassword);
     }
 }

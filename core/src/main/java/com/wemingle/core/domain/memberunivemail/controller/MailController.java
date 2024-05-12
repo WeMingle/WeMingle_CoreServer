@@ -16,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -52,6 +49,20 @@ public class MailController {
 
         mailVerificationService.sendVerificationMail(requestUnivEmail, findMember);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/verification")
+    ResponseEntity<ResponseHandler<Object>> getVerifyCode(@RequestBody MailDto.RequestSendMailDto mailDto, @AuthenticationPrincipal UserDetails userDetails) {
+        Member byMemberId = memberService.findByMemberId(userDetails.getUsername());
+        mailVerificationService.sendVerificationMail(mailDto.getUnivEmail(),byMemberId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping
+    ResponseEntity<ResponseHandler<Object>> changeUnivEmail(@RequestBody MailDto.RequestVerifyCodeDto requestVerifyCodeDto, @AuthenticationPrincipal UserDetails userDetails) {
+        Member byMemberId = memberService.findByMemberId(userDetails.getUsername());
+        mailVerificationService.saveChangedVerificationMailAddress(byMemberId, requestVerifyCodeDto.getUnivEmail(), requestVerifyCodeDto.getVerificationCode());
         return ResponseEntity.noContent().build();
     }
 

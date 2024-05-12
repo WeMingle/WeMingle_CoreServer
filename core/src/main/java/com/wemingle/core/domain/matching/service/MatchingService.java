@@ -1,12 +1,15 @@
 package com.wemingle.core.domain.matching.service;
 
+import com.wemingle.core.domain.matching.entity.Matching;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
+import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,5 +28,9 @@ public class MatchingService {
         responseNode.put("requestedMatchingCnt", requestedMatchingCnt);
         responseNode.put("receivedMatchingCnt", receivedMatchingCnt);
         return responseNode;
+    }
+
+    public List<Matching> getMatchingsByMatchingPost(MatchingPost matchingPost){
+        return matchingRepository.findByMatchingPost(matchingPost);
     }
 }

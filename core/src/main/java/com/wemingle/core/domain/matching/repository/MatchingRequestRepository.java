@@ -29,5 +29,7 @@ public interface MatchingRequestRepository extends JpaRepository<MatchingRequest
     List<MatchingRequest> findAllRequestsWithTeam(@Param("matchingPost") MatchingPost matchingPost,
                                                   @Param("team") Set<Team> team);
     List<MatchingRequest> findByMatchingPost(MatchingPost matchingPost);
-
+    @Query("select count(mr) from MatchingRequest mr where mr.matchingPost = :matchingPost and mr.matchingRequestStatus = 'COMPLETE'")
+    Integer findMatchingRequestCnt(@Param("matchingPost") MatchingPost matchingPost);
+    boolean existsByMatchingPostAndTeam(MatchingPost matchingPost, Team team);
 }

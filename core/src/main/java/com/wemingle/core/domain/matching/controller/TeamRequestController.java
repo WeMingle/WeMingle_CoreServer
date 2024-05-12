@@ -7,6 +7,7 @@ import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,8 +37,16 @@ public class TeamRequestController {
     @PostMapping
     public ResponseEntity<ResponseHandler<Object>> saveTeamRequest(@RequestBody @Valid TeamRequestDto.RequestTeamRequestSave requestSaveDto,
                                                                    @AuthenticationPrincipal UserDetails userDetails){
-        teamRequestService.saveTeamMemberOrRequestByRecruitmentType(requestSaveDto, userDetails.getUsername());
+        if (!teamRequestService.isRequestableTeam(requestSaveDto.getTeamPk())){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Team capacity is exceeded")
+                                    .build()
+                    );
+        }
 
+        teamRequestService.saveTeamMemberOrRequestByRecruitmentType(requestSaveDto, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 }

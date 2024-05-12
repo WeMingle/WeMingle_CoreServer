@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.team.controller;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
@@ -24,8 +25,9 @@ public class TeamController {
     private final TeamMemberService teamMemberService;
 
     @GetMapping("/profile/writable")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getTeamInfoByMemberId(@AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getTeamInfoWithAvailableWrite(userDetails.getUsername());
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getTeamInfoByMemberId(@RequestParam SportsType sportsType,
+                                                                                                                     @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getTeamInfoWithAvailableWrite(sportsType, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>builder()
@@ -86,13 +88,13 @@ public class TeamController {
     }
 
     @GetMapping("/result")
-    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamInfoByName>> getTeamsByTeamName(@RequestParam(required = false) Long nextIdx,
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoInSearch>>> getTeamsByTeamName(@RequestParam(required = false) Long nextIdx,
                                                                                               @RequestParam @NotBlank String query){
         String teamName = URLDecoder.decode(query, StandardCharsets.UTF_8);
-        TeamDto.ResponseTeamInfoByName responseData = teamService.getTeamByName(nextIdx, teamName);
+        HashMap<Long, TeamDto.ResponseTeamInfoInSearch> responseData = teamService.getTeamByName(nextIdx, teamName);
 
         return ResponseEntity.ok(
-                ResponseHandler.<TeamDto.ResponseTeamInfoByName>builder()
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseTeamInfoInSearch>>builder()
                         .responseMessage("Teams retrieval successfully")
                         .responseData(responseData)
                         .build()
@@ -112,8 +114,9 @@ public class TeamController {
     }
 
     @GetMapping("/{teamPk}")
-    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk) {
-        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk);
+    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk,
+                                                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamDto.TeamInfo>builder()
@@ -141,5 +144,38 @@ public class TeamController {
                         .responseMessage("Team condition result retrieval successfully")
                         .responseData(responseData)
                         .build());
+    }
+
+    @GetMapping("/profile/requestable")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getRequestableTeamsInfo(@RequestParam Long matchingPostPk,
+                                                                                                                       @RequestParam SportsType sportsType,
+                                                                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getRequestableTeamsInfo(matchingPostPk, sportsType, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>builder()
+                        .responseMessage("Teams info retrieval successfully")
+                        .responseData(teamListInfo)
+                        .build()
+        );
+    }
+
+    @GetMapping("/setting/{teamPk}")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamSetting>> getTeamSetting(@PathVariable Long teamPk){
+        TeamDto.ResponseTeamSetting responseData = teamService.getTeamSetting(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamDto.ResponseTeamSetting>builder()
+                        .responseMessage("Team setting info retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @PatchMapping("/setting")
+    public ResponseEntity<Object> updateTeamSetting(@RequestBody TeamDto.RequestTeamSettingUpdate updateDto){
+        teamService.updateTeamSetting(updateDto);
+
+        return ResponseEntity.noContent().build();
     }
 }

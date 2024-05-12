@@ -8,6 +8,8 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.vo.SignupVo;
 
+import java.util.HashMap;
+
 public interface MemberService {
     boolean verifyAvailableId(String memberId);
     void saveMember(SignupVo.SaveMemberVo saveMemberVo);
@@ -22,5 +24,6 @@ public interface MemberService {
     MemberInfoDto getMemberInfo(String memberId);
     void setMemberInfo(String memberId, MemberInfoDto memberInfoDto);
     MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId);
-    MemberDto.ResponseMemberInfo getMemberByNickname(Long nextIdx, String nickname, String memberId);
+    HashMap<Long, MemberDto.ResponseMemberInfoInSearch> getMemberByNickname(Long nextIdx, String nickname, String memberId);
+    void patchMemberPassword(String memberId, String newPassword);
 }

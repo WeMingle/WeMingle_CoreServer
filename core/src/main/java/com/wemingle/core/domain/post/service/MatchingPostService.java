@@ -25,6 +25,7 @@ import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostAreaRepository;
 import com.wemingle.core.domain.post.repository.MatchingPostMatchingDateRepository;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
+import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.review.repository.TeamReviewRepository;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
@@ -33,6 +34,7 @@ import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
+import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +71,7 @@ public class MatchingPostService {
     private final S3ImgService s3ImgService;
     private final MatchingPostMatchingDateRepository matchingPostMatchingDateRepository;
     private final MatchingRequestRepository matchingRequestRepository;
-
+    private final TeamRatingRepository teamRatingRepository;
 
     @Value("${wemingle.ip}")
     private String serverIp;
@@ -710,7 +712,7 @@ public class MatchingPostService {
     public void saveMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
         RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
         Long teamPk = createMatchingPostDto.getTeamPk();
-        List<String> participantsId = createMatchingPostDto.getParticipantsId();
+        List<Long> participantsTeamMemberId = createMatchingPostDto.getParticipantsId();
 
         Team team = teamRepository.findById(teamPk).orElseThrow(() -> new EntityNotFoundException(TEAM_NOT_FOUND.getExceptionMessage()));
         TeamMember writerInTeam = teamMemberRepository.findByTeamAndMember_MemberId(team, writerId)
@@ -722,8 +724,8 @@ public class MatchingPostService {
         Member teamOwner = memberRepository.findByMemberId(writerId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
         saveMatchingOwner(team, teamOwner, matchingPost);
 
-        if (isExistTeamParticipant(recruiterType, participantsId)){
-            List<Member> memberList = memberRepository.findByMemberIdIn(participantsId);
+        if (isExistTeamParticipant(recruiterType, participantsTeamMemberId)){
+            List<Member> memberList = teamMemberRepository.findMemberByTeamMemberIdIn(participantsTeamMemberId);
             saveMatchingParticipants(team, memberList, matchingPost);
         }
     }
@@ -749,8 +751,8 @@ public class MatchingPostService {
         matchingRepository.saveAll(matchingParticipantList);
     }
 
-    private boolean isExistTeamParticipant(RecruiterType recruiterType, List<String> participantsPk) {
-        return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty(); //
+    private boolean isExistTeamParticipant(RecruiterType recruiterType, List<Long> participantsPk) {
+        return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty();
     }
 
     public List<MatchingPostMapDto> getMatchingPostByMap(double topLat,
@@ -1023,5 +1025,89 @@ public class MatchingPostService {
                 .filter(entry -> entry.getValue() != null)
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining("&"));
+    }
+
+    public boolean isWriter(MatchingPost matchingPost, Member member){
+        return matchingPost.getWriter().getMember().equals(member);
+    }
+
+    public boolean isDeletable(Team writerTeam, List<Matching> matchings){
+        return matchings.stream()
+                .allMatch(matching -> matching.getTeam().equals(writerTeam));
+    }
+
+    @Transactional
+    public void deleteMatchingPost(MatchingPost matchingPost, List<Matching> matchings){
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findByMatchingPost(matchingPost);
+
+        //신고 글 서비스 구현되면 신고 된 내역도 삭제
+        bookmarkRepository.deleteAllInBatch(bookmarkedMatchingPosts);
+        matchingRequestRepository.deleteAllInBatch(matchingRequestRepository.findByMatchingPost(matchingPost));
+        matchingRepository.deleteAllInBatch(matchings);
+        matchingPostRepository.delete(matchingPost);
+    }
+
+    @Transactional
+    public void updateMatchingPostContent(Long matchingPostPk, String content){
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(MATCHING_POST_NOT_FOUND.getExceptionMessage()));
+
+        matchingPost.updateContent(content);
+    }
+
+
+    public MatchingPostDto.ResponseMatchingPostDetail getMatchingPostDetail(Long matchingPostPk, String memberId){
+        TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
+        Member requester = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        Team writerTeam = matchingPost.getTeam();
+        Optional<TeamMember> requesterTeamMember = teamMemberRepository.findByTeamAndMember(writerTeam, requester);
+        Integer reviewCnt = teamReviewRepository.findTeamReviewCntWithReviewee(writerTeam);
+        Double totalRating = teamRatingRepository.findTotalRatingWithTeam(writerTeam);
+
+        return MatchingPostDto.ResponseMatchingPostDetail.builder()
+                .teamCreateDate(writerTeam.getCreatedTime().toLocalDate())
+                .teamMemberCnt(writerTeam.getTeamMembers().size())
+                .teamImgUrl(s3ImgService.getGroupProfilePicUrl(writerTeam.getProfileImgId()))
+                .teamName(writerTeam.getTeamName())
+                .teamRating(teamRatingUtil.adjustTeamRating(getNonNullTotalRating(totalRating)))
+                .reviewCnt(getNonNullReviewCnt(reviewCnt))
+                .matchingDates(getMatchingDates(matchingPost))
+                .areas(getAreas(matchingPost))
+                .ability(matchingPost.getAbility())
+                .participantsCnt(matchingPost.getMyCapacityCount())
+                .participantsImgUrls(getParticipantsImgUrls(matchingPost))
+                .recruiterType(matchingPost.getRecruiterType())
+                .expiryDate(matchingPost.getExpiryDate())
+                .recruitmentType(matchingPost.getRecruitmentType())
+                .isBookmarked(bookmarkRepository.existsByMatchingPostAndMember(matchingPost, requester))
+                .isCompleted(matchingPost.isComplete())
+                .isWriter(isWriter(requesterTeamMember, matchingPost.getWriter()))
+                .build();
+    }
+
+    private double getNonNullTotalRating(Double totalRating){
+        return totalRating == null ? 0 : totalRating;
+    }
+
+    private int getNonNullReviewCnt(Integer reviewCnt) {
+        return reviewCnt == null ? 0 : reviewCnt;
+    }
+
+    private List<String> getParticipantsImgUrls(MatchingPost matchingPost){
+        List<Member> participants = matchingRepository.findMatchingPostTeamParticipants(matchingPost.getTeam(), matchingPost);
+        log.info("par {}", participants.size());
+        List<TeamMember> teamMembers = teamMemberRepository.findByTeamAndMemberIn(matchingPost.getTeam(), participants);
+        log.info("teamM {}", teamMembers.size());
+
+        return teamMembers.stream()
+                .map(teamMember -> s3ImgService.getTeamMemberPreSignedUrl(teamMember.getProfileImg()))
+                .toList();
+    }
+
+    private static boolean isWriter(Optional<TeamMember> requesterTeamMember, TeamMember writer) {
+        return requesterTeamMember.isPresent() ? writer.equals(requesterTeamMember.get()) : false;
     }
 }

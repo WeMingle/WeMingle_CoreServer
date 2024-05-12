@@ -49,7 +49,7 @@ public class TeamRequestService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
-        List<TeamQuestionnaire> teamQuestions = teamQuestionnaireRepository.findByTeamOrderByPkAsc(team);
+        List<TeamQuestionnaire> teamQuestions = teamQuestionnaireRepository.findActiveByTeam(team);
         String findAbility = memberAbilityRepository.findAbilityByMemberAndSport(requester, team.getSportsCategory())
                 .orElse(null);
         VerifiedUniversityEmail verifiedUniversity = verifiedUniversityEmailRepository.findByMemberFetchUniv(requester)
@@ -131,5 +131,16 @@ public class TeamRequestService {
             teamQuestionnaireAnswers.add(teamQuestionnaireAnswer);
         });
         teamQuestionnaireAnswerRepository.saveAll(teamQuestionnaireAnswers);
+    }
+
+    public boolean isRequestableTeam(Long teamPk){
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        return !isExceedTeamMemberCnt(team) && team.getRecruitmentType().equals(RecruitmentType.FIRST_SERVED_BASED);
+    }
+
+    private static boolean isExceedTeamMemberCnt(Team team) {
+        return team.getTeamMembers().size() >= team.getCapacityLimit();
     }
 }

@@ -34,6 +34,7 @@ public class S3ImgService {
     private static final String TEAM_POST_PATH = "post/team/";
     private static final String TEAM_MEMBER_PATH = "profile/group/";
     private static final String TEAM_PATH = "team/";
+    private static final String TEAM_BACKGROUND_PATH = "team/background/";
     private static final Duration EXPIRY_TIME = Duration.ofMinutes(1L);
 
     public boolean isAvailableExtension(String extension) {
@@ -144,6 +145,23 @@ public class S3ImgService {
 
     public String setTeamMemberProfilePreSignedUrl(UUID teamMemberProfileUUID) {
         PutObjectRequest getObjectRequest = PutObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + teamMemberProfileUUID).build();
+        PutObjectPresignRequest objectResignRequest = PutObjectPresignRequest.builder().signatureDuration(EXPIRY_TIME).putObjectRequest(getObjectRequest).build();
+        URL url = s3Presigner.presignPutObject(objectResignRequest).url();
+        s3Presigner.close();
+        return url.toString();
+    }
+
+    public String getTeamBackgroundPreSignedUrl(UUID teamBackgroundUUID) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_BACKGROUND_PATH + teamBackgroundUUID).build();
+        GetObjectPresignRequest preSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
+        URL url = s3Presigner.presignGetObject(preSignRequest).url();
+        s3Client.close();
+
+        return url.toString();
+    }
+
+    public String setTeamBackgroundPreSignedUrl(UUID teamBackgroundUUID) {
+        PutObjectRequest getObjectRequest = PutObjectRequest.builder().bucket(bucket).key(TEAM_BACKGROUND_PATH + teamBackgroundUUID).build();
         PutObjectPresignRequest objectResignRequest = PutObjectPresignRequest.builder().signatureDuration(EXPIRY_TIME).putObjectRequest(getObjectRequest).build();
         URL url = s3Presigner.presignPutObject(objectResignRequest).url();
         s3Presigner.close();

@@ -23,16 +23,14 @@ public class DSLTeamRepositoryImpl implements DSLTeamRepository{
     private final JPAQueryFactory jpaQueryFactory;
     @Override
     public List<Team> getTeamByTeamName(Long nextIdx,
-                                        String teamName,
-                                        Pageable pageable) {
+                                        String teamName) {
         return jpaQueryFactory.selectFrom(team)
                 .where(
                         nextIdxLt(nextIdx),
                         team.teamName.contains(teamName),
                         team.teamType.eq(TeamType.TEAM)
                 )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(10)
                 .orderBy(team.pk.desc())
                 .fetch();
     }

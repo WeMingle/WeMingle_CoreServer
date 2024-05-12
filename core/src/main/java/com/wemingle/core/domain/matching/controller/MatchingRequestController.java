@@ -5,13 +5,17 @@ import com.wemingle.core.domain.matching.dto.MatchingRequestDto;
 import com.wemingle.core.domain.matching.service.MatchingRequestService;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @Slf4j
@@ -20,6 +24,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MatchingRequestController {
     private final MatchingRequestService matchingRequestService;
+
+    @Value("${wemingle.ip}")
+    private String serverIp;
+
+    private static final String MATCHING_POST_DETAIL_PATH = "/post/match";
     @GetMapping("/history")
     public ResponseEntity<ResponseHandler<List<MatchingRequestDto.ResponseMatchingRequestHistory>>> getMatchingRequestHistories(@RequestParam(required = false) Long nextIdx,
                                                                                                                                 @RequestParam(required = false) RequestType requestType,
@@ -58,6 +67,48 @@ public class MatchingRequestController {
     @PatchMapping
     public ResponseEntity<Object> approveMatchingRequests(@RequestBody MatchingRequestDto.MatchingRequestApprove matchingRequestApprove){
         matchingRequestService.approveMatchingRequests(matchingRequestApprove);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<ResponseHandler<Object>> saveMatchingRequest(@RequestBody @Valid MatchingRequestDto.RequestMatchingRequestSave requestSaveDto,
+                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        if (matchingRequestService.isCompletedMatchingPost(requestSaveDto.getMatchingPostPk())){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Matching post is already completed")
+                                    .build()
+                    );
+        }
+
+        if (matchingRequestService.isMatchingPostCapacityExceededWhenFirstServedBased(requestSaveDto.of())){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Capacity exceed the matchingPost capacityLimit")
+                                    .build()
+                    );
+        }
+
+        matchingRequestService.saveMatchingRequest(requestSaveDto, userDetails.getUsername());
+
+        String createdUrl = serverIp + MATCHING_POST_DETAIL_PATH + "/" + requestSaveDto.getMatchingPostPk();
+        return ResponseEntity.created(URI.create(createdUrl)).build();
+    }
+
+    @GetMapping("/team/requestable")
+    public ResponseEntity<Object> isTeamMatchRequested(@RequestParam Long matchingPostPk,
+                                                       @RequestParam Long teamPk){
+        if (matchingRequestService.isTeamMatchRequested(matchingPostPk, teamPk)){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("This team already requested to the matching post")
+                                    .build()
+                    );
+        }
 
         return ResponseEntity.noContent().build();
     }

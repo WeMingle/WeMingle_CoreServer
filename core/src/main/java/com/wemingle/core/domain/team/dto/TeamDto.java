@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.List;
 
 public class TeamDto {
     @Getter
@@ -60,27 +61,14 @@ public class TeamDto {
 
     @Getter
     @NoArgsConstructor
-    public static class ResponseTeamInfoByName{
-        private boolean hasNextTeam;
-        private LinkedHashMap<Long, TeamInfoInSearch> teamsInfo;
-
-        @Builder
-        public ResponseTeamInfoByName(boolean hasNextTeam, LinkedHashMap<Long, TeamInfoInSearch> teamsInfo) {
-            this.hasNextTeam = hasNextTeam;
-            this.teamsInfo = teamsInfo;
-        }
-    }
-
-    @Getter
-    @NoArgsConstructor
-    public static class TeamInfoInSearch {
+    public static class ResponseTeamInfoInSearch {
         private String teamName;
         private String content;
         private String teamImgUrl;
         private RecruitmentType recruitmentType;
 
         @Builder
-        public TeamInfoInSearch(String teamName, String content, String teamImgUrl, RecruitmentType recruitmentType) {
+        public ResponseTeamInfoInSearch(String teamName, String content, String teamImgUrl, RecruitmentType recruitmentType) {
             this.teamName = teamName;
             this.content = content;
             this.teamImgUrl = teamImgUrl;
@@ -115,25 +103,31 @@ public class TeamDto {
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     public static class TeamInfo {
         private LocalDate createDate;
         private int teamMemberCnt;
         private String teamImgUrl;
+        private String teamBackgroundImgUrl;
         private String teamName;
         private double teamRating;
         private int reviewCnt;
         private String content;
+        @JsonProperty(value = "isManager")
+        private boolean isManager;
 
         @Builder
-        public TeamInfo(LocalDate createDate, int teamMemberCnt, String teamImgUrl, String teamName, double teamRating, int reviewCnt, String content) {
+        public TeamInfo(LocalDate createDate, int teamMemberCnt, String teamImgUrl, String teamBackgroundImgUrl, String teamName, double teamRating, int reviewCnt, String content, boolean isManager) {
             this.createDate = createDate;
             this.teamMemberCnt = teamMemberCnt;
             this.teamImgUrl = teamImgUrl;
+            this.teamBackgroundImgUrl = teamBackgroundImgUrl;
             this.teamName = teamName;
             this.teamRating = teamRating;
             this.reviewCnt = reviewCnt;
             this.content = content;
+            this.isManager = isManager;
         }
     }
 
@@ -146,15 +140,18 @@ public class TeamDto {
         private boolean isTeamMember;
         @JsonProperty("isTeamRequest")
         private boolean isTeamRequest;
+        @JsonProperty("isExceedCapacity")
+        private boolean isExceedCapacity;
         private Boolean univCondResult;
         private GenderCondResult genderCondResult;
         private BirthYearCondResult birthYearCondResult;
 
         @Builder
-        public ResponseTeamParticipantCond(boolean beforeWriteInfo, boolean isTeamMember, boolean isTeamRequest, Boolean univCondResult, GenderCondResult genderCondResult, BirthYearCondResult birthYearCondResult) {
+        public ResponseTeamParticipantCond(boolean beforeWriteInfo, boolean isTeamMember, boolean isTeamRequest, boolean isExceedCapacity, Boolean univCondResult, GenderCondResult genderCondResult, BirthYearCondResult birthYearCondResult) {
             this.beforeWriteInfo = beforeWriteInfo;
             this.isTeamMember = isTeamMember;
             this.isTeamRequest = isTeamRequest;
+            this.isExceedCapacity = isExceedCapacity;
             this.univCondResult = univCondResult;
             this.genderCondResult = genderCondResult;
             this.birthYearCondResult = birthYearCondResult;
@@ -201,6 +198,78 @@ public class TeamDto {
             this.teamName = teamName;
             this.teamImgUrl = teamImgUrl;
             this.teamType = teamType;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseTeamSetting {
+        private LocalDate createDate;
+        private int teamMembersCnt;
+        private String teamImgUrl;
+        private String teamBackgroundImgUrl;
+        private String teamName;
+        private String content;
+        private RecruitmentType recruitmentType;
+        private String univCond;
+        private Gender genderCond;
+        private BirthCond birthCond;
+        private int capacityLimit;
+        private HashMap<Long, String> teamQuestionnaire;
+
+        @Builder
+        public ResponseTeamSetting(LocalDate createDate, int teamMembersCnt, String teamImgUrl, String teamBackgroundImgUrl, String teamName, String content, RecruitmentType recruitmentType, String univCond, Gender genderCond, BirthCond birthCond, int capacityLimit, HashMap<Long, String> teamQuestionnaire) {
+            this.createDate = createDate;
+            this.teamMembersCnt = teamMembersCnt;
+            this.teamImgUrl = teamImgUrl;
+            this.teamBackgroundImgUrl = teamBackgroundImgUrl;
+            this.teamName = teamName;
+            this.content = content;
+            this.recruitmentType = recruitmentType;
+            this.univCond = univCond;
+            this.genderCond = genderCond;
+            this.birthCond = birthCond;
+            this.capacityLimit = capacityLimit;
+            this.teamQuestionnaire = teamQuestionnaire;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class BirthCond {
+        private int startAge;
+        private int endAge;
+
+        @Builder
+        public BirthCond(int startAge, int endAge) {
+            this.startAge = startAge;
+            this.endAge = endAge;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamSettingUpdate {
+        private Long teamPk;
+        private String teamName;
+        private String content;
+        private RecruitmentType recruitmentType;
+        private int capacityLimit;
+        private List<Long> deleteQuestionnairePks;
+        private List<String> newQuestionnaires;
+
+        @Builder
+        public RequestTeamSettingUpdate(Long teamPk, String teamName, String content, RecruitmentType recruitmentType, int capacityLimit, List<Long> deleteQuestionnairePks, List<String> newQuestionnaires) {
+            this.teamPk = teamPk;
+            this.teamName = teamName;
+            this.content = content;
+            this.recruitmentType = recruitmentType;
+            this.capacityLimit = capacityLimit;
+            this.deleteQuestionnairePks = deleteQuestionnairePks;
+            this.newQuestionnaires = newQuestionnaires;
         }
     }
 }
