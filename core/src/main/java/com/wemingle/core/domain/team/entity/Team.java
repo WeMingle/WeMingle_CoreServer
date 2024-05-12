@@ -85,6 +85,7 @@ public class Team extends BaseEntity {
         this.capacityLimit = capacityLimit;
         this.completedMatchingCnt = 0;
         this.profileImgId = profileImgId;
+        this.backgroundImgId = UUID.randomUUID();
         this.content = content;
         this.teamType = teamType;
         this.recruitmentType = recruitmentType;
