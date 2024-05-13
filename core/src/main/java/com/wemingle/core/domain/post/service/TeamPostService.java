@@ -7,6 +7,8 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.TeamPostDto;
 import com.wemingle.core.domain.post.entity.TeamPost;
+import com.wemingle.core.domain.post.entity.TeamPostLike;
+import com.wemingle.core.domain.post.repository.TeamPostLikeRepository;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.post.vo.SaveVoteVo;
 import com.wemingle.core.domain.team.entity.Team;
@@ -38,6 +40,7 @@ public class TeamPostService {
     private final BookmarkedTeamPostRepository bookmarkedTeamPostRepository;
     private final S3ImgService s3ImgService;
     private final TeamPostVoteRepository teamPostVoteRepository;
+    private final TeamPostLikeRepository teamPostLikeRepository;
 
     public HashMap<Long, Object> getMyTeamPosts(Long nextIdx, Long teamId, String memberId) {
         List<TeamPost> myTeamPosts = teamPostRepository.findMyTeamPosts(nextIdx, teamId, memberId);
@@ -250,5 +253,38 @@ public class TeamPostService {
                 .build()));
 
         return responseData;
+    }
+
+    public boolean isTeamPostWriter(Long teamPostPk, String memberId){
+        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        TeamMember requester = teamMemberRepository.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+
+        return teamPost.isWriter(requester);
+    }
+
+    @Transactional
+    public void saveOrDeletePostLike(Long teamPostPk, String memberId){
+        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        TeamMember requester = teamMemberRepository.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
+
+        if (postLike.isPresent()){
+            TeamPostLike postLikeGet = postLike.get();
+
+            if (postLikeGet.isDeleted()){
+                postLikeGet.restore();
+                teamPost.addLikeCnt();
+            } else {
+                postLikeGet.delete();
+                teamPost.reduceLikeCnt();
+            }
+        }else {
+            teamPostLikeRepository.save(TeamPostLike.builder().teamPost(teamPost).teamMember(requester).build());
+            teamPost.addLikeCnt();
+        }
     }
 }

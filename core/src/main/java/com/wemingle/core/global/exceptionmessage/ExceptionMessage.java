@@ -25,6 +25,8 @@ public enum ExceptionMessage {
     INVALID_REQUEST_TYPE("유효하지 않은 요청 타입입니다."),
     INVALID_TEAM__QUESTIONNAIRE_PK("유효하지 않은 팀 설문조사 pk입니다."),
     MATCHING_POST_NOT_FOUND("매칭 글을 찾을 수 없습니다."),
-    VERIFICATION_CODE_ERROR("유효하지 않은 인증코드입니다.");
+    VERIFICATION_CODE_ERROR("유효하지 않은 인증코드입니다."),
+    LIKE_CNT_LESS_THAN_ZERO("좋아요 수는 0보다 작을 수 없습니다.");
+
     private final String exceptionMessage;
 }
