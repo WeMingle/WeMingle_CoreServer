@@ -1111,6 +1111,7 @@ public class MatchingPostService {
         return requesterTeamMember.isPresent() ? writer.equals(requesterTeamMember.get()) : false;
     }
 
+    //todo 근처의 글 조회 서비스 로직 구현
 //    public HashMap<String, List<MatchingPostDto.ResponsePostByArea>> getMatchingPostByArea(List<String> dou, SportsType sportsType, String memberId){
 //        List<MatchingPost> top200PopularPost = matchingPostRepository.findTop200PopularPost(sportsType);
 //        LinkedHashMap<Long, List<MatchingPostDto.ResponsePostByArea>> responseData = new LinkedHashMap<>();
