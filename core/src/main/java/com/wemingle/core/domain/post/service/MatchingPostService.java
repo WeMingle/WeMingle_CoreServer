@@ -1110,4 +1110,27 @@ public class MatchingPostService {
     private static boolean isWriter(Optional<TeamMember> requesterTeamMember, TeamMember writer) {
         return requesterTeamMember.isPresent() ? writer.equals(requesterTeamMember.get()) : false;
     }
+
+//    public HashMap<String, List<MatchingPostDto.ResponsePostByArea>> getMatchingPostByArea(List<String> dou, SportsType sportsType, String memberId){
+//        List<MatchingPost> top200PopularPost = matchingPostRepository.findTop200PopularPost(sportsType);
+//        LinkedHashMap<Long, List<MatchingPostDto.ResponsePostByArea>> responseData = new LinkedHashMap<>();
+//        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(top200PopularPost, memberId);
+//
+//        top200PopularPost.forEach(matchingPost ->
+//                responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop200PopularPost.builder()
+//                        .imgUrl(getProfileImgUrl(matchingPost))
+//                        .nickname(getNickname(matchingPost))
+//                        .content(matchingPost.getContent())
+//                        .areas(getAreas(matchingPost))
+//                        .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+//                        .matchingDate(getMatchingDates(matchingPost))
+//                        .recruiterType(matchingPost.getRecruiterType())
+//                        .ability(matchingPost.getAbility())
+//                        .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+//                        .isBookmarked(isBookmarked(matchingPost, bookmarkedMatchingPosts))
+//                        .isExpired(isExpired(matchingPost))
+//                        .build()));
+//
+//        return responseData;
+//    }
 }
