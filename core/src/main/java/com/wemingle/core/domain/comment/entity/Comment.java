@@ -5,8 +5,14 @@ import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK")
@@ -35,6 +41,26 @@ public class Comment extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TEAM_MEMBER")
-    private TeamMember teamMember;
+    @JoinColumn(name = "WRITER")
+    private TeamMember writer;
+
+    @Builder
+    public Comment(String content, TeamPost teamPost, TeamMember writer) {
+        this.content = content;
+        this.teamPost = teamPost;
+        this.writer = writer;
+    }
+
+    public void updateContent(String content){
+        this.content = content;
+    }
+
+    public void delete(){
+        this.isDeleted = true;
+        this.content = "삭제된 댓글입니다";
+    }
+
+    public boolean isWriter(TeamMember requester){
+        return this.writer.equals(requester);
+    }
 }

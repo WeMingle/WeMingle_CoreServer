@@ -105,4 +105,11 @@ public class TeamPost extends BaseEntity {
         if (this.likeCount == 0) throw new RuntimeException(ExceptionMessage.LIKE_CNT_LESS_THAN_ZERO.getExceptionMessage());
         this.likeCount -= 1;
     }
+    public void addReplyCnt(){
+        this.replyCount += 1;
+    }
+    public void reduceReplyCnt(){
+        if (this.replyCount == 0) throw new RuntimeException(ExceptionMessage.LIKE_CNT_LESS_THAN_ZERO.getExceptionMessage());
+        this.replyCount -= 1;
+    }
 }
