@@ -6,6 +6,7 @@ import com.wemingle.core.domain.post.entity.posttype.PostType;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -93,5 +94,22 @@ public class TeamPost extends BaseEntity {
 
     public void addTeamPostVote(TeamPostVote teamPostVote){
         this.teamPostVote = teamPostVote;
+    }
+    public boolean isWriter(TeamMember teamMember){
+        return this.writer.equals(teamMember);
+    }
+    public void addLikeCnt(){
+        this.likeCount += 1;
+    }
+    public void reduceLikeCnt(){
+        if (this.likeCount == 0) throw new RuntimeException(ExceptionMessage.LIKE_CNT_LESS_THAN_ZERO.getExceptionMessage());
+        this.likeCount -= 1;
+    }
+    public void addReplyCnt(){
+        this.replyCount += 1;
+    }
+    public void reduceReplyCnt(){
+        if (this.replyCount == 0) throw new RuntimeException(ExceptionMessage.LIKE_CNT_LESS_THAN_ZERO.getExceptionMessage());
+        this.replyCount -= 1;
     }
 }
