@@ -217,4 +217,11 @@ public class TeamPostDto {
             this.imgUrl = imgUrl;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestPostLike {
+        private Long teamPostPk;
+    }
 }
