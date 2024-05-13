@@ -843,8 +843,8 @@ public class MatchingPostService {
         matchingPost.complete();
     }
 
-    public HashMap<Long, MatchingPostDto.ResponseTop15PopularPost> getTop15PopularPost(){
-        List<MatchingPost> top15PopularPost = matchingPostRepository.findTop15PopularPost();
+    public HashMap<Long, MatchingPostDto.ResponseTop15PopularPost> getTop15PopularPost(SportsType sportsType){
+        List<MatchingPost> top15PopularPost = matchingPostRepository.findTop15PopularPost(sportsType);
         LinkedHashMap<Long, MatchingPostDto.ResponseTop15PopularPost> responseData = new LinkedHashMap<>();
 
         top15PopularPost.forEach(matchingPost -> responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop15PopularPost.builder()
@@ -874,8 +874,8 @@ public class MatchingPostService {
                 : matchingPost.getAreaList().stream().map(matchingPostArea -> matchingPostArea.getAreaName().toString()).toList();
     }
 
-    public HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> getTop200PopularPost(String memberId){
-        List<MatchingPost> top200PopularPost = matchingPostRepository.findTop200PopularPost();
+    public HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> getTop200PopularPost(SportsType sportsType, String memberId){
+        List<MatchingPost> top200PopularPost = matchingPostRepository.findTop200PopularPost(sportsType);
         LinkedHashMap<Long, MatchingPostDto.ResponseTop200PopularPost> responseData = new LinkedHashMap<>();
         List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(top200PopularPost, memberId);
 
@@ -1110,4 +1110,28 @@ public class MatchingPostService {
     private static boolean isWriter(Optional<TeamMember> requesterTeamMember, TeamMember writer) {
         return requesterTeamMember.isPresent() ? writer.equals(requesterTeamMember.get()) : false;
     }
+
+    //todo 근처의 글 조회 서비스 로직 구현
+//    public HashMap<String, List<MatchingPostDto.ResponsePostByArea>> getMatchingPostByArea(List<String> dou, SportsType sportsType, String memberId){
+//        List<MatchingPost> top200PopularPost = matchingPostRepository.findTop200PopularPost(sportsType);
+//        LinkedHashMap<Long, List<MatchingPostDto.ResponsePostByArea>> responseData = new LinkedHashMap<>();
+//        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(top200PopularPost, memberId);
+//
+//        top200PopularPost.forEach(matchingPost ->
+//                responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop200PopularPost.builder()
+//                        .imgUrl(getProfileImgUrl(matchingPost))
+//                        .nickname(getNickname(matchingPost))
+//                        .content(matchingPost.getContent())
+//                        .areas(getAreas(matchingPost))
+//                        .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
+//                        .matchingDate(getMatchingDates(matchingPost))
+//                        .recruiterType(matchingPost.getRecruiterType())
+//                        .ability(matchingPost.getAbility())
+//                        .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
+//                        .isBookmarked(isBookmarked(matchingPost, bookmarkedMatchingPosts))
+//                        .isExpired(isExpired(matchingPost))
+//                        .build()));
+//
+//        return responseData;
+//    }
 }

@@ -73,7 +73,7 @@ public class TeamServiceImpl implements TeamService{
 
     private String getTeamImgUrl(Team team) {
         return team.getTeamType().equals(TeamType.INDIVIDUAL)
-                ? s3ImgService.getMemberProfilePicUrl(team.getProfileImgId())
+                ? s3ImgService.getMemberProfilePicUrl(team.getTeamOwner().getProfileImgId())
                 : s3ImgService.getGroupProfilePicUrl(team.getProfileImgId());
     }
 
@@ -392,5 +392,22 @@ public class TeamServiceImpl implements TeamService{
 
             teamQuestionnaireRepository.saveAll(saveNewQuestionnaires);
         }
+    }
+
+    @Override
+    public HashMap<Long, TeamDto.Response15PopularTeamInfo> get15PopularTeamOrIndividual() {
+        LinkedHashMap<Long, TeamDto.Response15PopularTeamInfo> responseData = new LinkedHashMap<>();
+
+        List<Team> popularTeamAndIndividual = teamRepository.find15PopularTeamOrIndividual();
+        popularTeamAndIndividual.forEach(team -> responseData.put(team.getPk(), TeamDto.Response15PopularTeamInfo.builder()
+                .nickname(getNickname(team, team.getTeamOwner()))
+                .imgUrl(getTeamImgUrl(team))
+                .matchingCnt(team.getCompletedMatchingCnt())
+                .teamMembersCnt(team.getTeamMembers().size())
+                .teamType(team.getTeamType())
+                .build())
+        );
+
+        return responseData;
     }
 }

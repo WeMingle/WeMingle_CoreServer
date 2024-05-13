@@ -322,8 +322,8 @@ public class MatchingPostController {
     }
 
     @GetMapping("/popular/home")
-    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseTop15PopularPost>>> getTop15PopularPost(){
-        HashMap<Long, MatchingPostDto.ResponseTop15PopularPost> responseData = matchingPostService.getTop15PopularPost();
+    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseTop15PopularPost>>> getTop15PopularPost(@RequestParam(required = false) SportsType sportsType){
+        HashMap<Long, MatchingPostDto.ResponseTop15PopularPost> responseData = matchingPostService.getTop15PopularPost(sportsType);
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseTop15PopularPost>>builder()
@@ -334,8 +334,9 @@ public class MatchingPostController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseTop200PopularPost>>> getTop200PopularPost(@AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> responseData = matchingPostService.getTop200PopularPost(userDetails.getUsername());
+    public ResponseEntity<ResponseHandler<HashMap<Long, MatchingPostDto.ResponseTop200PopularPost>>> getTop200PopularPost(@RequestParam(required = false) SportsType sportsType,
+                                                                                                                          @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> responseData = matchingPostService.getTop200PopularPost(sportsType, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, MatchingPostDto.ResponseTop200PopularPost>>builder()
