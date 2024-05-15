@@ -61,7 +61,6 @@ public class ReplyService {
         TeamPost teamPost = replyRepository.findTeamPostByReplyPk(deleteDto.getReplyPk())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
         reply.delete();
-//        reply.getComment().getTeamPost().reduceReplyCnt();
         teamPost.reduceReplyCnt();
     }
 }
