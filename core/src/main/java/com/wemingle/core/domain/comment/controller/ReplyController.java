@@ -54,4 +54,18 @@ public class ReplyController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public ResponseEntity<ResponseHandler<ReplyDto.ResponseRepliesRetrieve>> getReplies(@RequestParam Long nextIdx,
+                                                                                        @RequestParam Long commentPk,
+                                                                                        @AuthenticationPrincipal UserDetails userDetails){
+        ReplyDto.ResponseRepliesRetrieve responseData = replyService.getReplies(nextIdx, commentPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<ReplyDto.ResponseRepliesRetrieve>builder()
+                        .responseMessage("Replies retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+                );
+    }
 }
