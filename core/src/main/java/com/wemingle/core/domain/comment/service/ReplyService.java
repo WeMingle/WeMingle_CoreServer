@@ -14,13 +14,16 @@ import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import com.wemingle.core.global.util.CommentResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -87,10 +90,10 @@ public class ReplyService {
     }
 
     public ReplyDto.ResponseRepliesRetrieve createResponseReplies(Long commentPk, List<Reply> replies, TeamMember requester) {
+        ArrayList<Reply> mutableReplyList = new ArrayList<>(replies);
         CommentResponseUtil<Reply> commentResponseUtil = new CommentResponseUtil<>(serverIp);
         String nextUrl = commentResponseUtil.createRepliesNextUrl(replies, commentPk);
-
-        List<Reply> filteredReplies = commentResponseUtil.removeLastDataIfExceedNextDataMarker(replies);
+        List<Reply> filteredReplies = commentResponseUtil.removeLastDataIfExceedNextDataMarker(mutableReplyList);
 
         LinkedHashMap<Long, ReplyDto.ReplyInfo> repliesInfo = new LinkedHashMap<>();
         filteredReplies.forEach(reply -> repliesInfo.put(reply.getPk(), ReplyDto.ReplyInfo.builder()

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comment, Long>, DSLCommentRepository {
     @Query("select c from Comment c join fetch c.teamPost where c.pk = :commentPk")
     Optional<Comment> findByIdFetchPost(@Param("commentPk")Long commentPk);
     @Query("select c.teamPost.team from Comment c where c.pk = :commentPk")

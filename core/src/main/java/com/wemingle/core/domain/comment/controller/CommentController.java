@@ -11,6 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/comment")
@@ -53,5 +55,18 @@ public class CommentController {
         commentService.deleteComment(deleteDto);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseHandler<HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve>>> getComments(@RequestParam Long nextIdx,
+                                                                                                               @RequestParam Long teamPostPk,
+                                                                                                               @AuthenticationPrincipal UserDetails userDetails){
+        HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve> responseData = commentService.getComments(nextIdx, teamPostPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve>>builder()
+                        .responseMessage("Comments retrieval successfully")
+                        .responseData(responseData)
+                        .build());
     }
 }
