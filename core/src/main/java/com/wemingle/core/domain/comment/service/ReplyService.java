@@ -11,14 +11,15 @@ import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
+import com.wemingle.core.global.util.CommentResponseUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,6 @@ public class ReplyService {
 
     @Value("${wemingle.ip}")
     private String serverIp;
-    private static final String REPLY_RETRIEVE_PATH = "/reply";
 
     @Transactional
     public void saveReply(ReplyDto.RequestReplySave saveDto, String memberId){
@@ -83,8 +83,15 @@ public class ReplyService {
         TeamMember requester = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
 
+        return createResponseReplies(commentPk, replies, requester);
+    }
+
+    public ReplyDto.ResponseRepliesRetrieve createResponseReplies(Long commentPk, List<Reply> replies, TeamMember requester) {
+        CommentResponseUtil<Reply> commentResponseUtil = new CommentResponseUtil<>(serverIp);
+        List<Reply> filteredReplies = commentResponseUtil.removeLastDataIfExceedNextDataMarker(replies);
+
         LinkedHashMap<Long, ReplyDto.ReplyInfo> repliesInfo = new LinkedHashMap<>();
-        replies.forEach(reply -> repliesInfo.put(reply.getPk(), ReplyDto.ReplyInfo.builder()
+        filteredReplies.forEach(reply -> repliesInfo.put(reply.getPk(), ReplyDto.ReplyInfo.builder()
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(reply.getWriter().getProfileImg()))
                 .nickname(reply.getWriter().getNickname())
                 .content(reply.getContent())
@@ -96,35 +103,7 @@ public class ReplyService {
 
         return ReplyDto.ResponseRepliesRetrieve.builder()
                 .repliesInfo(repliesInfo)
-                .nextUrl(createGetRepliesNextUrl(replies, commentPk))
+                .nextUrl(commentResponseUtil.createRepliesNextUrl(filteredReplies, commentPk))
                 .build();
-    }
-
-    private String createGetRepliesNextUrl(List<Reply> replies, Long commentPk){
-        Optional<Long> minReplyPk = replies.stream().map(Reply::getPk).min(Comparator.naturalOrder());
-        String nextUrl = null;
-        if (isExistNextReply(minReplyPk, commentPk)){
-            nextUrl = serverIp + REPLY_RETRIEVE_PATH + createParametersUrl(commentPk, minReplyPk);
-        }
-
-        return nextUrl;
-    }
-
-    private boolean isExistNextReply(Optional<Long> minReplyPk, Long commentPk){
-        boolean hasNext = false;
-        if (minReplyPk.isPresent()){
-            hasNext = replyRepository.existsByPkLessThanAndCommentPk(minReplyPk.get(), commentPk);
-        }
-        return hasNext;
-    }
-
-    private String createParametersUrl(Long commentPk, Optional<Long> minReplyPk) {
-        HashMap<String, Object> parameters = new LinkedHashMap<>();
-        parameters.put("nextIdx", minReplyPk.get() - 1);
-        parameters.put("commentPk", commentPk);
-
-        return "?" + parameters.entrySet().stream()
-                .map(parameter -> parameter.getKey() + "=" + parameter.getValue())
-                .collect(Collectors.joining("&"));
     }
 }
