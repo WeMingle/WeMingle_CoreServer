@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public class CommentResponseUtil<T> {
     private static final String REPLY_RETRIEVE_PATH = "/reply";
     private static final int NEXT_DATA_MARKER = 11;
-    private static final int NEXT_URL_MARKER = 10;
     private final String serverIp;
 
     public CommentResponseUtil(String serverIp) {
@@ -23,15 +22,11 @@ public class CommentResponseUtil<T> {
     public String createRepliesNextUrl(List<Reply> replies, Long commentPk){
         Long minReplyPk = replies.stream().map(Reply::getPk).min(Comparator.naturalOrder()).orElse(0L);
         String nextUrl = null;
-        if (isExistNextUrl(replies)){
+        if (isExistNextData(replies)){
             nextUrl = serverIp + REPLY_RETRIEVE_PATH + createReplyParametersUrl(commentPk, minReplyPk);
         }
 
         return nextUrl;
-    }
-
-    private boolean isExistNextUrl(List<?> data){
-        return data.size() == NEXT_URL_MARKER;
     }
 
     public boolean isExistNextData(List<?> data){

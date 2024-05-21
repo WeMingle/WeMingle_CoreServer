@@ -88,6 +88,8 @@ public class ReplyService {
 
     public ReplyDto.ResponseRepliesRetrieve createResponseReplies(Long commentPk, List<Reply> replies, TeamMember requester) {
         CommentResponseUtil<Reply> commentResponseUtil = new CommentResponseUtil<>(serverIp);
+        String nextUrl = commentResponseUtil.createRepliesNextUrl(replies, commentPk);
+
         List<Reply> filteredReplies = commentResponseUtil.removeLastDataIfExceedNextDataMarker(replies);
 
         LinkedHashMap<Long, ReplyDto.ReplyInfo> repliesInfo = new LinkedHashMap<>();
@@ -103,7 +105,7 @@ public class ReplyService {
 
         return ReplyDto.ResponseRepliesRetrieve.builder()
                 .repliesInfo(repliesInfo)
-                .nextUrl(commentResponseUtil.createRepliesNextUrl(filteredReplies, commentPk))
+                .nextUrl(nextUrl)
                 .build();
     }
 }
