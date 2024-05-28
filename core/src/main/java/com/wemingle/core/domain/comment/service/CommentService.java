@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -89,6 +90,7 @@ public class CommentService {
         return createResponseComments(comments, requester);
     }
 
+    //todo count query after
     public HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve> createResponseComments(List<Comment> comments, TeamMember requester) {
         CommentResponseUtil<Comment> commentResponseUtil = new CommentResponseUtil<>(serverIp);
         List<Comment> filteredComments = commentResponseUtil.removeLastDataIfExceedNextDataMarker(comments);
@@ -114,6 +116,6 @@ public class CommentService {
     public List<Reply> getReplyMatchComment(Comment comment, List<Reply> replies){
         return replies.stream()
                 .filter(reply -> reply.getComment().equals(comment))
-                .toList();
+                .collect(Collectors.toList());
     }
 }

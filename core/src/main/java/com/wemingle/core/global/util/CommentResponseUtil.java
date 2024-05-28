@@ -42,7 +42,6 @@ public class CommentResponseUtil<T> {
     }
 
     private String createReplyParametersUrl(Long commentPk, Long minReplyPk) {
-        log.info("comment Pk = {}, minReplyPk = {}", commentPk, minReplyPk);
         HashMap<String, Object> parameters = new LinkedHashMap<>();
         parameters.put("nextIdx", minReplyPk);
         parameters.put("commentPk", commentPk);
