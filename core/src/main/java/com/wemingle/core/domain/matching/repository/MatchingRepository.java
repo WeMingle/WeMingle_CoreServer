@@ -11,14 +11,15 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface MatchingRepository extends JpaRepository<Matching, Long>{
-    @Query("select count(*) from Matching m " +
-            "where m.member.memberId = :memberId and m.matchingPost.matchingStatus = :matchingStatus and DATE(Now()) > DATE(MAX(m.matchingPost.matchingDates)) ")
-    Integer findCompleteMatchingCnt(@Param("memberId") String memberId, @Param("matchingStatus")MatchingStatus matchingStatus);
+public interface MatchingRepository extends JpaRepository<Matching, Long>, DSLMatchingRepository{
+//    @Query("select count(*) from Matching m " +
+//            "where m.member.memberId = :memberId and m.matchingPost.matchingStatus = :matchingStatus and DATE(Now()) > DATE(MAX(m.matchingPost.matchingDates)) ")
+//    Integer findCompleteMatchingCnt(@Param("memberId") String memberId, @Param("matchingStatus")MatchingStatus matchingStatus);
 
-    @Query("select count(*) from Matching m " +
-            "where m.member.memberId = :memberId and m.matchingPost.matchingStatus = :matchingStatus and DATE(Now()) < DATE(MIN(m.matchingPost.matchingDates)) ")
-    Integer findScheduledMatchingCnt(@Param("memberId") String memberId, @Param("matchingStatus")MatchingStatus matchingStatus);
+//    @Query("select count(*) from Matching m " +
+//            "where m.member.memberId = :memberId and m.matchingPost.matchingStatus = :matchingStatus and DATE(Now()) < DATE(MIN(m.matchingPost.matchingDates)) ")
+//    Integer findScheduledMatchingCnt(@Param("memberId") String memberId, @Param("matchingStatus")MatchingStatus matchingStatus);
+
     List<Matching> findByMatchingPost(MatchingPost matchingPost);
 
     @Query("select m from Matching m where m.matchingPost in :matchingPostList and m.member.memberId = :memberId")
