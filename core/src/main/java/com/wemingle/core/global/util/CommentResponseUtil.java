@@ -20,9 +20,9 @@ public class CommentResponseUtil<T> {
     }
 
     public String createRepliesNextUrl(List<Reply> replies, Long commentPk){
-        Long minReplyPk = replies.stream().map(Reply::getPk).min(Comparator.naturalOrder()).orElse(0L);
         String nextUrl = null;
         if (isExistNextData(replies)){
+            long minReplyPk = replies.stream().map(Reply::getPk).min(Comparator.naturalOrder()).orElse(0L);
             nextUrl = serverIp + REPLY_RETRIEVE_PATH + createReplyParametersUrl(commentPk, minReplyPk);
         }
 

@@ -16,6 +16,6 @@ public interface ReplyRepository extends JpaRepository<Reply, Long>, DSLReplyRep
     @Query(value = "select * from (" +
             "   select *, rank() over (partition by comment order by pk desc) as rn " +
             "   from reply) as ranking " +
-            "where ranking.rn <= 11 and ranking.comment in :comments",nativeQuery = true)
+            "where ranking.rn <= 51 and ranking.comment in :comments",nativeQuery = true)
     List<Reply> findRankRepliesByComments(@Param("comments") List<Long> comments);
 }
