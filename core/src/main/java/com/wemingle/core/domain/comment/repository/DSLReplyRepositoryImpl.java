@@ -27,7 +27,7 @@ public class DSLReplyRepositoryImpl implements DSLReplyRepository{
                         commentPkEq(commentPk)
                 )
                 .orderBy(reply.pk.desc())
-                .limit(11)
+                .limit(51)
                 .fetch();
     }
 

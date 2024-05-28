@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CommentResponseUtil<T> {
     private static final String REPLY_RETRIEVE_PATH = "/reply";
-    private static final int NEXT_DATA_MARKER = 11;
+    private static final int NEXT_DATA_MARKER = 51;
     private final String serverIp;
 
     public CommentResponseUtil(String serverIp) {

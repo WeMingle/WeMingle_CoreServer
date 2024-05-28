@@ -90,7 +90,6 @@ public class CommentService {
         return createResponseComments(comments, requester);
     }
 
-    //todo count query after
     public HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve> createResponseComments(List<Comment> comments, TeamMember requester) {
         CommentResponseUtil<Comment> commentResponseUtil = new CommentResponseUtil<>(serverIp);
         List<Comment> filteredComments = commentResponseUtil.removeLastDataIfExceedNextDataMarker(comments);

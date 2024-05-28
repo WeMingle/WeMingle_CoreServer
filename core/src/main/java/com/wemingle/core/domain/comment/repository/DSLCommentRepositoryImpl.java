@@ -27,7 +27,7 @@ public class DSLCommentRepositoryImpl implements DSLCommentRepository{
                         teamPostPKEq(teamPostPk)
                 )
                 .orderBy(comment.pk.desc())
-                .limit(11)
+                .limit(51)
                 .fetch();
     }
 
