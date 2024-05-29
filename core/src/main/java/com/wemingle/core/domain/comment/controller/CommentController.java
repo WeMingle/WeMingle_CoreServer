@@ -58,8 +58,8 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseHandler<HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve>>> getComments(@RequestParam Long nextIdx,
-                                                                                                               @RequestParam Long teamPostPk,
+    public ResponseEntity<ResponseHandler<HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve>>> getComments(@RequestParam Long teamPostPk,
+                                                                                                               @RequestParam(required = false) Long nextIdx,
                                                                                                                @AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve> responseData = commentService.getComments(nextIdx, teamPostPk, userDetails.getUsername());
 
