@@ -82,7 +82,6 @@ public class VoteService {
     private List<VoteDto.VoteOptionResult> getVoteOptionResult(TeamPostVote teamPostVote) {
         List<VoteOption> distinctVoteOptions = teamPostVote.getVoteOptions();
         List<VoteResult> voteResults = voteResultRepository.findByVoteOptionIn(distinctVoteOptions);
-//        List<VoteOption> distinctVoteOptions = voteResults.stream().map(VoteResult::getVoteOption).distinct().toList();
 
         return distinctVoteOptions.stream()
                 .map(distinctVoteOption -> VoteDto.VoteOptionResult
