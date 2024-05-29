@@ -96,4 +96,17 @@ public class TeamPostController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{teamPostPk}/detail")
+    public ResponseEntity<ResponseHandler<TeamPostDto.TeamPostInfo>> getTeamPostDetail(@PathVariable Long teamPostPk,
+                                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        TeamPostDto.TeamPostInfo responseData = teamPostService.getTeamPostDetail(teamPostPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamPostDto.TeamPostInfo>builder()
+                        .responseMessage("Team post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
 }

@@ -287,4 +287,25 @@ public class TeamPostService {
             teamPost.addLikeCnt();
         }
     }
+
+    public TeamPostDto.TeamPostInfo getTeamPostDetail(Long teamPostPk, String memberId){
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+
+        return TeamPostDto.TeamPostInfo.builder()
+                .title(teamPost.getTitle())
+                .content(teamPost.getContent())
+                .nickname(teamPost.getWriter().getNickname())
+                .createdTime(teamPost.getCreatedTime())
+                .teamPostImgUrls(s3ImgService.getTeamPostPicUrl(getImgIds(teamPost)))
+                .likeCnt(teamPost.getLikeCount())
+                .replyCnt(teamPost.getReplyCount())
+                .isWriter(isWriter(teamPost, member))
+                .isBookmarked(bookmarkedTeamPostRepository.existsByTeamPostAndMember(teamPost, member))
+                .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
+                .build();
+    }
 }
