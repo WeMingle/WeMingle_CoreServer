@@ -308,6 +308,7 @@ public class TeamPostService {
                 .replyCnt(teamPost.getReplyCount())
                 .isWriter(teamPost.isWriter(teamMember))
                 .isBookmarked(bookmarkedTeamPostRepository.existsByTeamPostAndMember(teamPost, member))
+                .voteStatus(teamPost.getTeamPostVote().getVoteStatus())
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .myVoteHistory(getMyVoteHistory(teamPost.getTeamPostVote(), teamMember))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))

@@ -2,6 +2,7 @@ package com.wemingle.core.domain.vote.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.post.entity.TeamPost;
+import com.wemingle.core.domain.vote.entity.votestatus.VoteStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -40,6 +41,9 @@ public class TeamPostVote extends BaseEntity {
     @Column(name = "VOTE_LIMIT")
     private int voteLimit;
 
+    @Enumerated(EnumType.STRING)
+    private VoteStatus voteStatus;
+
     @NotNull
     @OneToOne(mappedBy = "teamPostVote", cascade = CascadeType.ALL, orphanRemoval = true)
     private TeamPost teamPost;
@@ -56,9 +60,13 @@ public class TeamPostVote extends BaseEntity {
         this.isAnonymousVoting = isAnonymousVoting;
         this.voteLimit = voteLimit;
         this.teamPost = teamPost;
+        this.voteStatus = VoteStatus.PENDING;
     }
 
     public void addVoteOptions(List<VoteOption> voteOptions){
         this.voteOptions = voteOptions;
+    }
+    public void complete(){
+        this.voteStatus = VoteStatus.COMPLETE;
     }
 }

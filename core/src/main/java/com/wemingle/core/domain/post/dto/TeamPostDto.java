@@ -3,6 +3,7 @@ package com.wemingle.core.domain.post.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.post.entity.posttype.PostType;
 import com.wemingle.core.domain.post.vo.SaveVoteVo;
+import com.wemingle.core.domain.vote.entity.votestatus.VoteStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -232,6 +233,7 @@ public class TeamPostDto {
         private String title;
         private String content;
         private String nickname;
+        private String imgUrl;
         private LocalDateTime createdTime;
         private List<String> teamPostImgUrls;
         private int likeCnt;
@@ -240,24 +242,25 @@ public class TeamPostDto {
         private boolean isBookmarked;
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
+        private VoteStatus voteStatus;
         private VoteInfo voteInfo;
         private List<MyVoteHistory> myVoteHistory;
-        private String imgUrl;
 
         @Builder
-        public ResponseTeamPostDetail(String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo, List<MyVoteHistory> myVoteHistory, String imgUrl) {
+        public ResponseTeamPostDetail(String title, String content, String nickname, String imgUrl, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteStatus voteStatus, VoteInfo voteInfo, List<MyVoteHistory> myVoteHistory) {
             this.title = title;
             this.content = content;
             this.nickname = nickname;
+            this.imgUrl = imgUrl;
             this.createdTime = createdTime;
             this.teamPostImgUrls = teamPostImgUrls;
             this.likeCnt = likeCnt;
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
             this.isWriter = isWriter;
+            this.voteStatus = voteStatus;
             this.voteInfo = voteInfo;
             this.myVoteHistory = myVoteHistory;
-            this.imgUrl = imgUrl;
         }
     }
 
