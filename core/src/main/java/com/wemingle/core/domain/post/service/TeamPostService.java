@@ -322,6 +322,8 @@ public class TeamPostService {
 
         return TeamPostDto.VoteInfoWithPk.builder()
                 .votePk(vote.getPk())
+                .isMultiVoting(vote.isMultiVoting())
+                .isComplete(vote.isComplete())
                 .voteOptionInfos(vote.getVoteOptions().stream().map(voteOption -> TeamPostDto.VoteOptionInfoWithPk.builder()
                         .voteOptionPk(voteOption.getPk())
                         .optionName(voteOption.getOptionName())

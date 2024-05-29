@@ -69,4 +69,7 @@ public class TeamPostVote extends BaseEntity {
     public void complete(){
         this.voteStatus = VoteStatus.COMPLETE;
     }
+    public boolean isComplete(){
+        return this.voteStatus.equals(VoteStatus.COMPLETE) || this.expiryTime.isBefore(LocalDateTime.now());
+    }
 }

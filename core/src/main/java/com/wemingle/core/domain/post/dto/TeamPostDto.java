@@ -265,14 +265,21 @@ public class TeamPostDto {
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     public static class VoteInfoWithPk{
         private Long votePk;
+        @JsonProperty(value = "isMultiVoting")
+        private boolean isMultiVoting;
+        @JsonProperty(value = "isComplete")
+        private boolean isComplete;
         private List<VoteOptionInfoWithPk> voteOptionInfos;
 
         @Builder
-        public VoteInfoWithPk(Long votePk, List<VoteOptionInfoWithPk> voteOptionInfos) {
+        public VoteInfoWithPk(Long votePk, boolean isMultiVoting, boolean isComplete, List<VoteOptionInfoWithPk> voteOptionInfos) {
             this.votePk = votePk;
+            this.isMultiVoting = isMultiVoting;
+            this.isComplete = isComplete;
             this.voteOptionInfos = voteOptionInfos;
         }
     }
