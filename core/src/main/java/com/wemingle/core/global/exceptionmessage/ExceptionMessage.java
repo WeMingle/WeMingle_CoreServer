@@ -29,7 +29,8 @@ public enum ExceptionMessage {
     LIKE_CNT_LESS_THAN_ZERO("좋아요 수는 0보다 작을 수 없습니다."),
     REPLY_CNT_LESS_THAN_ZERO("댓글 수는 0보다 작을 수 없습니다."),
     COMMENT_NOT_FOUND("댓글을 찾을 수 없습니다."),
-    REPLY_NOT_FOUND("대댓글을 찾을 수 없습니다.");
+    REPLY_NOT_FOUND("대댓글을 찾을 수 없습니다."),
+    VOTE_NOT_FOUND("투표를 찾을 수 없습니다.");
 
     private final String exceptionMessage;
 }

@@ -5,10 +5,7 @@ import com.wemingle.core.domain.vote.service.VoteService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,6 +23,18 @@ public class VoteController {
         return ResponseEntity.ok(
                 ResponseHandler.<List<VoteDto.ResponseExpiredVoteInfo>>builder()
                         .responseMessage("Team post votes info retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @GetMapping("/{votePk}")
+    public ResponseEntity<ResponseHandler<VoteDto.ResponseVoteResult>> getVoteResults(@PathVariable Long votePk) {
+        VoteDto.ResponseVoteResult responseData = voteService.getVoteResult(votePk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<VoteDto.ResponseVoteResult>builder()
+                        .responseMessage("Team post vote result retrieval successfully")
                         .responseData(responseData)
                         .build()
         );

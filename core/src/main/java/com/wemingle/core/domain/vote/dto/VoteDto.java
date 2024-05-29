@@ -45,4 +45,49 @@ public class VoteDto {
         }
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseVoteResult {
+        private String title;
+        private LocalDateTime expiryTime;
+        private List<VoteOptionResult> voteOptionResults;
+
+        @Builder
+        public ResponseVoteResult(String title, LocalDateTime expiryTime, List<VoteOptionResult> voteOptionResults) {
+            this.title = title;
+            this.expiryTime = expiryTime;
+            this.voteOptionResults = voteOptionResults;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class VoteOptionResult {
+        private String optionName;
+        private long totalCnt;
+        private List<TeamMemberInfo> teamMemberInfo;
+
+        @Builder
+        public VoteOptionResult(String optionName, long totalCnt, List<TeamMemberInfo> teamMemberInfo) {
+            this.optionName = optionName;
+            this.totalCnt = totalCnt;
+            this.teamMemberInfo = teamMemberInfo;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class TeamMemberInfo {
+        private String nickname;
+        private String imgUrl;
+
+        @Builder
+        public TeamMemberInfo(String nickname, String imgUrl) {
+            this.nickname = nickname;
+            this.imgUrl = imgUrl;
+        }
+    }
 }
