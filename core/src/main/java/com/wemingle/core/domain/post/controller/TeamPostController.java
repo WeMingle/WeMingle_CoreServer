@@ -98,12 +98,12 @@ public class TeamPostController {
     }
 
     @GetMapping("/{teamPostPk}/detail")
-    public ResponseEntity<ResponseHandler<TeamPostDto.TeamPostInfo>> getTeamPostDetail(@PathVariable Long teamPostPk,
+    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostDetail>> getTeamPostDetail(@PathVariable Long teamPostPk,
                                                                                        @AuthenticationPrincipal UserDetails userDetails){
-        TeamPostDto.TeamPostInfo responseData = teamPostService.getTeamPostDetail(teamPostPk, userDetails.getUsername());
+        TeamPostDto.ResponseTeamPostDetail responseData = teamPostService.getTeamPostDetail(teamPostPk, userDetails.getUsername());
 
         return ResponseEntity.ok(
-                ResponseHandler.<TeamPostDto.TeamPostInfo>builder()
+                ResponseHandler.<TeamPostDto.ResponseTeamPostDetail>builder()
                         .responseMessage("Team post retrieval successfully")
                         .responseData(responseData)
                         .build()

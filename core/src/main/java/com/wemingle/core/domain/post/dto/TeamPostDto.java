@@ -224,4 +224,53 @@ public class TeamPostDto {
     public static class RequestPostLike {
         private Long teamPostPk;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseTeamPostDetail {
+        private String title;
+        private String content;
+        private String nickname;
+        private LocalDateTime createdTime;
+        private List<String> teamPostImgUrls;
+        private int likeCnt;
+        private int replyCnt;
+        @JsonProperty(value = "isBookmarked")
+        private boolean isBookmarked;
+        @JsonProperty(value = "isWriter")
+        private boolean isWriter;
+        private VoteInfo voteInfo;
+        private List<MyVoteHistory> myVoteHistory;
+        private String imgUrl;
+
+        @Builder
+        public ResponseTeamPostDetail(String title, String content, String nickname, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteInfo voteInfo, List<MyVoteHistory> myVoteHistory, String imgUrl) {
+            this.title = title;
+            this.content = content;
+            this.nickname = nickname;
+            this.createdTime = createdTime;
+            this.teamPostImgUrls = teamPostImgUrls;
+            this.likeCnt = likeCnt;
+            this.replyCnt = replyCnt;
+            this.isBookmarked = isBookmarked;
+            this.isWriter = isWriter;
+            this.voteInfo = voteInfo;
+            this.myVoteHistory = myVoteHistory;
+            this.imgUrl = imgUrl;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class MyVoteHistory {
+        private Long myVotePk;
+        private String myVoteOption;
+
+        @Builder
+        public MyVoteHistory(Long myVotePk, String myVoteOption) {
+            this.myVotePk = myVotePk;
+            this.myVoteOption = myVoteOption;
+        }
+    }
 }
