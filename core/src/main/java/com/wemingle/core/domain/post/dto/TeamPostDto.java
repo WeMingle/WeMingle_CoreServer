@@ -243,11 +243,11 @@ public class TeamPostDto {
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
         private VoteStatus voteStatus;
-        private VoteInfo voteInfo;
+        private VoteInfoWithPk voteInfo;
         private List<MyVoteHistory> myVoteHistory;
 
         @Builder
-        public ResponseTeamPostDetail(String title, String content, String nickname, String imgUrl, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteStatus voteStatus, VoteInfo voteInfo, List<MyVoteHistory> myVoteHistory) {
+        public ResponseTeamPostDetail(String title, String content, String nickname, String imgUrl, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteStatus voteStatus, VoteInfoWithPk voteInfo, List<MyVoteHistory> myVoteHistory) {
             this.title = title;
             this.content = content;
             this.nickname = nickname;
@@ -261,6 +261,34 @@ public class TeamPostDto {
             this.voteStatus = voteStatus;
             this.voteInfo = voteInfo;
             this.myVoteHistory = myVoteHistory;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class VoteInfoWithPk{
+        private Long votePk;
+        private List<VoteOptionInfoWithPk> voteOptionInfos;
+
+        @Builder
+        public VoteInfoWithPk(Long votePk, List<VoteOptionInfoWithPk> voteOptionInfos) {
+            this.votePk = votePk;
+            this.voteOptionInfos = voteOptionInfos;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class VoteOptionInfoWithPk{
+        private Long voteOptionPk;
+        private String optionName;
+        private int resultCnt;
+
+        @Builder
+        public VoteOptionInfoWithPk(Long voteOptionPk, String optionName, int resultCnt) {
+            this.voteOptionPk = voteOptionPk;
+            this.optionName = optionName;
+            this.resultCnt = resultCnt;
         }
     }
 

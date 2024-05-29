@@ -309,9 +309,24 @@ public class TeamPostService {
                 .isWriter(teamPost.isWriter(teamMember))
                 .isBookmarked(bookmarkedTeamPostRepository.existsByTeamPostAndMember(teamPost, member))
                 .voteStatus(teamPost.getTeamPostVote().getVoteStatus())
-                .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
+                .voteInfo(getVoteInfoWithPk(teamPost.getTeamPostVote()))
                 .myVoteHistory(getMyVoteHistory(teamPost.getTeamPostVote(), teamMember))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
+                .build();
+    }
+
+    private TeamPostDto.VoteInfoWithPk getVoteInfoWithPk(TeamPostVote vote) {
+        if (vote == null) {
+            return null;
+        }
+
+        return TeamPostDto.VoteInfoWithPk.builder()
+                .votePk(vote.getPk())
+                .voteOptionInfos(vote.getVoteOptions().stream().map(voteOption -> TeamPostDto.VoteOptionInfoWithPk.builder()
+                        .voteOptionPk(voteOption.getPk())
+                        .optionName(voteOption.getOptionName())
+                        .resultCnt(voteOption.getVoteResults().size())
+                        .build()).toList())
                 .build();
     }
 
