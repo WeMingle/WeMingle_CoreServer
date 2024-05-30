@@ -58,4 +58,11 @@ public class VoteController {
         voteService.saveOrDeleteVoteResult(voteDto, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{votePk}")
+    public ResponseEntity<ResponseHandler<VoteDto.ResponseVoteResult>> completeVote(@PathVariable Long votePk) {
+        voteService.completeVote(votePk);
+
+        return ResponseEntity.noContent().build();
+    }
 }

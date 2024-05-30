@@ -163,4 +163,12 @@ public class VoteService {
                 .mapToInt(voteOption -> voteOption.getVoteResults().size())
                 .sum();
     }
+
+    @Transactional
+    public void completeVote(Long votePk) {
+        TeamPostVote teamPostVote = teamPostVoteRepository.findById(votePk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.VOTE_NOT_FOUND.getExceptionMessage()));
+
+        teamPostVote.complete();
+    }
 }
