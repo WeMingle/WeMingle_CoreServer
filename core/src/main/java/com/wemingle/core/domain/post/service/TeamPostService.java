@@ -307,6 +307,7 @@ public class TeamPostService {
                 .likeCnt(teamPost.getLikeCount())
                 .replyCnt(teamPost.getReplyCount())
                 .isWriter(teamPost.isWriter(teamMember))
+                .isManager(teamMember.isManager())
                 .isBookmarked(bookmarkedTeamPostRepository.existsByTeamPostAndMember(teamPost, member))
                 .voteStatus(teamPost.getTeamPostVote().getVoteStatus())
                 .voteInfo(getVoteInfoWithPk(teamPost.getTeamPostVote()))

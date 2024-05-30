@@ -242,12 +242,14 @@ public class TeamPostDto {
         private boolean isBookmarked;
         @JsonProperty(value = "isWriter")
         private boolean isWriter;
+        @JsonProperty(value = "isManager")
+        private boolean isManager;
         private VoteStatus voteStatus;
         private VoteInfoWithPk voteInfo;
         private List<MyVoteHistory> myVoteHistory;
 
         @Builder
-        public ResponseTeamPostDetail(String title, String content, String nickname, String imgUrl, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, VoteStatus voteStatus, VoteInfoWithPk voteInfo, List<MyVoteHistory> myVoteHistory) {
+        public ResponseTeamPostDetail(String title, String content, String nickname, String imgUrl, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, boolean isManager, VoteStatus voteStatus, VoteInfoWithPk voteInfo, List<MyVoteHistory> myVoteHistory) {
             this.title = title;
             this.content = content;
             this.nickname = nickname;
@@ -258,6 +260,7 @@ public class TeamPostDto {
             this.replyCnt = replyCnt;
             this.isBookmarked = isBookmarked;
             this.isWriter = isWriter;
+            this.isManager = isManager;
             this.voteStatus = voteStatus;
             this.voteInfo = voteInfo;
             this.myVoteHistory = myVoteHistory;
