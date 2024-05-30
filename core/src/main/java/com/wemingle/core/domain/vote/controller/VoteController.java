@@ -4,11 +4,11 @@ import com.wemingle.core.domain.vote.dto.VoteDto;
 import com.wemingle.core.domain.vote.service.VoteService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,5 +29,40 @@ public class VoteController {
                         .responseData(responseData)
                         .build()
         );
+    }
+
+    @GetMapping("/{votePk}")
+    public ResponseEntity<ResponseHandler<VoteDto.ResponseVoteResult>> getVoteResults(@PathVariable Long votePk) {
+        VoteDto.ResponseVoteResult responseData = voteService.getVoteResult(votePk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<VoteDto.ResponseVoteResult>builder()
+                        .responseMessage("Team post vote result retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
+
+    @PostMapping
+    public ResponseEntity<Object> saveOrDeleteVoteResult(@RequestBody VoteDto.RequestVote voteDto,
+                                                         @AuthenticationPrincipal UserDetails userDetails) {
+        if (voteService.isExceedVoteLimitWhenFirstServedBased(voteDto)){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Vote capacity is exceeded")
+                                    .build()
+                    );
+        }
+
+        voteService.saveOrDeleteVoteResult(voteDto, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{votePk}")
+    public ResponseEntity<Object> completeVote(@PathVariable Long votePk) {
+        voteService.completeVote(votePk);
+
+        return ResponseEntity.noContent().build();
     }
 }

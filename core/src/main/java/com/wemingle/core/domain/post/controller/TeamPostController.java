@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -76,5 +77,36 @@ public class TeamPostController {
                         .responseData(responseData)
                         .build()
          );
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<Object> saveOrDeletePostLike(@RequestBody TeamPostDto.RequestPostLike postLikeDto,
+                                                       @AuthenticationPrincipal UserDetails userDetails){
+        Long teamPostPk = postLikeDto.getTeamPostPk();
+        String memberId = userDetails.getUsername();
+
+        if (teamPostService.isTeamPostWriter(teamPostPk, memberId)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ResponseHandler.builder()
+                            .responseMessage("Can't like your own post")
+                            .build());
+        }
+
+        teamPostService.saveOrDeletePostLike(teamPostPk, memberId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{teamPostPk}/detail")
+    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostDetail>> getTeamPostDetail(@PathVariable Long teamPostPk,
+                                                                                       @AuthenticationPrincipal UserDetails userDetails){
+        TeamPostDto.ResponseTeamPostDetail responseData = teamPostService.getTeamPostDetail(teamPostPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamPostDto.ResponseTeamPostDetail>builder()
+                        .responseMessage("Team post retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
     }
 }

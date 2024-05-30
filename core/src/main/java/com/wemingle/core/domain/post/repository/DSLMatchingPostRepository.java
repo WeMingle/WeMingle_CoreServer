@@ -28,4 +28,6 @@ public interface DSLMatchingPostRepository {
     int findSearchMatchingPostCnt(String query);
     List<MatchingPost> findSearchMatchingPost(String query, Long lastIdx, LocalDate lastExpiredDate, SortOption sortOption, Pageable pageable);
     List<MatchingPost> findMyAllMatchingPosts(Long nextIdx, RecruiterType recruiterType, String memberId);
+    List<MatchingPost> findTop15PopularPost(SportsType sportsType);
+    List<MatchingPost> findTop200PopularPost(SportsType sportsType);
 }

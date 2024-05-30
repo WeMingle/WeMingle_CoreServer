@@ -3,6 +3,7 @@ package com.wemingle.core.domain.post.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.post.entity.posttype.PostType;
 import com.wemingle.core.domain.post.vo.SaveVoteVo;
+import com.wemingle.core.domain.vote.entity.votestatus.VoteStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -215,6 +216,102 @@ public class TeamPostDto {
             this.isBookmarked = isBookmarked;
             this.isWriter = isWriter;
             this.imgUrl = imgUrl;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestPostLike {
+        private Long teamPostPk;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseTeamPostDetail {
+        private String title;
+        private String content;
+        private String nickname;
+        private String imgUrl;
+        private LocalDateTime createdTime;
+        private List<String> teamPostImgUrls;
+        private int likeCnt;
+        private int replyCnt;
+        @JsonProperty(value = "isBookmarked")
+        private boolean isBookmarked;
+        @JsonProperty(value = "isWriter")
+        private boolean isWriter;
+        @JsonProperty(value = "isManager")
+        private boolean isManager;
+        private VoteStatus voteStatus;
+        private VoteInfoWithPk voteInfo;
+        private List<MyVoteHistory> myVoteHistory;
+
+        @Builder
+        public ResponseTeamPostDetail(String title, String content, String nickname, String imgUrl, LocalDateTime createdTime, List<String> teamPostImgUrls, int likeCnt, int replyCnt, boolean isBookmarked, boolean isWriter, boolean isManager, VoteStatus voteStatus, VoteInfoWithPk voteInfo, List<MyVoteHistory> myVoteHistory) {
+            this.title = title;
+            this.content = content;
+            this.nickname = nickname;
+            this.imgUrl = imgUrl;
+            this.createdTime = createdTime;
+            this.teamPostImgUrls = teamPostImgUrls;
+            this.likeCnt = likeCnt;
+            this.replyCnt = replyCnt;
+            this.isBookmarked = isBookmarked;
+            this.isWriter = isWriter;
+            this.isManager = isManager;
+            this.voteStatus = voteStatus;
+            this.voteInfo = voteInfo;
+            this.myVoteHistory = myVoteHistory;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class VoteInfoWithPk{
+        private Long votePk;
+        @JsonProperty(value = "isMultiVoting")
+        private boolean isMultiVoting;
+        @JsonProperty(value = "isComplete")
+        private boolean isComplete;
+        private List<VoteOptionInfoWithPk> voteOptionInfos;
+
+        @Builder
+        public VoteInfoWithPk(Long votePk, boolean isMultiVoting, boolean isComplete, List<VoteOptionInfoWithPk> voteOptionInfos) {
+            this.votePk = votePk;
+            this.isMultiVoting = isMultiVoting;
+            this.isComplete = isComplete;
+            this.voteOptionInfos = voteOptionInfos;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class VoteOptionInfoWithPk{
+        private Long voteOptionPk;
+        private String optionName;
+        private int resultCnt;
+
+        @Builder
+        public VoteOptionInfoWithPk(Long voteOptionPk, String optionName, int resultCnt) {
+            this.voteOptionPk = voteOptionPk;
+            this.optionName = optionName;
+            this.resultCnt = resultCnt;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class MyVoteHistory {
+        private Long myVotePk;
+        private String myVoteOption;
+
+        @Builder
+        public MyVoteHistory(Long myVotePk, String myVoteOption) {
+            this.myVotePk = myVotePk;
+            this.myVoteOption = myVoteOption;
         }
     }
 }

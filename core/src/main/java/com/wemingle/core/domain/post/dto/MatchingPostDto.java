@@ -483,4 +483,37 @@ public class MatchingPostDto {
             this.isCompleted = isCompleted;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponsePostByArea {
+        private Long matchingPostPk;
+        private String nickname;
+        private List<String> areas;
+        private int matchingCnt;
+        private List<LocalDate> matchingDate;
+        private RecruiterType recruiterType;
+        private Ability ability;
+        @JsonProperty(value = "isLocationConsensusPossible")
+        private boolean isLocationConsensusPossible;
+        @JsonProperty(value = "isBookmarked")
+        private boolean isBookmarked;
+        @JsonProperty(value = "isExpired")
+        private boolean isExpired;
+
+        @Builder
+        public ResponsePostByArea(Long matchingPostPk, String nickname, List<String> areas, int matchingCnt, List<LocalDate> matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, boolean isExpired) {
+            this.matchingPostPk = matchingPostPk;
+            this.nickname = nickname;
+            this.areas = areas;
+            this.matchingCnt = matchingCnt;
+            this.matchingDate = matchingDate;
+            this.recruiterType = recruiterType;
+            this.ability = ability;
+            this.isLocationConsensusPossible = isLocationConsensusPossible;
+            this.isBookmarked = isBookmarked;
+            this.isExpired = isExpired;
+        }
+    }
 }

@@ -15,7 +15,6 @@ import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelect
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
-import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -349,4 +348,25 @@ public class DSLMatchingPostRepositoryImpl implements DSLMatchingPostRepository{
         };
     }
 
+    @Override
+    public List<MatchingPost> findTop15PopularPost(SportsType sportsType) {
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .where(nonNullSportsTypeEq(sportsType))
+                .orderBy(matchingPost.viewCnt.desc())
+                .limit(15)
+                .fetch();
+    }
+
+    @Override
+    public List<MatchingPost> findTop200PopularPost(SportsType sportsType) {
+        return jpaQueryFactory.selectFrom(matchingPost)
+                .where(nonNullSportsTypeEq(sportsType))
+                .orderBy(matchingPost.viewCnt.desc())
+                .limit(200)
+                .fetch();
+    }
+
+    private BooleanExpression nonNullSportsTypeEq(SportsType sportsType) {
+        return sportsType == null ? null : matchingPost.sportsCategory.eq(sportsType);
+    }
 }

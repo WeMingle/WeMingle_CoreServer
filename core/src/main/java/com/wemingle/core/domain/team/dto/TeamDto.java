@@ -272,4 +272,23 @@ public class TeamDto {
             this.newQuestionnaires = newQuestionnaires;
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class Response15PopularTeamInfo {
+        private String nickname;
+        private String imgUrl;
+        private int matchingCnt;
+        private int teamMembersCnt;
+        private TeamType teamType;
+
+        @Builder
+        public Response15PopularTeamInfo(String nickname, String imgUrl, int matchingCnt, int teamMembersCnt, TeamType teamType) {
+            this.nickname = nickname;
+            this.imgUrl = imgUrl;
+            this.matchingCnt = matchingCnt;
+            this.teamMembersCnt = teamMembersCnt;
+            this.teamType = teamType;
+        }
+    }
 }

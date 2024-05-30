@@ -7,6 +7,8 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.post.dto.TeamPostDto;
 import com.wemingle.core.domain.post.entity.TeamPost;
+import com.wemingle.core.domain.post.entity.TeamPostLike;
+import com.wemingle.core.domain.post.repository.TeamPostLikeRepository;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.post.vo.SaveVoteVo;
 import com.wemingle.core.domain.team.entity.Team;
@@ -17,6 +19,7 @@ import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
 import com.wemingle.core.domain.vote.entity.VoteOption;
 import com.wemingle.core.domain.vote.repository.TeamPostVoteRepository;
+import com.wemingle.core.domain.vote.repository.VoteResultRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +41,13 @@ public class TeamPostService {
     private final BookmarkedTeamPostRepository bookmarkedTeamPostRepository;
     private final S3ImgService s3ImgService;
     private final TeamPostVoteRepository teamPostVoteRepository;
+    private final TeamPostLikeRepository teamPostLikeRepository;
+    private final VoteResultRepository voteResultRepository;
 
     public HashMap<Long, Object> getMyTeamPosts(Long nextIdx, Long teamId, String memberId) {
         List<TeamPost> myTeamPosts = teamPostRepository.findMyTeamPosts(nextIdx, teamId, memberId);
         LinkedHashMap<Long, Object> responseMap = new LinkedHashMap<>();
-        myTeamPosts.forEach(teamPost -> responseMap.put(teamPost.getPk(),TeamPostDto.ResponseMyAllPostDto.builder()
+        myTeamPosts.forEach(teamPost -> responseMap.put(teamPost.getPk(), TeamPostDto.ResponseMyAllPostDto.builder()
                         .title(teamPost.getTitle())
                         .writer(teamPost.getWriter().getTeam().getTeamName())
                         .writerPic(teamPost.getWriter().getProfileImg())
@@ -70,7 +75,7 @@ public class TeamPostService {
         return responseMap;
     }
 
-    public HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> getTeamPostWithMember(Long nextIdx, String memberId){
+    public HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> getTeamPostWithMember(Long nextIdx, String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
@@ -101,11 +106,11 @@ public class TeamPostService {
         return teamPost.getWriter().getMember().equals(member);
     }
 
-    public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamPk, String memberId){
+    public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamPk, String memberId) {
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
         Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId);
-        List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithTeam(nextIdx, team ,isNotice);
+        List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithTeam(nextIdx, team, isNotice);
 
         List<TeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findBookmarkedByTeamPost(teamPosts, memberId);
 
@@ -147,7 +152,7 @@ public class TeamPostService {
     }
 
     private TeamPostDto.VoteInfo getVoteInfo(TeamPostVote vote) {
-        if (vote == null){
+        if (vote == null) {
             return null;
         }
 
@@ -165,7 +170,7 @@ public class TeamPostService {
     }
 
     @Transactional
-    public void saveTeamPost(TeamPostDto.RequestTeamPostSave savePostDto, String memberId){
+    public void saveTeamPost(TeamPostDto.RequestTeamPostSave savePostDto, String memberId) {
         Team team = teamRepository.findById(savePostDto.getTeamPk())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
         TeamMember teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId)
@@ -197,7 +202,7 @@ public class TeamPostService {
     }
 
     private TeamPostVote saveVote(TeamPost teamPost, SaveVoteVo saveVoteVo) {
-        if (saveVoteVo.isHasVote()){
+        if (saveVoteVo.isHasVote()) {
             TeamPostVote teamPostVote = TeamPostVote.builder()
                     .title(saveVoteVo.getTitle())
                     .expiryTime(saveVoteVo.getExpiryTime())
@@ -226,7 +231,7 @@ public class TeamPostService {
     }
 
 
-    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(Long nextIdx, Long teamPk, String searchWord, String memberId){
+    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(Long nextIdx, Long teamPk, String searchWord, String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         Team team = teamRepository.findById(teamPk)
@@ -250,5 +255,95 @@ public class TeamPostService {
                 .build()));
 
         return responseData;
+    }
+
+    public boolean isTeamPostWriter(Long teamPostPk, String memberId) {
+        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        TeamMember requester = teamMemberRepository.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+
+        return teamPost.isWriter(requester);
+    }
+
+    @Transactional
+    public void saveOrDeletePostLike(Long teamPostPk, String memberId) {
+        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        TeamMember requester = teamMemberRepository.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
+
+        if (postLike.isPresent()) {
+            TeamPostLike postLikeGet = postLike.get();
+
+            if (postLikeGet.isDeleted()) {
+                postLikeGet.restore();
+                teamPost.addLikeCnt();
+            } else {
+                postLikeGet.delete();
+                teamPost.reduceLikeCnt();
+            }
+        } else {
+            teamPostLikeRepository.save(TeamPostLike.builder().teamPost(teamPost).teamMember(requester).build());
+            teamPost.addLikeCnt();
+        }
+    }
+
+    public TeamPostDto.ResponseTeamPostDetail getTeamPostDetail(Long teamPostPk, String memberId) {
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        TeamMember teamMember = teamMemberRepository.findByTeamAndMember(teamPost.getTeam(), member)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+
+        return TeamPostDto.ResponseTeamPostDetail.builder()
+                .title(teamPost.getTitle())
+                .content(teamPost.getContent())
+                .nickname(teamPost.getWriter().getNickname())
+                .createdTime(teamPost.getCreatedTime())
+                .teamPostImgUrls(s3ImgService.getTeamPostPicUrl(getImgIds(teamPost)))
+                .likeCnt(teamPost.getLikeCount())
+                .replyCnt(teamPost.getReplyCount())
+                .isWriter(teamPost.isWriter(teamMember))
+                .isManager(teamMember.isManager())
+                .isBookmarked(bookmarkedTeamPostRepository.existsByTeamPostAndMember(teamPost, member))
+                .voteStatus(teamPost.getTeamPostVote().getVoteStatus())
+                .voteInfo(getVoteInfoWithPk(teamPost.getTeamPostVote()))
+                .myVoteHistory(getMyVoteHistory(teamPost.getTeamPostVote(), teamMember))
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
+                .build();
+    }
+
+    private TeamPostDto.VoteInfoWithPk getVoteInfoWithPk(TeamPostVote vote) {
+        if (vote == null) {
+            return null;
+        }
+
+        return TeamPostDto.VoteInfoWithPk.builder()
+                .votePk(vote.getPk())
+                .isMultiVoting(vote.isMultiVoting())
+                .isComplete(vote.isComplete())
+                .voteOptionInfos(vote.getVoteOptions().stream().map(voteOption -> TeamPostDto.VoteOptionInfoWithPk.builder()
+                        .voteOptionPk(voteOption.getPk())
+                        .optionName(voteOption.getOptionName())
+                        .resultCnt(voteOption.getVoteResults().size())
+                        .build()).toList())
+                .build();
+    }
+
+    private List<TeamPostDto.MyVoteHistory> getMyVoteHistory(TeamPostVote teamPostVote, TeamMember requester) {
+        if (teamPostVote == null) {
+            return null;
+        }
+
+        return voteResultRepository.findByTeamMemberAndVoteOptionIn(requester, teamPostVote.getVoteOptions()).stream()
+                .map(voteResult -> TeamPostDto.MyVoteHistory.builder()
+                        .myVotePk(voteResult.getPk())
+                        .myVoteOption(voteResult.getVoteOption().getOptionName())
+                        .build()
+                )
+                .toList();
     }
 }
