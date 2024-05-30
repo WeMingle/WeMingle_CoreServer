@@ -90,4 +90,16 @@ public class VoteDto {
             this.imgUrl = imgUrl;
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class RequestVote {
+        private Long votePk;
+        private List<Long> removeVoteResult;
+        private List<Long> saveVoteResult;
+
+        public int calculateTotalCnt(){
+            return this.saveVoteResult.size() - this.removeVoteResult.size();
+        }
+    }
 }

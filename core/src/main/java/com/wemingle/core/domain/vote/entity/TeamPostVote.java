@@ -66,10 +66,13 @@ public class TeamPostVote extends BaseEntity {
     public void addVoteOptions(List<VoteOption> voteOptions){
         this.voteOptions = voteOptions;
     }
-    public void complete(){
+    public void complete() {
         this.voteStatus = VoteStatus.COMPLETE;
     }
-    public boolean isComplete(){
+    public boolean isComplete() {
         return this.voteStatus.equals(VoteStatus.COMPLETE) || this.expiryTime.isBefore(LocalDateTime.now());
+    }
+    public boolean isFirstServedBasedVote() {
+        return this.voteLimit != 0;
     }
 }

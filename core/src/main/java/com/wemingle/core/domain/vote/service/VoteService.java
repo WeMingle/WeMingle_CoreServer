@@ -3,11 +3,14 @@ package com.wemingle.core.domain.vote.service;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
+import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.vote.dto.VoteDto;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
 import com.wemingle.core.domain.vote.entity.VoteOption;
 import com.wemingle.core.domain.vote.entity.VoteResult;
 import com.wemingle.core.domain.vote.repository.TeamPostVoteRepository;
+import com.wemingle.core.domain.vote.repository.VoteOptionRepository;
 import com.wemingle.core.domain.vote.repository.VoteResultRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,7 +29,9 @@ public class VoteService {
     private final TeamPostRepository teamPostRepository;
     private final TeamPostVoteRepository teamPostVoteRepository;
     private final VoteResultRepository voteResultRepository;
+    private final VoteOptionRepository voteOptionRepository;
     private final S3ImgService s3ImgService;
+    private final TeamMemberRepository teamMemberRepository;
 
     public List<VoteDto.ResponseExpiredVoteInfo> getExpiredVotesInfo(Long nextIdx, Long teamPk){
         List<TeamPost> teamPosts = teamPostRepository.findByTeam_Pk(teamPk);
@@ -87,14 +92,14 @@ public class VoteService {
                 .map(distinctVoteOption -> VoteDto.VoteOptionResult
                         .builder()
                         .optionName(distinctVoteOption.getOptionName())
-                        .totalCnt(getTotalCnt(distinctVoteOption, voteResults))
+                        .totalCnt(getTotalCntWithOption(distinctVoteOption, voteResults))
                         .teamMemberInfo(getTeamMembersInfo(distinctVoteOption, voteResults)
                         )
                         .build())
                 .toList();
     }
 
-    private long getTotalCnt(VoteOption voteOptionCategory, List<VoteResult> voteResults) {
+    private long getTotalCntWithOption(VoteOption voteOptionCategory, List<VoteResult> voteResults) {
         return voteResults.stream()
                 .filter(voteResult -> voteResult.getVoteOption().equals(voteOptionCategory))
                 .count();
@@ -108,5 +113,51 @@ public class VoteService {
                         .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(voteResult.getTeamMember().getProfileImg()))
                         .build())
                 .toList();
+    }
+
+    public boolean isExceedVoteLimitWhenFirstServedBased(VoteDto.RequestVote voteDto) {
+        TeamPostVote teamPostVote = teamPostVoteRepository.findById(voteDto.getVotePk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.VOTE_NOT_FOUND.getExceptionMessage()));
+
+        return teamPostVote.isFirstServedBasedVote() && getTotalCnt(teamPostVote) + voteDto.calculateTotalCnt() > teamPostVote.getVoteLimit();
+    }
+    @Transactional
+    public void saveOrDeleteVoteResult(VoteDto.RequestVote voteDto, String memberId) {
+        if (voteDto.getRemoveVoteResult() != null && !voteDto.getRemoveVoteResult().isEmpty()) {
+            List<VoteResult> removeVoteResults = voteResultRepository.findAllById(voteDto.getRemoveVoteResult());
+            removeVoteResults.forEach(removeVoteResult -> removeVoteResult.getVoteOption().removeVoteResult(removeVoteResult));
+        }
+
+        if (voteDto.getSaveVoteResult() != null && !voteDto.getSaveVoteResult().isEmpty()) {
+            TeamPostVote teamPostVote = teamPostVoteRepository.findById(voteDto.getVotePk())
+                    .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.VOTE_NOT_FOUND.getExceptionMessage()));
+            TeamMember requester = teamMemberRepository.findByTeamAndMember_MemberId(teamPostVote.getTeamPost().getTeam(), memberId)
+                    .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+            List<VoteOption> saveVotes = voteOptionRepository.findAllById(voteDto.getSaveVoteResult());
+
+            List<VoteResult> saveVoteResults = saveVotes.stream()
+                    .map(saveVote -> VoteResult.builder()
+                            .voteOption(saveVote)
+                            .teamMember(requester)
+                            .build())
+                    .toList();
+
+            saveVoteResults.forEach(saveVoteResult -> saveVoteResult.getVoteOption().addVoteResult(saveVoteResult)); //voteResult 저장
+
+            if (isReachVoteLimit(teamPostVote)) {
+                teamPostVote.complete();
+            }
+        }
+    }
+
+    private boolean isReachVoteLimit(TeamPostVote teamPostVote) {
+        return teamPostVote.isFirstServedBasedVote() &&
+                getTotalCnt(teamPostVote) == teamPostVote.getVoteLimit();
+    }
+
+    private int getTotalCnt(TeamPostVote teamPostVote) {
+        return teamPostVote.getVoteOptions().stream()
+                .mapToInt(voteOption -> voteOption.getVoteResults().size())
+                .sum();
     }
 }

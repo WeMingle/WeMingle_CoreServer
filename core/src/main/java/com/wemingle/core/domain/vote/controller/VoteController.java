@@ -4,7 +4,10 @@ import com.wemingle.core.domain.vote.dto.VoteDto;
 import com.wemingle.core.domain.vote.service.VoteService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,5 +41,21 @@ public class VoteController {
                         .responseData(responseData)
                         .build()
         );
+    }
+
+    @PostMapping
+    public ResponseEntity<Object> saveOrDeleteVoteResult(@RequestBody VoteDto.RequestVote voteDto,
+                                                         @AuthenticationPrincipal UserDetails userDetails) {
+        if (voteService.isExceedVoteLimitWhenFirstServedBased(voteDto)){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Vote capacity is exceeded")
+                                    .build()
+                    );
+        }
+
+        voteService.saveOrDeleteVoteResult(voteDto, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 }

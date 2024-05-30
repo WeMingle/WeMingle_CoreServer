@@ -35,4 +35,11 @@ public class VoteOption {
         this.optionName = optionName;
         this.teamPostVote = teamPostVote;
     }
+
+    public void addVoteResult(VoteResult voteResult) {
+        this.voteResults.add(voteResult);
+    }
+    public void removeVoteResult(VoteResult voteResult) {
+        this.voteResults.remove(voteResult);
+    }
 }
