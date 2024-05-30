@@ -8,7 +8,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
@@ -129,17 +128,12 @@ public class S3ImgService {
     }
 
     public String getTeamMemberPreSignedUrl(UUID imgId){
-        try {
-            verifyImgExist(TEAM_MEMBER_PATH, imgId);
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + imgId).build();
-            GetObjectPresignRequest preSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
-            String url = s3Presigner.presignGetObject(preSignRequest).url().toString();
-            s3Client.close();
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + imgId).build();
+        GetObjectPresignRequest preSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
+        String url = s3Presigner.presignGetObject(preSignRequest).url().toString();
+        s3Client.close();
 
-            return url;
-        }catch (S3Exception e){
-            return getMemberProfilePicUrl(imgId);
-        }
+        return url;
     }
 
     public String setTeamMemberProfilePreSignedUrl(UUID teamMemberProfileUUID) {
