@@ -50,4 +50,8 @@ public class TeamMember extends BaseEntity {
         this.member = member;
         this.team = team;
     }
+
+    public boolean isManager() {
+        return !this.teamRole.equals(TeamRole.PARTICIPANT);
+    }
 }

@@ -17,7 +17,7 @@ public interface BookmarkedTeamPostRepository extends JpaRepository<BookmarkedTe
     @Query("select bt.teamPost from BookmarkedTeamPost bt " +
             "where bt.member = :member")
     List<TeamPost> findTeamPostByMember(@Param("member")Member member);
-
     @Query("select bt.teamPost from BookmarkedTeamPost bt where bt.teamPost.team.pk = :teamId and bt.member.memberId = :memberId and bt.pk <= :nextIdx")
     List<TeamPost> findBookmarkedTeamPost(@Param("teamId") Long teamId, @Param("memberId") String memberId, @Param("nextIdx")Long nextIdx);
+    boolean existsByTeamPostAndMember(TeamPost teamPost, Member member);
 }
