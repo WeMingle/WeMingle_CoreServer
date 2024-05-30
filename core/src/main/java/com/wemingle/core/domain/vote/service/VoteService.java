@@ -33,6 +33,9 @@ public class VoteService {
     private final S3ImgService s3ImgService;
     private final TeamMemberRepository teamMemberRepository;
 
+    private static final String ANONYMOUS_NICKNAME = "익명";
+    private static final String ANONYMOUS_IMG_URL = null;
+
     public List<VoteDto.ResponseExpiredVoteInfo> getExpiredVotesInfo(Long nextIdx, Long teamPk){
         List<TeamPost> teamPosts = teamPostRepository.findByTeam_Pk(teamPk);
         List<TeamPostVote> expiredVotes = teamPostVoteRepository.getExpiredVotes(nextIdx, teamPosts);
@@ -93,7 +96,7 @@ public class VoteService {
                         .builder()
                         .optionName(distinctVoteOption.getOptionName())
                         .totalCnt(getTotalCntWithOption(distinctVoteOption, voteResults))
-                        .teamMemberInfo(getTeamMembersInfo(distinctVoteOption, voteResults)
+                        .teamMemberInfo(getTeamMembersInfo(distinctVoteOption, voteResults, teamPostVote.isAnonymousVoting())
                         )
                         .build())
                 .toList();
@@ -105,12 +108,12 @@ public class VoteService {
                 .count();
     }
 
-    private List<VoteDto.TeamMemberInfo> getTeamMembersInfo(VoteOption voteOptionCategory, List<VoteResult> voteResults) {
+    private List<VoteDto.TeamMemberInfo> getTeamMembersInfo(VoteOption voteOptionCategory, List<VoteResult> voteResults, boolean isAnonymousVoting) {
         return voteResults.stream()
                 .filter(voteResult -> voteResult.getVoteOption().equals(voteOptionCategory))
                 .map(voteResult -> VoteDto.TeamMemberInfo.builder()
-                        .nickname(voteResult.getTeamMember().getNickname())
-                        .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(voteResult.getTeamMember().getProfileImg()))
+                        .nickname(isAnonymousVoting ? ANONYMOUS_NICKNAME : voteResult.getTeamMember().getNickname())
+                        .imgUrl(isAnonymousVoting ? ANONYMOUS_IMG_URL : s3ImgService.getTeamMemberPreSignedUrl(voteResult.getTeamMember().getProfileImg()))
                         .build())
                 .toList();
     }
