@@ -60,7 +60,7 @@ public class VoteController {
     }
 
     @PatchMapping("/{votePk}")
-    public ResponseEntity<ResponseHandler<VoteDto.ResponseVoteResult>> completeVote(@PathVariable Long votePk) {
+    public ResponseEntity<Object> completeVote(@PathVariable Long votePk) {
         voteService.completeVote(votePk);
 
         return ResponseEntity.noContent().build();

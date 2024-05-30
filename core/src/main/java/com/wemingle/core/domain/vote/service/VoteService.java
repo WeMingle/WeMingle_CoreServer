@@ -83,6 +83,7 @@ public class VoteService {
         return VoteDto.ResponseVoteResult.builder()
                 .title(teamPostVote.getTitle())
                 .expiryTime(teamPostVote.getExpiryTime())
+                .isAnonymousVoting(teamPostVote.isAnonymousVoting())
                 .voteOptionResults(getVoteOptionResult(teamPostVote))
                 .build();
     }
@@ -112,6 +113,7 @@ public class VoteService {
         return voteResults.stream()
                 .filter(voteResult -> voteResult.getVoteOption().equals(voteOptionCategory))
                 .map(voteResult -> VoteDto.TeamMemberInfo.builder()
+                        .teamMemberPk(voteResult.getTeamMember().getPk())
                         .nickname(isAnonymousVoting ? ANONYMOUS_NICKNAME : voteResult.getTeamMember().getNickname())
                         .imgUrl(isAnonymousVoting ? ANONYMOUS_IMG_URL : s3ImgService.getTeamMemberPreSignedUrl(voteResult.getTeamMember().getProfileImg()))
                         .build())
