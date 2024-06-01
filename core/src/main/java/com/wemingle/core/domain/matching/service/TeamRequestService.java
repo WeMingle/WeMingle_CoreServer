@@ -20,6 +20,7 @@ import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -148,6 +150,19 @@ public class TeamRequestService {
         return team.getTeamMembers().size() >= team.getCapacityLimit();
     }
 
+    public boolean isRequestApprovable(Long teamPk, List<Long> teamRequestsPk){
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+
+        return (!isExceedCapacityLimit(team, teamRequestsPk.size()) && team.isCapacityLimit())
+                || !team.isCapacityLimit();
+    }
+
+    private boolean isExceedCapacityLimit(Team team, int addTeamMemberCnt) {
+        log.info("size : {}", team.getTeamMembers().size());
+        return team.getTeamMembers().size() + addTeamMemberCnt > team.getCapacityLimit();
+    }
+
     public TeamRequestDto.ResponseTeamRequests getPendingTeamRequests(Long teamPk) {
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
@@ -173,8 +188,8 @@ public class TeamRequestService {
     }
 
     @Transactional
-    public void approveTeamRequest(TeamRequestDto.RequestTeamRequestApprove approveDto) {
-        List<TeamRequest> teamRequests = teamRequestRepository.findAllById(approveDto.getTeamRequestPk());
+    public void approveTeamRequest(List<Long> teamRequestsPk) {
+        List<TeamRequest> teamRequests = teamRequestRepository.findAllById(teamRequestsPk);
         teamRequestRepository.deleteAllInBatch(teamRequests);
 
         teamRequests.forEach(TeamRequest::addTeamMemberInTeam);

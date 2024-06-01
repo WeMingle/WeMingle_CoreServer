@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 @Validated
 @Slf4j
 @RestController
@@ -71,8 +73,16 @@ public class TeamRequestController {
 
     @PostMapping("/approval")
     public ResponseEntity<Object> approveTeamRequest(@RequestBody TeamRequestDto.RequestTeamRequestApprove approveDto) {
-        teamRequestService.approveTeamRequest(approveDto);
+        if (!teamRequestService.isRequestApprovable(approveDto.getTeamPk(), approveDto.getTeamRequestPk())){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Team capacity is exceeded")
+                                    .build()
+                    );
+        }
 
+        teamRequestService.approveTeamRequest(approveDto.getTeamRequestPk());
         return ResponseEntity.noContent().build();
     }
 }

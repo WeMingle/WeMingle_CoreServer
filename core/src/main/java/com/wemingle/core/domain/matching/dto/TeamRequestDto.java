@@ -109,6 +109,7 @@ public class TeamRequestDto {
     @Setter
     @NoArgsConstructor
     public static class RequestTeamRequestApprove {
+        private Long teamPk;
         private List<Long> teamRequestPk;
     }
 }
