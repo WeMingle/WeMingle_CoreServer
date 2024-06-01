@@ -13,4 +13,6 @@ public interface TeamRequestRepository extends JpaRepository<TeamRequest, Long> 
     boolean existsByTeamAndRequester(Team team, Member requester);
     @Query("select tr from TeamRequest tr join fetch tr.requester where tr.team = :team order by tr.pk desc")
     List<TeamRequest> findByTeamFetchMember(@Param("team") Team team);
+    @Query("select count(*) from TeamRequest tr where tr.team.pk = :teamPk")
+    Integer findPendingTeamRequestByTeamCnt(@Param("teamPk") Long teamPk);
 }

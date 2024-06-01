@@ -149,4 +149,16 @@ public class TeamRequestDto {
             this.teamQuestionnaires = teamQuestionnaires;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponsePendingTeamRequestCnt{
+        private int pendingCnt;
+
+        @Builder
+        public ResponsePendingTeamRequestCnt(int pendingCnt) {
+            this.pendingCnt = pendingCnt;
+        }
+    }
 }

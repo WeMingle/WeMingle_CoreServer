@@ -95,4 +95,16 @@ public class TeamRequestController {
                         .build()
         );
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponsePendingTeamRequestCnt>> getPendingTeamRequestCnt(@RequestParam Long teamPk) {
+        TeamRequestDto.ResponsePendingTeamRequestCnt responseData = teamRequestService.getPendingTeamRequestCnt(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamRequestDto.ResponsePendingTeamRequestCnt>builder()
+                        .responseMessage("Team request count retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
 }

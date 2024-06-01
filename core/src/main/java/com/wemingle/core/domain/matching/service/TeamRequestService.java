@@ -235,4 +235,10 @@ public class TeamRequestService {
                 .findFirst()
                 .orElse(null);
     }
+
+    public TeamRequestDto.ResponsePendingTeamRequestCnt getPendingTeamRequestCnt(Long teamPk) {
+        return TeamRequestDto.ResponsePendingTeamRequestCnt.builder()
+                .pendingCnt(teamRequestRepository.findPendingTeamRequestByTeamCnt(teamPk))
+                .build();
+    }
 }
