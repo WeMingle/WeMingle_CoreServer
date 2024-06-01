@@ -4,10 +4,13 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.team.entity.Team;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -18,6 +21,14 @@ public class TeamRequest extends BaseEntity {
     @Column(name = "pk")
     private Long pk;
 
+    @NotNull
+    @Column(name = "NICKNAME", columnDefinition = "VARBINARY(255) NOT NULL")
+    private String nickname;
+
+    @NotNull
+    @Column(name = "PROFILE_IMG")
+    private UUID profileImg;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM")
     private Team team;
@@ -27,7 +38,9 @@ public class TeamRequest extends BaseEntity {
     private Member requester;
 
     @Builder
-    public TeamRequest(Team team, Member requester) {
+    public TeamRequest(String nickname, Team team, Member requester) {
+        this.nickname = nickname;
+        this.profileImg = UUID.randomUUID();
         this.team = team;
         this.requester = requester;
     }

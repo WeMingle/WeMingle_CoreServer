@@ -108,7 +108,11 @@ public class TeamRequestService {
             }
         }
 
-        teamRequestRepository.save(TeamRequest.builder().requester(requester).team(team).build());
+        teamRequestRepository.save(TeamRequest.builder()
+                .nickname(requestSaveDto.getNickname())
+                .requester(requester)
+                .team(team)
+                .build());
     }
 
     private void saveTeamQuestionnairesAnswers(TeamRequestDto.RequestTeamRequestSave requestSaveDto) {
