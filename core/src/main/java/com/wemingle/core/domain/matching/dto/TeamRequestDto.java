@@ -13,6 +13,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 
 public class TeamRequestDto {
     @Getter
@@ -95,5 +96,12 @@ public class TeamRequestDto {
             this.matchingCnt = matchingCnt;
             this.createdTime = createdTime;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamRequestDelete {
+        private List<Long> teamRequestPk;
     }
 }

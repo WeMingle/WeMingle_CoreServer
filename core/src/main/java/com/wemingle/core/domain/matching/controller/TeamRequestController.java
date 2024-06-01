@@ -61,4 +61,11 @@ public class TeamRequestController {
                         .build()
                 );
     }
+
+    @DeleteMapping
+    public ResponseEntity<Object> deleteTeamRequest(@RequestBody TeamRequestDto.RequestTeamRequestDelete deleteDto) {
+        teamRequestService.deleteTeamRequest(deleteDto);
+
+        return ResponseEntity.noContent().build();
+    }
 }

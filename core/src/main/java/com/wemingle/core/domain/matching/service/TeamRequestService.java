@@ -162,4 +162,9 @@ public class TeamRequestService {
                 .requesterSummaries(requesterSummary)
                 .build();
     }
+
+    @Transactional
+    public void deleteTeamRequest(TeamRequestDto.RequestTeamRequestDelete deleteDto) {
+        teamRequestRepository.deleteAllByIdInBatch(deleteDto.getTeamRequestPk());
+    }
 }
