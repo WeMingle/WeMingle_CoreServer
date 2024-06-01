@@ -3,6 +3,7 @@ package com.wemingle.core.domain.matching.entity;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.team.entity.Team;
+import com.wemingle.core.domain.team.entity.TeamMember;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -43,5 +44,14 @@ public class TeamRequest extends BaseEntity {
         this.profileImg = UUID.randomUUID();
         this.team = team;
         this.requester = requester;
+    }
+
+    public void addTeamMemberInTeam() {
+        this.getTeam().getTeamMembers().add(TeamMember.builder()
+                .team(this.team)
+                .member(this.requester)
+                .nickname(this.nickname)
+                .profileImg(this.profileImg)
+                .build());
     }
 }

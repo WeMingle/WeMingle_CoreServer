@@ -144,7 +144,7 @@ public class TeamRequestService {
         return !isExceedTeamMemberCnt(team) && team.getRecruitmentType().equals(RecruitmentType.FIRST_SERVED_BASED);
     }
 
-    private static boolean isExceedTeamMemberCnt(Team team) {
+    private boolean isExceedTeamMemberCnt(Team team) {
         return team.getTeamMembers().size() >= team.getCapacityLimit();
     }
 
@@ -170,5 +170,13 @@ public class TeamRequestService {
     @Transactional
     public void deleteTeamRequest(TeamRequestDto.RequestTeamRequestDelete deleteDto) {
         teamRequestRepository.deleteAllByIdInBatch(deleteDto.getTeamRequestPk());
+    }
+
+    @Transactional
+    public void approveTeamRequest(TeamRequestDto.RequestTeamRequestApprove approveDto) {
+        List<TeamRequest> teamRequests = teamRequestRepository.findAllById(approveDto.getTeamRequestPk());
+        teamRequestRepository.deleteAllInBatch(teamRequests);
+
+        teamRequests.forEach(TeamRequest::addTeamMemberInTeam);
     }
 }

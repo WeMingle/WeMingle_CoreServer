@@ -68,4 +68,11 @@ public class TeamRequestController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/approval")
+    public ResponseEntity<Object> approveTeamRequest(@RequestBody TeamRequestDto.RequestTeamRequestApprove approveDto) {
+        teamRequestService.approveTeamRequest(approveDto);
+
+        return ResponseEntity.noContent().build();
+    }
 }

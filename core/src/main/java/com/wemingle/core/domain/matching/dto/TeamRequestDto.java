@@ -104,4 +104,11 @@ public class TeamRequestDto {
     public static class RequestTeamRequestDelete {
         private List<Long> teamRequestPk;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamRequestApprove {
+        private List<Long> teamRequestPk;
+    }
 }
