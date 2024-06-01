@@ -274,17 +274,17 @@ public class TeamPostService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
 
-        if (postLike.isPresent()) {
+        if (postLike.isPresent()){
             TeamPostLike postLikeGet = postLike.get();
 
-            if (postLikeGet.isDeleted()) {
+            if (postLikeGet.isDeleted()){
                 postLikeGet.restore();
                 teamPost.addLikeCnt();
             } else {
                 postLikeGet.delete();
                 teamPost.reduceLikeCnt();
             }
-        } else {
+        }else {
             teamPostLikeRepository.save(TeamPostLike.builder().teamPost(teamPost).teamMember(requester).build());
             teamPost.addLikeCnt();
         }
