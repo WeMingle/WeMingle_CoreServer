@@ -124,6 +124,11 @@ public class Team extends BaseEntity {
     }
 
     public int getRemainCapacity() {
-        return this.isCapacityLimit() ? this.getCapacityLimit() - this.getTeamMembers().size() : -1;
+        final int UNLIMITED = -1;
+        return this.isCapacityLimit() ? this.getCapacityLimit() - this.getTeamMembers().size() : UNLIMITED;
+    }
+
+    public boolean isAbleToAddMember() {
+        return getRemainCapacity() != 0;
     }
 }

@@ -14,8 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-
 @Validated
 @Slf4j
 @RestController
@@ -84,5 +82,17 @@ public class TeamRequestController {
 
         teamRequestService.approveTeamRequest(approveDto.getTeamRequestPk());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{teamRequestPk}")
+    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponseTeamRequestInfo>> getTeamRequestInfo(@PathVariable Long teamRequestPk) {
+        TeamRequestDto.ResponseTeamRequestInfo responseData = teamRequestService.getTeamRequestInfo(teamRequestPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamRequestDto.ResponseTeamRequestInfo>builder()
+                        .responseMessage("Team request info retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
     }
 }

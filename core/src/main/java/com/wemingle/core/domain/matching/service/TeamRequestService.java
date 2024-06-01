@@ -193,4 +193,46 @@ public class TeamRequestService {
 
         teamRequests.forEach(TeamRequest::addTeamMemberInTeam);
     }
+
+    public TeamRequestDto.ResponseTeamRequestInfo getTeamRequestInfo(Long teamRequestPk){
+        TeamRequest teamRequest = teamRequestRepository.findById(teamRequestPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_REQUEST_NOT_FOUND.getExceptionMessage()));
+        Member requester = teamRequest.getRequester();
+        Team team = teamRequest.getTeam();
+
+        List<TeamQuestionnaire> teamQuestions = teamQuestionnaireRepository.findAllByTeam(team);
+        List<TeamQuestionnaireAnswer> answers = teamQuestionnaireAnswerRepository.findByTeamQuestionnaireIn(teamQuestions);
+        String findAbility = memberAbilityRepository.findAbilityByMemberAndSport(requester, team.getSportsCategory())
+                .orElse(null);
+        VerifiedUniversityEmail verifiedUniversity = verifiedUniversityEmailRepository.findByMemberFetchUniv(requester)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
+
+        return TeamRequestDto.ResponseTeamRequestInfo.builder()
+                .imgUrl(s3ImgService.getMemberProfilePicUrl(requester.getProfileImgId()))
+                .matchingCnt(requester.getCompletedMatchingCnt())
+                .nickname(requester.getNickname())
+                .univName(verifiedUniversity.getUnivName().getUnivName())
+                .gender(requester.getGender())
+                .ability(getAbility(requester, findAbility))
+                .majorArea(getMajorArea(requester))
+                .age(getMemberAge(requester))
+                .reportCnt(requester.getComplaintsCount())
+                .isApprovable(team.isAbleToAddMember())
+                .teamQuestionnaires(getTeamQuestions(teamQuestions, answers))
+                .build();
+    }
+
+    private HashMap<String, String> getTeamQuestions(List<TeamQuestionnaire> questionnaires, List<TeamQuestionnaireAnswer> answers){
+        LinkedHashMap<String, String> responseData = new LinkedHashMap<>();
+        questionnaires.forEach(question -> responseData.put(question.getContent(), getAnswerByTeamQuestion(question, answers)));
+        return responseData;
+    }
+
+    private String getAnswerByTeamQuestion(TeamQuestionnaire questionnaires, List<TeamQuestionnaireAnswer> answers) {
+        return answers.stream()
+                .filter(answer -> questionnaires.equals(answer.getTeamQuestionnaire()))
+                .map(TeamQuestionnaireAnswer::getAnswer)
+                .findFirst()
+                .orElse(null);
+    }
 }
