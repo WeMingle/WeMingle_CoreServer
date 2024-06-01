@@ -44,7 +44,7 @@ public class TeamRequestService {
     private final TeamRequestRepository teamRequestRepository;
     private final TeamMemberRepository teamMemberRepository;
 
-    private final static String IS_NOT_PUBLIC = "미공개";
+    private final static String IS_NOT_PUBLIC = "비공개";
 
     public TeamRequestDto.ResponseRequesterInfo getTeamRequestPageInfo(Long teamPk, String memberId){
         Member requester = memberRepository.findByMemberId(memberId)
@@ -159,7 +159,6 @@ public class TeamRequestService {
     }
 
     private boolean isExceedCapacityLimit(Team team, int addTeamMemberCnt) {
-        log.info("size : {}", team.getTeamMembers().size());
         return team.getTeamMembers().size() + addTeamMemberCnt > team.getCapacityLimit();
     }
 
