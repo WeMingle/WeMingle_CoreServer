@@ -144,7 +144,7 @@ public class TeamRequestService {
         return team.getTeamMembers().size() >= team.getCapacityLimit();
     }
 
-    public TeamRequestDto.ResponseTeamRequests getTeamRequests(Long teamPk) {
+    public TeamRequestDto.ResponseTeamRequests getPendingTeamRequests(Long teamPk) {
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
         List<TeamRequest> teamRequests = teamRequestRepository.findByTeamFetchMember(team);
