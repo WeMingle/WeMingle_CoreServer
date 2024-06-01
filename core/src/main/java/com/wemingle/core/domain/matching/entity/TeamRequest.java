@@ -4,6 +4,7 @@ import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
+import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -52,6 +53,7 @@ public class TeamRequest extends BaseEntity {
                 .member(this.requester)
                 .nickname(this.nickname)
                 .profileImg(this.profileImg)
+                .teamRole(TeamRole.PARTICIPANT)
                 .build());
     }
 }
