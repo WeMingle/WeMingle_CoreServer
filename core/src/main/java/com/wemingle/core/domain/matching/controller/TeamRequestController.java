@@ -49,4 +49,16 @@ public class TeamRequestController {
         teamRequestService.saveTeamMemberOrRequestByRecruitmentType(requestSaveDto, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponseTeamRequests>> getTeamRequests(@RequestParam Long teamPk) {
+        TeamRequestDto.ResponseTeamRequests responseData = teamRequestService.getTeamRequests(teamPk);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<TeamRequestDto.ResponseTeamRequests>builder()
+                        .responseMessage("Team requests retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+                );
+    }
 }

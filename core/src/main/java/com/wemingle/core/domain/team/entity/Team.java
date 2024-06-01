@@ -119,4 +119,11 @@ public class Team extends BaseEntity {
         this.recruitmentType = updateDto.getRecruitmentType();
         this.capacityLimit = updateDto.getCapacityLimit();
     }
+    public boolean isCapacityLimit() {
+        return this.capacityLimit > 0;
+    }
+
+    public int getRemainCapacity() {
+        return this.isCapacityLimit() ? this.getCapacityLimit() - this.getTeamMembers().size() : -1;
+    }
 }

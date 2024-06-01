@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 public class TeamRequestDto {
@@ -61,6 +62,38 @@ public class TeamRequestDto {
                     .member(member)
                     .team(team)
                     .build();
+        }
+    }
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ResponseTeamRequests {
+        private int remainCapacity;
+        private HashMap<Long, RequesterSummary> requesterSummaries;
+
+        @Builder
+        public ResponseTeamRequests(int remainCapacity, HashMap<Long, RequesterSummary> requesterSummaries) {
+            this.remainCapacity = remainCapacity;
+            this.requesterSummaries = requesterSummaries;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequesterSummary {
+        private String nickname;
+        private String imgUrl;
+        private int matchingCnt;
+        private LocalDateTime createdTime;
+        //todo 채팅방을 위한 데이터 추후에 추가
+
+        @Builder
+        public RequesterSummary(String nickname, String imgUrl, int matchingCnt, LocalDateTime createdTime) {
+            this.nickname = nickname;
+            this.imgUrl = imgUrl;
+            this.matchingCnt = matchingCnt;
+            this.createdTime = createdTime;
         }
     }
 }

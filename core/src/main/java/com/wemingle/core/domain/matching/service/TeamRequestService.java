@@ -143,4 +143,23 @@ public class TeamRequestService {
     private static boolean isExceedTeamMemberCnt(Team team) {
         return team.getTeamMembers().size() >= team.getCapacityLimit();
     }
+
+    public TeamRequestDto.ResponseTeamRequests getTeamRequests(Long teamPk) {
+        Team team = teamRepository.findById(teamPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        List<TeamRequest> teamRequests = teamRequestRepository.findByTeamFetchMember(team);
+        LinkedHashMap<Long, TeamRequestDto.RequesterSummary> requesterSummary = new LinkedHashMap<>();
+
+        teamRequests.forEach(teamRequest -> requesterSummary.put(teamRequest.getPk(), TeamRequestDto.RequesterSummary.builder()
+                .nickname(teamRequest.getRequester().getNickname())
+                .imgUrl(s3ImgService.getMemberProfilePicUrl(teamRequest.getRequester().getProfileImgId()))
+                .matchingCnt(teamRequest.getRequester().getCompletedMatchingCnt())
+                .createdTime(teamRequest.getCreatedTime())
+                .build()));
+
+        return TeamRequestDto.ResponseTeamRequests.builder()
+                .remainCapacity(team.getRemainCapacity())
+                .requesterSummaries(requesterSummary)
+                .build();
+    }
 }
