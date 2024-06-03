@@ -78,4 +78,18 @@ public class TeamMemberController {
         teamMemberService.updateParticipantRoleToHigher(updateUto.getGrantorPk());
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/member/team/block")
+    public ResponseEntity<Object> blockTeamMember(@RequestBody TeamMemberDto.RequestTeamMemberBlock blockDto) {
+        if (!teamMemberService.isManager(blockDto.getRequesterPk())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Only manager role can block member")
+                                    .build());
+        }
+
+        teamMemberService.blockTeamMember(blockDto.getBlockedMemberPk());
+        return ResponseEntity.noContent().build();
+    }
 }

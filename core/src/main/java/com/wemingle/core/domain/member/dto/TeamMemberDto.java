@@ -71,4 +71,12 @@ public class TeamMemberDto {
         private Long requesterPk;
         private Long grantorPk;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamMemberBlock {
+        private Long requesterPk;
+        private Long blockedMemberPk;
+    }
 }

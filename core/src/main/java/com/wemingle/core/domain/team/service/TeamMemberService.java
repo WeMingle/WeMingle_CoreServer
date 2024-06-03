@@ -122,4 +122,12 @@ public class TeamMemberService {
 
         teamMember.promoteParticipantRole();
     }
+
+    @Transactional
+    public void blockTeamMember(Long teamMemberPk) {
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+
+        teamMember.block();
+    }
 }

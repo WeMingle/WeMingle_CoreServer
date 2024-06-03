@@ -66,4 +66,7 @@ public class TeamMember extends BaseEntity {
     public void promoteParticipantRole() {
         this.teamRole = TeamRole.MANAGER;
     }
+    public void block() {
+        this.teamRole = TeamRole.BLOCKED_USER;
+    }
 }
