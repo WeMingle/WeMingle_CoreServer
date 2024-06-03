@@ -54,4 +54,7 @@ public class TeamMember extends BaseEntity {
     public boolean isManager() {
         return !this.teamRole.equals(TeamRole.PARTICIPANT);
     }
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }

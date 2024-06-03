@@ -55,4 +55,12 @@ public class TeamMemberDto {
             this.createdTime = createdTime;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamMemberProfileUpdate {
+        private Long teamMemberPk;
+        private String nickname;
+    }
 }

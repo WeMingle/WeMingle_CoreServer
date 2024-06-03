@@ -14,6 +14,7 @@ import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -82,5 +83,13 @@ public class TeamMemberService {
                 .memberSummaryInfoVo(memberSummaryInfoVo)
                 .createdTime(teamMember.getCreatedTime().toLocalDate())
                 .build();
+    }
+
+    @Transactional
+    public void updateTeamMemberProfile(TeamMemberDto.RequestTeamMemberProfileUpdate updateDto) {
+        TeamMember teamMember = teamMemberRepository.findById(updateDto.getTeamMemberPk())
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+
+        teamMember.updateNickname(updateDto.getNickname());
     }
 }
