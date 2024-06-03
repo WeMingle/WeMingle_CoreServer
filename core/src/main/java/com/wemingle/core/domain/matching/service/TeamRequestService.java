@@ -107,6 +107,7 @@ public class TeamRequestService {
 
         teamRequestRepository.save(TeamRequest.builder()
                 .nickname(requestSaveDto.getNickname())
+                .profileImg(requestSaveDto.getProfilePicId())
                 .requester(requester)
                 .team(team)
                 .build());

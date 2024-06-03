@@ -7,6 +7,7 @@ import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class TeamRequestDto {
     @Getter
@@ -55,12 +57,14 @@ public class TeamRequestDto {
         private Long teamPk;
         @NotBlank
         private String nickname;
+        @NotNull
+        private UUID profilePicId;
         private HashMap<Long, String> answers;
 
         public TeamMember of(Member member, Team team){
             return TeamMember.builder()
                     .nickname(nickname)
-                    .profileImg(member.getProfileImgId())
+                    .profileImg(profilePicId)
                     .teamRole(TeamRole.PARTICIPANT)
                     .member(member)
                     .team(team)
