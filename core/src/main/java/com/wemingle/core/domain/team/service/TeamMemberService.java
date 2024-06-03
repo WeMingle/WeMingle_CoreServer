@@ -92,4 +92,19 @@ public class TeamMemberService {
 
         teamMember.updateNickname(updateDto.getNickname());
     }
+
+    public boolean isExistOtherManager(Long teamMemberPk) {
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+
+        return teamMemberRepository.isExistOtherManagerRole(teamMember.getTeam());
+    }
+
+    @Transactional
+    public void updateManagerRoleToLower(Long teamMemberPk) {
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+
+        teamMember.demoteManagerRole();
+    }
 }

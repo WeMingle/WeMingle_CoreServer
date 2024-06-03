@@ -5,6 +5,7 @@ import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,6 +48,20 @@ public class TeamMemberController {
     public ResponseEntity<Object> updateTeamMemberProfile(@RequestBody TeamMemberDto.RequestTeamMemberProfileUpdate updateDto) {
         teamMemberService.updateTeamMemberProfile(updateDto);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/member/{teamMemberPk}/team")
+    public ResponseEntity<Object> updateManagerRoleToLower(@PathVariable Long teamMemberPk) {
+        if (!teamMemberService.isExistOtherManager(teamMemberPk)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Cannot remove manager role in a team with only one manager")
+                                    .build());
+        }
+
+        teamMemberService.updateManagerRoleToLower(teamMemberPk);
         return ResponseEntity.noContent().build();
     }
 }

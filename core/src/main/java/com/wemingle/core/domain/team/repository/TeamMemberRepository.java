@@ -34,4 +34,7 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     @Query("select tm.member from TeamMember tm where tm.pk in :teamMembersPk")
     List<Member> findMemberByTeamMemberIdIn(@Param("teamMembersPk")List<Long> teamMemberPks);
     List<TeamMember> findByTeamAndMemberIn(Team team, List<Member> members);
+    @Query("select case when count(*) > 1 then true else false end from TeamMember tm " +
+            "where tm.team = :team and tm.teamRole != 'PARTICIPANT'")
+    boolean isExistOtherManagerRole(@Param("team")Team team);
 }
