@@ -33,12 +33,12 @@ public class TeamMemberController {
     }
 
     @GetMapping("/member/{teamMemberPk}/team")
-    public ResponseEntity<ResponseHandler<TeamMemberDto.ResponseTeamMemberInfo>> getTeamMemberInfo(@PathVariable Long teamMemberPk) {
-        TeamMemberDto.ResponseTeamMemberInfo responseData = teamMemberService.getTeamMemberInfo(teamMemberPk);
+    public ResponseEntity<ResponseHandler<TeamMemberDto.ResponseTeamMemberProfile>> getTeamMemberProfile(@PathVariable Long teamMemberPk) {
+        TeamMemberDto.ResponseTeamMemberProfile responseData = teamMemberService.getTeamMemberProfile(teamMemberPk);
 
         return ResponseEntity.ok(
-                ResponseHandler.<TeamMemberDto.ResponseTeamMemberInfo>builder()
-                        .responseMessage("Team member info retrieval successfully")
+                ResponseHandler.<TeamMemberDto.ResponseTeamMemberProfile>builder()
+                        .responseMessage("Team member profile retrieval successfully")
                         .responseData(responseData)
                         .build()
         );

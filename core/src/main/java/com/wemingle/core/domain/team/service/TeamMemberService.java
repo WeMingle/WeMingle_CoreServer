@@ -60,7 +60,7 @@ public class TeamMemberService {
                 .toList();
     }
 
-    public TeamMemberDto.ResponseTeamMemberInfo getTeamMemberInfo(Long teamMemberPk) {
+    public TeamMemberDto.ResponseTeamMemberProfile getTeamMemberProfile(Long teamMemberPk) {
         TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
         Member requester = teamMember.getMember();
@@ -75,7 +75,7 @@ public class TeamMemberService {
                 .univName(verifiedUniversity.getUnivName().getUnivName())
                 .build();
 
-        return TeamMemberDto.ResponseTeamMemberInfo.builder()
+        return TeamMemberDto.ResponseTeamMemberProfile.builder()
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamMember.getProfileImg()))
                 .nickname(teamMember.getNickname())
                 .introduction(requester.getOneLineIntroduction())

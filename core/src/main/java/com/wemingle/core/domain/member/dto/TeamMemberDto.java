@@ -27,7 +27,7 @@ public class TeamMemberDto {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class ResponseTeamMemberInfo{
+    public static class ResponseTeamMemberProfile {
         private String imgUrl;
         private String nickname;
         private String introduction;
@@ -41,7 +41,7 @@ public class TeamMemberDto {
         private LocalDate createdTime;
 
         @Builder
-        public ResponseTeamMemberInfo(String imgUrl, String nickname, String introduction, MemberSummaryInfoVo memberSummaryInfoVo, int matchingCnt, LocalDate createdTime) {
+        public ResponseTeamMemberProfile(String imgUrl, String nickname, String introduction, MemberSummaryInfoVo memberSummaryInfoVo, int matchingCnt, LocalDate createdTime) {
             this.imgUrl = imgUrl;
             this.nickname = nickname;
             this.introduction = introduction;
@@ -78,5 +78,12 @@ public class TeamMemberDto {
     public static class RequestTeamMemberBlock {
         private Long requesterPk;
         private Long blockedMemberPk;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class TeamMemberInfo {
+
     }
 }
