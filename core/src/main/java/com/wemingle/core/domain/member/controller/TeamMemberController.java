@@ -51,7 +51,7 @@ public class TeamMemberController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/member/{teamMemberPk}/team")
+    @PatchMapping("/member/{teamMemberPk}/team/participant")
     public ResponseEntity<Object> updateManagerRoleToLower(@PathVariable Long teamMemberPk) {
         if (!teamMemberService.isExistOtherManager(teamMemberPk)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -62,6 +62,20 @@ public class TeamMemberController {
         }
 
         teamMemberService.updateManagerRoleToLower(teamMemberPk);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/member/team/manager")
+    public ResponseEntity<Object> updateParticipantRoleToHigher(@RequestBody TeamMemberDto.RequestTeamMemberRoleToManagerUpdate updateUto) {
+        if (!teamMemberService.isManager(updateUto.getRequesterPk())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(
+                            ResponseHandler.builder()
+                                    .responseMessage("Only manager role can promote role")
+                                    .build());
+        }
+
+        teamMemberService.updateParticipantRoleToHigher(updateUto.getGrantorPk());
         return ResponseEntity.noContent().build();
     }
 }

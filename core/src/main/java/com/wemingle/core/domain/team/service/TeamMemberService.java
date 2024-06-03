@@ -107,4 +107,19 @@ public class TeamMemberService {
 
         teamMember.demoteManagerRole();
     }
+
+    public boolean isManager(Long teamMemberPk) {
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+
+        return teamMember.isManager();
+    }
+
+    @Transactional
+    public void updateParticipantRoleToHigher(Long teamMemberPk) {
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+
+        teamMember.promoteParticipantRole();
+    }
 }

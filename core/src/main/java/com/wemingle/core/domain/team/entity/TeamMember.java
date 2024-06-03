@@ -63,4 +63,7 @@ public class TeamMember extends BaseEntity {
     public boolean isOwner() {
         return this.teamRole.equals(TeamRole.OWNER);
     }
+    public void promoteParticipantRole() {
+        this.teamRole = TeamRole.MANAGER;
+    }
 }

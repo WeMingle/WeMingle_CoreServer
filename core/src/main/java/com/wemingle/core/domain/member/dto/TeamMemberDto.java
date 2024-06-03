@@ -63,4 +63,12 @@ public class TeamMemberDto {
         private Long teamMemberPk;
         private String nickname;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamMemberRoleToManagerUpdate {
+        private Long requesterPk;
+        private Long grantorPk;
+    }
 }
