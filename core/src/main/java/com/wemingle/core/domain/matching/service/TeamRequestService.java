@@ -7,6 +7,7 @@ import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberAbilityRepository;
 import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.team.entity.Team;
@@ -57,30 +58,24 @@ public class TeamRequestService {
         VerifiedUniversityEmail verifiedUniversity = verifiedUniversityEmailRepository.findByMemberFetchUniv(requester)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
 
+        MemberSummaryInfoVo memberSummaryInfoVo = MemberSummaryInfoVo.builder()
+                .member(requester)
+                .findAbility(findAbility)
+                .univName(verifiedUniversity.getUnivName().getUnivName())
+                .build();
+
         return TeamRequestDto.ResponseRequesterInfo.builder()
                 .imgUrl(s3ImgService.getMemberProfilePicUrl(requester.getProfileImgId()))
                 .matchingCnt(requester.getCompletedMatchingCnt())
                 .nickname(requester.getNickname())
-                .univName(verifiedUniversity.getUnivName().getUnivName())
-                .gender(requester.getGender())
-                .ability(getAbility(requester, findAbility))
-                .majorArea(getMajorArea(requester))
-                .age(getMemberAge(requester))
-                .reportCnt(requester.getComplaintsCount())
+                .univName(memberSummaryInfoVo.getUnivName())
+                .gender(memberSummaryInfoVo.getGender())
+                .ability(memberSummaryInfoVo.getAbility())
+                .majorArea(memberSummaryInfoVo.getMajorArea())
+                .age(memberSummaryInfoVo.getAge())
+                .reportCnt(memberSummaryInfoVo.getReportCnt())
                 .teamQuestionnaires(getTeamQuestions(teamQuestions))
                 .build();
-    }
-
-    private String getMemberAge(Member member){
-        return member.isBirthYearPublic() ? String.valueOf(member.getBirthYear()) : IS_NOT_PUBLIC;
-    }
-
-    private String getMajorArea(Member member){
-        return member.isMajorActivityAreaPublic() ? member.getMajorActivityArea().toString() : IS_NOT_PUBLIC;
-    }
-
-    private String getAbility(Member member, String findAbility){
-        return member.isAbilityPublic() ? findAbility : IS_NOT_PUBLIC;
     }
 
     private HashMap<Long, String> getTeamQuestions(List<TeamQuestionnaire> questionnaires){
@@ -207,16 +202,22 @@ public class TeamRequestService {
         VerifiedUniversityEmail verifiedUniversity = verifiedUniversityEmailRepository.findByMemberFetchUniv(requester)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
 
+        MemberSummaryInfoVo memberSummaryInfoVo = MemberSummaryInfoVo.builder()
+                .member(requester)
+                .findAbility(findAbility)
+                .univName(verifiedUniversity.getUnivName().getUnivName())
+                .build();
+
         return TeamRequestDto.ResponseTeamRequestInfo.builder()
                 .imgUrl(s3ImgService.getMemberProfilePicUrl(requester.getProfileImgId()))
                 .matchingCnt(requester.getCompletedMatchingCnt())
                 .nickname(requester.getNickname())
-                .univName(verifiedUniversity.getUnivName().getUnivName())
-                .gender(requester.getGender())
-                .ability(getAbility(requester, findAbility))
-                .majorArea(getMajorArea(requester))
-                .age(getMemberAge(requester))
-                .reportCnt(requester.getComplaintsCount())
+                .univName(memberSummaryInfoVo.getUnivName())
+                .gender(memberSummaryInfoVo.getGender())
+                .ability(memberSummaryInfoVo.getAbility())
+                .majorArea(memberSummaryInfoVo.getMajorArea())
+                .age(memberSummaryInfoVo.getAge())
+                .reportCnt(memberSummaryInfoVo.getReportCnt())
                 .isApprovable(team.isAbleToAddMember())
                 .teamQuestionnaires(getTeamQuestions(teamQuestions, answers))
                 .build();
