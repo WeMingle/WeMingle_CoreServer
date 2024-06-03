@@ -80,6 +80,7 @@ public class TeamMemberService {
                 .introduction(requester.getOneLineIntroduction())
                 .matchingCnt(requester.getCompletedMatchingCnt())
                 .memberSummaryInfoVo(memberSummaryInfoVo)
+                .createdTime(teamMember.getCreatedTime().toLocalDate())
                 .build();
     }
 }

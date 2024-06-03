@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 public class TeamMemberDto {
     @Getter
     @Setter
@@ -36,9 +38,10 @@ public class TeamMemberDto {
         private String age;
         private int matchingCnt;
         private int reportCnt;
+        private LocalDate createdTime;
 
         @Builder
-        public ResponseTeamMemberInfo(String imgUrl, String nickname, String introduction, MemberSummaryInfoVo memberSummaryInfoVo, int matchingCnt) {
+        public ResponseTeamMemberInfo(String imgUrl, String nickname, String introduction, MemberSummaryInfoVo memberSummaryInfoVo, int matchingCnt, LocalDate createdTime) {
             this.imgUrl = imgUrl;
             this.nickname = nickname;
             this.introduction = introduction;
@@ -49,6 +52,7 @@ public class TeamMemberDto {
             this.age = memberSummaryInfoVo.getAge();
             this.matchingCnt = matchingCnt;
             this.reportCnt = memberSummaryInfoVo.getReportCnt();
+            this.createdTime = createdTime;
         }
     }
 }
