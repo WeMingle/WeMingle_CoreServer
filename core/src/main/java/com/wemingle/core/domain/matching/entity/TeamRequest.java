@@ -40,9 +40,9 @@ public class TeamRequest extends BaseEntity {
     private Member requester;
 
     @Builder
-    public TeamRequest(String nickname, Team team, Member requester) {
+    public TeamRequest(String nickname, UUID profileImg, Team team, Member requester) {
         this.nickname = nickname;
-        this.profileImg = UUID.randomUUID();
+        this.profileImg = profileImg;
         this.team = team;
         this.requester = requester;
     }
