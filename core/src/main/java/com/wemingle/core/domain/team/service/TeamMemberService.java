@@ -4,6 +4,7 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.dto.TeamMemberDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberAbilityRepository;
+import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
@@ -27,6 +28,8 @@ public class TeamMemberService {
     private final S3ImgService s3ImgService;
     private final MemberAbilityRepository memberAbilityRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
+    private final MemberRepository memberRepository;
+
     public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamsAsLeaderOrMember(String memberId) {
         List<TeamMember> teamsAsLeaderOrMember = teamMemberRepository.findTeamsAsLeaderOrMember(memberId);
         HashMap<Long, TeamDto.ResponseTeamInfoDto> responseTeamInfo = new HashMap<>();
@@ -129,5 +132,21 @@ public class TeamMemberService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
 
         teamMember.block();
+    }
+
+    public HashMap<Long, TeamMemberDto.ResponseTeamMemberInfo> getAllTeamMembersInfo(Long teamPk, String memberId) {
+        Member requester = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Pk(teamPk);
+        LinkedHashMap<Long, TeamMemberDto.ResponseTeamMemberInfo> responseData = new LinkedHashMap<>();
+
+        teamMembers.forEach(teamMember -> responseData.put(teamMember.getPk(), TeamMemberDto.ResponseTeamMemberInfo.builder()
+                        .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamMember.getProfileImg()))
+                        .nickname(teamMember.getNickname())
+                        .teamRole(teamMember.getTeamRole())
+                        .isMe(teamMember.isMe(requester))
+                .build()));
+
+        return responseData;
     }
 }

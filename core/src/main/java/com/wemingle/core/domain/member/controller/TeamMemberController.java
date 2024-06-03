@@ -92,4 +92,17 @@ public class TeamMemberController {
         teamMemberService.blockTeamMember(blockDto.getBlockedMemberPk());
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/member/team/{teamPk}/info")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamMemberDto.ResponseTeamMemberInfo>>> getAllTeamMembersInfo(@PathVariable Long teamPk,
+                                                                                                                      @AuthenticationPrincipal UserDetails userDetails) {
+        HashMap<Long, TeamMemberDto.ResponseTeamMemberInfo> responseData = teamMemberService.getAllTeamMembersInfo(teamPk, userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamMemberDto.ResponseTeamMemberInfo>>builder()
+                        .responseMessage("Team members info retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
+    }
 }

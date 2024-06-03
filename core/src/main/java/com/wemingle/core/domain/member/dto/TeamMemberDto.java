@@ -1,7 +1,9 @@
 package com.wemingle.core.domain.member.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;
 import com.wemingle.core.domain.post.entity.gender.Gender;
+import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -83,7 +85,19 @@ public class TeamMemberDto {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class TeamMemberInfo {
+    public static class ResponseTeamMemberInfo {
+        private String imgUrl;
+        private String nickname;
+        private TeamRole teamRole;
+        @JsonProperty(value = "isMe")
+        private boolean isMe;
 
+        @Builder
+        public ResponseTeamMemberInfo(String imgUrl, String nickname, TeamRole teamRole, boolean isMe) {
+            this.imgUrl = imgUrl;
+            this.nickname = nickname;
+            this.teamRole = teamRole;
+            this.isMe = isMe;
+        }
     }
 }

@@ -37,4 +37,5 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     @Query("select case when count(*) > 1 then true else false end from TeamMember tm " +
             "where tm.team = :team and (tm.teamRole = 'OWNER' or tm.teamRole = 'MANAGER')")
     boolean isExistOtherManagerRole(@Param("team")Team team);
+    List<TeamMember> findByTeam_Pk(Long teamPk);
 }

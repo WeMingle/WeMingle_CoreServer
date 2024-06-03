@@ -69,4 +69,7 @@ public class TeamMember extends BaseEntity {
     public void block() {
         this.teamRole = TeamRole.BLOCKED_USER;
     }
+    public boolean isMe(Member requester) {
+        return this.member.equals(requester);
+    }
 }
