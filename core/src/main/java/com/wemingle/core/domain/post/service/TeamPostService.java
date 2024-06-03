@@ -13,7 +13,6 @@ import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.post.vo.SaveVoteVo;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
-import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
@@ -166,7 +165,7 @@ public class TeamPostService {
     }
 
     private boolean isTeamOwner(Optional<TeamMember> teamMember) {
-        return teamMember.isPresent() ? !teamMember.get().getTeamRole().equals(TeamRole.PARTICIPANT) : false;
+        return teamMember.isPresent() ? teamMember.get().isManager() : false;
     }
 
     @Transactional

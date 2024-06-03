@@ -20,7 +20,7 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     boolean existsByMember(Member member);
     @Query("select tm.team from TeamMember tm where tm.member.memberId = :memberId and tm.team.teamType = 'TEAM'")
     List<Team> findMyTeams(@Param("memberId") String memberId);
-    @Query("select tm.team from TeamMember tm where tm.member = :member and tm.teamRole != 'PARTICIPANT' " +
+    @Query("select tm.team from TeamMember tm where tm.member = :member and (tm.teamRole = 'OWNER' or tm.teamRole = 'MANAGER') " +
             "and (tm.team.teamType = 'INDIVIDUAL' or (tm.team.teamType = 'TEAM' and tm.team.sportsCategory = :sportType))")
     List<Team> findTeamsWithAvailableWrite(@Param("sportType") SportsType sportsType, @Param("member") Member memberId);
     @Query("select tm from TeamMember tm where tm.team in :teams and (tm.teamRole = 'OWNER' or tm.teamRole = 'MANAGER')")
@@ -28,13 +28,13 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     @Query("select tm from TeamMember tm where tm.team.pk = :teamPk and tm.member.memberId != :memberId")
     List<TeamMember> findWithTeamWithoutMe(@Param("teamPk") Long teamPk, @Param("memberId") String memberId);
     Optional<TeamMember> findByTeam_PkAndNickname(Long teamPk, String nickname);
-    @Query("select tm.team from TeamMember tm where tm.member = :member and tm.teamRole != 'PARTICIPANT' and tm.team.teamType = :teamType " +
+    @Query("select tm.team from TeamMember tm where tm.member = :member and (tm.teamRole = 'OWNER' or tm.teamRole = 'MANAGER') and tm.team.teamType = :teamType " +
             "and (tm.team.teamType = 'INDIVIDUAL' or (tm.team.teamType = 'TEAM' and tm.team.sportsCategory = :sportType))")
     List<Team> findTeamsWithAvailableRequest(@Param("member") Member memberId, @Param("sportType") SportsType sportsType, @Param("teamType") TeamType teamType);
     @Query("select tm.member from TeamMember tm where tm.pk in :teamMembersPk")
     List<Member> findMemberByTeamMemberIdIn(@Param("teamMembersPk")List<Long> teamMemberPks);
     List<TeamMember> findByTeamAndMemberIn(Team team, List<Member> members);
     @Query("select case when count(*) > 1 then true else false end from TeamMember tm " +
-            "where tm.team = :team and tm.teamRole != 'PARTICIPANT'")
+            "where tm.team = :team and (tm.teamRole = 'OWNER' or tm.teamRole = 'MANAGER')")
     boolean isExistOtherManagerRole(@Param("team")Team team);
 }
