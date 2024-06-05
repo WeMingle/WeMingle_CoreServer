@@ -15,6 +15,13 @@ public class SignUpDto {
 
     @Getter
     @NoArgsConstructor
+    public static class RequestCheckAvailableIdDto{
+        @Essential
+        String memberId;
+    }
+
+    @Getter
+    @NoArgsConstructor
     public static class RequestSignInDto{
         @Essential
         String memberId;

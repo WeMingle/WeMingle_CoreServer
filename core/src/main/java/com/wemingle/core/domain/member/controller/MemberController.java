@@ -7,6 +7,7 @@ import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +32,18 @@ public class MemberController {
     private final TokenService tokenService;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    @PostMapping("/id/check")
+    ResponseEntity<ResponseHandler<Object>> checkAvailableId(@RequestBody SignUpDto.RequestCheckAvailableIdDto checkAvailableIdDto) {
+        if (memberService.isRegisteredMember(checkAvailableIdDto.getMemberId())) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(ResponseHandler.builder().responseMessage("Is availableId").build());
+    }
+
+    //todo 이메일 인증 되었나, 온보딩 설정 여부 함께 반환
     @PostMapping("/signin")
     ResponseEntity<ResponseHandler<Object>> signInMember(@RequestBody SignUpDto.RequestSignInDto signInDto) {
-        boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId(), signInDto.getSignupPlatform());
+        boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId());
         if (!isRegisteredMember) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ResponseHandler.builder()
@@ -55,7 +65,7 @@ public class MemberController {
 
     @PostMapping("/signup")
     ResponseEntity<ResponseHandler<Object>> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) {
-        boolean registeredMember = memberService.isRegisteredMember(signUpDto.getMemberId(), signUpDto.getSignupPlatform());
+        boolean registeredMember = memberService.isRegisteredMember(signUpDto.getMemberId());
         if (registeredMember) {
             SignupPlatform registeredPlatformByMember = memberService.findRegisteredPlatformByMember(signUpDto.getMemberId());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

@@ -88,9 +88,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public boolean isRegisteredMember(String memberId, SignupPlatform platform) {
+    public boolean isRegisteredMember(String memberId) {
         Optional<Member> byMemberId = memberRepository.findByMemberId(memberId);
-        return byMemberId.isPresent()&&byMemberId.get().getSignupPlatform().getPlatformType().equals(platform.getPlatformType());
+        return byMemberId.isPresent();
     }
 
     @Override

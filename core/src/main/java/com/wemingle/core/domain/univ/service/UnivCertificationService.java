@@ -5,10 +5,13 @@ import com.wemingle.core.domain.univ.repository.UnivRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UnivCertificationService {
@@ -23,7 +26,11 @@ public class UnivCertificationService {
 
         Pattern pattern = Pattern.compile(domainRegex);
 
-        return pattern.matcher(mailAddress).group(1);
+        Matcher matcher = pattern.matcher(mailAddress);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return "not found";
     }
 
     public UnivEntity findByDomain(String univDomain){
