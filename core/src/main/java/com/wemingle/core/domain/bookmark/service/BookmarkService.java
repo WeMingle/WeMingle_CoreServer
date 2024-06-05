@@ -15,10 +15,13 @@ import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.vote.entity.VoteOption;
+import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final MemberService memberService;
@@ -36,7 +40,8 @@ public class BookmarkService {
     private final S3ImgService s3ImgService;
     private final BookmarkedTeamPostRepository bookmarkedTeamPostRepository;
 
-    public void saveBookmark(long postId,String memberId) {
+    @Transactional
+    public void saveMatchingPostBookmark(long postId, String memberId) {
         Member member = memberService.findByMemberId(memberId);
         MatchingPost post = matchingPostService.getMatchingPostByPostId(postId);
         BookmarkedMatchingPost bookmarkedMatchingPost = BookmarkedMatchingPost.builder()
@@ -44,6 +49,14 @@ public class BookmarkService {
                 .member(member)
                 .build();
         bookmarkRepository.save(bookmarkedMatchingPost);
+    }
+
+    @Transactional
+    public void deleteMatchingPostBookmark(long postId, String memberId) {
+        Member member = memberService.findByMemberId(memberId);
+        BookmarkedMatchingPost bookmarked = bookmarkRepository.findByMatchingPost_Pk(postId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.BOOKMARKED_NOT_FOUND.getExceptionMessage()));
+        bookmarkRepository.delete(bookmarked);
     }
 
     public List<BookmarkedMatchingPost> getBookmarkedByMatchingPosts(List<MatchingPost> matchingPostList, String memberId) {

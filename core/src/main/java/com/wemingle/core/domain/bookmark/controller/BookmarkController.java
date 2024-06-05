@@ -21,10 +21,17 @@ import java.util.List;
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;
-    @PostMapping
-    ResponseEntity<ResponseHandler<Object>> createBookmark(@RequestBody long postId, @AuthenticationPrincipal UserDetails userDetails) {
-        bookmarkService.saveBookmark(postId, userDetails.getUsername());
-        return ResponseEntity.ok().body(ResponseHandler.builder().responseMessage("Bookmark Added Successfully").build());
+    @PostMapping("/matching/post/{postId}")
+    ResponseEntity<ResponseHandler<Object>> createMatchingPostBookmark(@PathVariable long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        bookmarkService.saveMatchingPostBookmark(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/matching/post/{postId}")
+    ResponseEntity<ResponseHandler<Object>> deleteMatchingPostBookmark(@PathVariable long postId,
+                                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        bookmarkService.deleteMatchingPostBookmark(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/my")

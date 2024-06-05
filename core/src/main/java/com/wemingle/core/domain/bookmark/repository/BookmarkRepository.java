@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BookmarkRepository extends JpaRepository<BookmarkedMatchingPost,Long>,DSLBookmarkRepository {
     @Query("select bm from BookmarkedMatchingPost bm " +
@@ -15,4 +16,5 @@ public interface BookmarkRepository extends JpaRepository<BookmarkedMatchingPost
     List<BookmarkedMatchingPost> findBookmarkedByMatchingPosts(@Param("matchingPostList") List<MatchingPost> matchingPostList, @Param("memberId") String memberId);
     List<BookmarkedMatchingPost> findByMatchingPost(MatchingPost matchingPosts);
     boolean existsByMatchingPostAndMember(MatchingPost matchingPost, Member member);
+    Optional<BookmarkedMatchingPost> findByMatchingPost_Pk(Long matchingPostPk);
 }
