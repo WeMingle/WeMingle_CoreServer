@@ -81,6 +81,7 @@ public class TeamPostService {
         List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithMember(nextIdx, myTeams);
 
         List<TeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findBookmarkedByTeamPost(teamPosts, memberId);
+        List<TeamPostLike> teamPostLikes = teamPostLikeRepository.findByTeamPostInAndTeamMember_Member(teamPosts, member);
 
         HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> responseData = new LinkedHashMap<>();
         teamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.ResponseTeamPostsInfoWithMember.builder()
@@ -94,6 +95,7 @@ public class TeamPostService {
                 .replyCnt(teamPost.getReplyCount())
                 .isWriter(isWriter(teamPost, member))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
+                .isLiked(isLiked(teamPostLikes, teamPost))
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
@@ -105,16 +107,22 @@ public class TeamPostService {
         return teamPost.getWriter().getMember().equals(member);
     }
 
+    private boolean isLiked(List<TeamPostLike> teamPostLikes, TeamPost teamPost) {
+        return teamPostLikes.stream().anyMatch(teamPostLike -> teamPostLike.getTeamPost().equals(teamPost));
+    }
+
     public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamPk, String memberId) {
         Team team = teamRepository.findById(teamPk)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId);
         List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithTeam(nextIdx, team, isNotice);
 
         List<TeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findBookmarkedByTeamPost(teamPosts, memberId);
+        List<TeamPostLike> teamPostLikes = teamPostLikeRepository.findByTeamPostInAndTeamMember_Member(teamPosts, member);
 
         HashMap<Long, TeamPostDto.TeamPostInfo> responseData = new LinkedHashMap<>();
-
         teamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.TeamPostInfo.builder()
                 .title(teamPost.getTitle())
                 .content(teamPost.getContent())
@@ -126,6 +134,7 @@ public class TeamPostService {
                 .postType(teamPost.getPostType())
                 .isWriter(isWriter(teamPost, teamMember))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
+                .isLiked(isLiked(teamPostLikes, teamPost))
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
@@ -238,6 +247,7 @@ public class TeamPostService {
 
         List<TeamPost> myBookmarkedTeamPosts = bookmarkedTeamPostRepository.findTeamPostByMember(member);
         List<TeamPost> searchTeamPosts = teamPostRepository.getSearchTeamPost(nextIdx, team, searchWord);
+        List<TeamPostLike> teamPostLikes = teamPostLikeRepository.findByTeamPostInAndTeamMember_Member(searchTeamPosts, member);
         LinkedHashMap<Long, TeamPostDto.ResponseSearchTeamPost> responseData = new LinkedHashMap<>();
 
         searchTeamPosts.forEach(teamPost -> responseData.put(teamPost.getPk(), TeamPostDto.ResponseSearchTeamPost
@@ -250,6 +260,7 @@ public class TeamPostService {
                 .replyCnt(teamPost.getReplyCount())
                 .isBookmarked(isBookmarked(teamPost, myBookmarkedTeamPosts))
                 .isWriter(isWriter(teamPost, member))
+                .isLiked(isLiked(teamPostLikes, teamPost))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()));
 
@@ -308,6 +319,7 @@ public class TeamPostService {
                 .isWriter(teamPost.isWriter(teamMember))
                 .isManager(teamMember.isManager())
                 .isBookmarked(bookmarkedTeamPostRepository.existsByTeamPostAndMember(teamPost, member))
+                .isLiked(teamPostLikeRepository.existsByTeamPostAndTeamMember(teamPost, teamMember))
                 .voteStatus(teamPost.getTeamPostVote().getVoteStatus())
                 .voteInfo(getVoteInfoWithPk(teamPost.getTeamPostVote()))
                 .myVoteHistory(getMyVoteHistory(teamPost.getTeamPostVote(), teamMember))
