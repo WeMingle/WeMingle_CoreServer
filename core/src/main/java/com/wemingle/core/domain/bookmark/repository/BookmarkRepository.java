@@ -16,5 +16,5 @@ public interface BookmarkRepository extends JpaRepository<BookmarkedMatchingPost
     List<BookmarkedMatchingPost> findBookmarkedByMatchingPosts(@Param("matchingPostList") List<MatchingPost> matchingPostList, @Param("memberId") String memberId);
     List<BookmarkedMatchingPost> findByMatchingPost(MatchingPost matchingPosts);
     boolean existsByMatchingPostAndMember(MatchingPost matchingPost, Member member);
-    Optional<BookmarkedMatchingPost> findByMatchingPost_Pk(Long matchingPostPk);
+    Optional<BookmarkedMatchingPost> findByMatchingPost_PkAndMember_MemberId(Long matchingPostPk, String memberId);
 }

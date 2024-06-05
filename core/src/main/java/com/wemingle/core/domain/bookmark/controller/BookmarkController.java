@@ -34,6 +34,20 @@ public class BookmarkController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/team/post/{postId}")
+    ResponseEntity<ResponseHandler<Object>> createTeamPostBookmark(@PathVariable long postId,
+                                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        bookmarkService.saveTeamPostBookmark(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/team/post/{postId}")
+    ResponseEntity<ResponseHandler<Object>> deleteTeamPostBookmark(@PathVariable long postId,
+                                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        bookmarkService.deleteTeamPostBookmark(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/my")
     ResponseEntity<ResponseHandler<Object>> getMyBookMarkList(@RequestParam(required = false) Long nextIdx, @RequestParam boolean excludeExpired, @RequestParam(required = false) RecruiterType recruiterType, @AuthenticationPrincipal UserDetails userDetails) {
         List<MatchingPostDto.ResponseMyBookmarkDto> myBookmarkedList = bookmarkService.getMyBookmarkedList(nextIdx, excludeExpired, recruiterType, userDetails.getUsername());

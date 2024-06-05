@@ -2,6 +2,7 @@ package com.wemingle.core.domain.bookmark.service;
 
 import com.wemingle.core.domain.bookmark.dto.GroupBookmarkDto;
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
+import com.wemingle.core.domain.bookmark.entity.BookmarkedTeamPost;
 import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
 import com.wemingle.core.domain.bookmark.repository.BookmarkedTeamPostRepository;
 import com.wemingle.core.domain.img.service.S3ImgService;
@@ -13,6 +14,7 @@ import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
+import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.vote.entity.VoteOption;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
@@ -39,6 +41,7 @@ public class BookmarkService {
     private final MatchingPostService matchingPostService;
     private final S3ImgService s3ImgService;
     private final BookmarkedTeamPostRepository bookmarkedTeamPostRepository;
+    private final TeamPostRepository teamPostRepository;
 
     @Transactional
     public void saveMatchingPostBookmark(long postId, String memberId) {
@@ -53,10 +56,28 @@ public class BookmarkService {
 
     @Transactional
     public void deleteMatchingPostBookmark(long postId, String memberId) {
-        Member member = memberService.findByMemberId(memberId);
-        BookmarkedMatchingPost bookmarked = bookmarkRepository.findByMatchingPost_Pk(postId)
+        BookmarkedMatchingPost bookmarked = bookmarkRepository.findByMatchingPost_PkAndMember_MemberId(postId, memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.BOOKMARKED_NOT_FOUND.getExceptionMessage()));
         bookmarkRepository.delete(bookmarked);
+    }
+
+    @Transactional
+    public void saveTeamPostBookmark(long postId, String memberId) {
+        Member member = memberService.findByMemberId(memberId);
+        TeamPost post = teamPostRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        BookmarkedTeamPost bookmarkedTeamPost = BookmarkedTeamPost.builder()
+                .teamPost(post)
+                .member(member)
+                .build();
+        bookmarkedTeamPostRepository.save(bookmarkedTeamPost);
+    }
+
+    @Transactional
+    public void deleteTeamPostBookmark(long postId, String memberId) {
+        BookmarkedTeamPost bookmarkedTeamPost = bookmarkedTeamPostRepository.findByTeamPost_PkAndMember_MemberId(postId, memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.BOOKMARKED_NOT_FOUND.getExceptionMessage()));
+        bookmarkedTeamPostRepository.delete(bookmarkedTeamPost);
     }
 
     public List<BookmarkedMatchingPost> getBookmarkedByMatchingPosts(List<MatchingPost> matchingPostList, String memberId) {
