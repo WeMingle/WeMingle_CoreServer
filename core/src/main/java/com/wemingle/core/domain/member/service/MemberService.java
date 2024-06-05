@@ -16,7 +16,7 @@ public interface MemberService {
     void patchMemberProfile(SignupVo.PatchMemberProfileVo patchMemberProfileVo);
     Member findByRefreshToken(String refreshToken);
     Member findByMemberId(String memberId);
-    boolean isRegisteredMember(String memberId, SignupPlatform platform);
+    boolean isRegisteredMember(String memberId);
     SignupPlatform findRegisteredPlatformByMember(String memberId);
     boolean isMatchesPassword(String memberId, String rawPw);
     void saveMemberPreferenceSports(String memberId, SportsType preferenceSport);

@@ -15,6 +15,7 @@ import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.domain.univ.service.UnivCertificationService;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -31,7 +33,6 @@ public class MailVerificationService {
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     private final UnivCertificationService univCertificationService;
     private final TeamRepository teamRepository;
-    private final TeamMemberRepository teamMemberRepository;
     private final int VERIFIED_CODE_LENGTH = 4;
     private static final int LIMIT_TIME = 300000;
     private final ConcurrentHashMap<String, VerificationCodeEntry> verificationCodes = new ConcurrentHashMap<>();
@@ -55,7 +56,7 @@ public class MailVerificationService {
 
         String verificationCode = generateVerificationCode();
 
-        saveVerificationCode(member.getMemberId(),verificationCode);
+        saveVerificationCode(univEmail,verificationCode);
 
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setSubject("Wemingle 재학 인증");
@@ -72,8 +73,8 @@ public class MailVerificationService {
     }
 
     public boolean validVerificationCode(String memberId, String verificationCode) {
-        if (verificationCodes.contains(memberId)) {
-            return verificationCodes.get(memberId).code().equals(verificationCode);
+        if (verificationCodes.containsKey(memberId)) {
+            return verificationCodes.get(memberId).code.equals(verificationCode);
         }
         return false;
     }
@@ -94,11 +95,12 @@ public class MailVerificationService {
     }
 
     @Transactional
-    public void saveVerifiedUniversityEmail(Member member, UnivEntity univEntity) {
+    public void saveVerifiedUniversityEmail(Member member, UnivEntity univEntity, String univEmail) {
         verifiedUniversityEmailRepository.save(
                 VerifiedUniversityEmail.builder()
                         .member(member)
                         .univName(univEntity)
+                        .univEmailAddress(univEmail)
                         .build()
         );
         createIndividualTeam(member);

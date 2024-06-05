@@ -29,6 +29,9 @@ public class ImgController {
     private static final int MAX_IMG_COUNT = 5;
     @GetMapping("/member/profile/upload/{extension}")
     public ResponseEntity<ResponseHandler<Object>> getMemberProfilePicUploadPreSignUrl(@PathVariable("extension") String extension, @AuthenticationPrincipal UserDetails userDetails) {
+        if (!s3ImgService.isAvailableExtension(extension)) {
+            return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
+        }
 
         UUID profileImgId = memberService.findByMemberId(userDetails.getUsername()).getProfileImgId();
         String memberProfilePreSignedUrl = s3ImgService.setMemberProfilePreSignedUrl(profileImgId);

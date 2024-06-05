@@ -12,12 +12,14 @@ import com.wemingle.core.domain.univ.service.UnivCertificationService;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/mail")
@@ -76,7 +78,7 @@ public class MailController {
         String memberId = userDetails.getUsername();
         Member findMember = memberService.findByMemberId(memberId);
 
-        if(!mailVerificationService.validVerificationCode(memberId, requestVerifyCodeDto.getVerificationCode())){
+        if(!mailVerificationService.validVerificationCode(requestVerifyCodeDto.getUnivEmail(), requestVerifyCodeDto.getVerificationCode())){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(ResponseHandler.builder()
@@ -87,7 +89,7 @@ public class MailController {
 
         String univDomain = univCertificationService.getDomainInMailAddress(requestVerifyCodeDto.getUnivEmail());
         UnivEntity univEntity = univCertificationService.findByDomain(univDomain);
-        mailVerificationService.saveVerifiedUniversityEmail(findMember, univEntity);
+        mailVerificationService.saveVerifiedUniversityEmail(findMember, univEntity,requestVerifyCodeDto.getUnivEmail());
         TokenDto.ResponseTokenDto renewalToken = tokenService.getTokensAndConvertToAuthenticationUser(findMember);
 
         return ResponseEntity.ok(
