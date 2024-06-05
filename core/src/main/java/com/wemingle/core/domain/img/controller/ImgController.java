@@ -1,7 +1,6 @@
 package com.wemingle.core.domain.img.controller;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
-import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.service.TeamMemberService;
@@ -96,19 +95,17 @@ public class ImgController {
                 .build());
     }
 
-    @GetMapping("/member/team/request/profile/upload/{extension}")
-    public ResponseEntity<ResponseHandler<Object>> getTeamProfilePicUploadPreSignUrl(@PathVariable("extension") String extension,
-                                                                                     @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("/member/team/request/profile/upload/{teamImgUUID}/{extension}")
+    public ResponseEntity<ResponseHandler<Object>> getTeamMemberProfilePicUploadPreSignUrl(@PathVariable("teamImgUUID")UUID teamImgUUID,
+                                                                                           @PathVariable("extension")String extension) {
         if (!s3ImgService.isAvailableExtension(extension)) {
             return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
         }
 
-        Member member = memberService.findByMemberId(userDetails.getUsername());
-
         return ResponseEntity.ok(
                 ResponseHandler.builder()
                 .responseMessage("s3 url issuance complete")
-                .responseData(s3ImgService.setTeamMemberProfilePreSignedUrl(member.getProfileImgId()))
+                .responseData(s3ImgService.setTeamMemberProfilePreSignedUrl(teamImgUUID))
                 .build());
     }
 

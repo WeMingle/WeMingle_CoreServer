@@ -18,7 +18,6 @@ import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
-import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamQuestionnaireRepository;
@@ -205,7 +204,7 @@ public class TeamServiceImpl implements TeamService{
         return reviewCnt == null ? 0 : reviewCnt;
     }
     private boolean isManager(Optional<TeamMember> teamMember){
-        return teamMember.isPresent() ? !teamMember.get().getTeamRole().equals(TeamRole.PARTICIPANT) : false;
+        return teamMember.isPresent() ? teamMember.get().isManager() : false;
     }
 
 

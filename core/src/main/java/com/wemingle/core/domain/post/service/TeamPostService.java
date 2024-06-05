@@ -13,7 +13,6 @@ import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.post.vo.SaveVoteVo;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
-import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
@@ -166,7 +165,7 @@ public class TeamPostService {
     }
 
     private boolean isTeamOwner(Optional<TeamMember> teamMember) {
-        return teamMember.isPresent() ? !teamMember.get().getTeamRole().equals(TeamRole.PARTICIPANT) : false;
+        return teamMember.isPresent() ? teamMember.get().isManager() : false;
     }
 
     @Transactional
@@ -274,17 +273,17 @@ public class TeamPostService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
         Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
 
-        if (postLike.isPresent()) {
+        if (postLike.isPresent()){
             TeamPostLike postLikeGet = postLike.get();
 
-            if (postLikeGet.isDeleted()) {
+            if (postLikeGet.isDeleted()){
                 postLikeGet.restore();
                 teamPost.addLikeCnt();
             } else {
                 postLikeGet.delete();
                 teamPost.reduceLikeCnt();
             }
-        } else {
+        }else {
             teamPostLikeRepository.save(TeamPostLike.builder().teamPost(teamPost).teamMember(requester).build());
             teamPost.addLikeCnt();
         }

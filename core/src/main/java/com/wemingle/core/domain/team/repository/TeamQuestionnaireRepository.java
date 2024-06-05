@@ -11,4 +11,7 @@ public interface TeamQuestionnaireRepository extends JpaRepository<TeamQuestionn
     @Query("select tq from TeamQuestionnaire tq where tq.team = :team and tq.isDeleted = false " +
             "order by tq.pk asc")
     List<TeamQuestionnaire> findActiveByTeam(Team team);
+    @Query("select tq from TeamQuestionnaire tq where tq.team = :team " +
+            "order by tq.pk asc")
+    List<TeamQuestionnaire> findAllByTeam(Team team);
 }
