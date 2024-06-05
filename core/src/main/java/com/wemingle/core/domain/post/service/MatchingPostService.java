@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.post.service;
 
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
-import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
+import com.wemingle.core.domain.bookmark.repository.BookmarkMatchingPostRepository;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.entity.Matching;
@@ -66,7 +66,7 @@ public class MatchingPostService {
     private final TeamMemberRepository teamMemberRepository;
     private final MemberRepository memberRepository;
     private final MatchingRepository matchingRepository;
-    private final BookmarkRepository bookmarkRepository;
+    private final BookmarkMatchingPostRepository bookmarkMatchingPostRepository;
     private final TeamReviewRepository teamReviewRepository;
     private final S3ImgService s3ImgService;
     private final MatchingPostMatchingDateRepository matchingPostMatchingDateRepository;
@@ -82,7 +82,7 @@ public class MatchingPostService {
 
     public HashMap<Long, Object> getAllMyPosts(Long nextIdx, RecruiterType recruiterType, String memberId) {
         List<MatchingPost> myAllMatchingPosts = matchingPostRepository.findMyAllMatchingPosts(nextIdx, recruiterType, memberId);
-        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(myAllMatchingPosts, memberId);
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(myAllMatchingPosts, memberId);
         return createMatchingPostDtoMap(myAllMatchingPosts, bookmarkedByMatchingPosts);
 
     }
@@ -177,7 +177,7 @@ public class MatchingPostService {
         LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
 
 
-        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
 
         HashMap<Long, Object> postsMap = createMatchingPostDtoMap(filteredMatchingPost, bookmarkedByMatchingPosts);
         responseObj.put("post list", postsMap);
@@ -213,7 +213,7 @@ public class MatchingPostService {
         LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
 
 
-        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
 
         HashMap<Long, Object> postsMap = createMatchingPostDtoMap(filteredMatchingPost, bookmarkedByMatchingPosts);
         responseObj.put("post list", postsMap);
@@ -335,7 +335,7 @@ public class MatchingPostService {
 
         LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, null);
 
-        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
         List<Matching> matchingResultByMemberId = matchingRepository.findByMatchingResultByMemberId(memberId, filteredMatchingPost);
 
         HashMap<Long, Object> postsMap = createMatchingPostDtoMapDetail(filteredMatchingPost, bookmarkedByMatchingPosts, matchingResultByMemberId);
@@ -793,7 +793,7 @@ public class MatchingPostService {
 
     @Transactional
     public void rePostMatchingPost(MatchingPost matchingPost){
-        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findByMatchingPost(matchingPost);
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkMatchingPostRepository.findByMatchingPost(matchingPost);
         List<Matching> matchings = matchingRepository.findByMatchingPost(matchingPost);
         matchingRepository.deleteAllInBatch(matchings);
         List<MatchingRequest> matchingRequests = matchingRequestRepository.findByMatchingPost(matchingPost);
@@ -877,7 +877,7 @@ public class MatchingPostService {
     public HashMap<Long, MatchingPostDto.ResponseTop200PopularPost> getTop200PopularPost(SportsType sportsType, String memberId){
         List<MatchingPost> top200PopularPost = matchingPostRepository.findTop200PopularPost(sportsType);
         LinkedHashMap<Long, MatchingPostDto.ResponseTop200PopularPost> responseData = new LinkedHashMap<>();
-        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(top200PopularPost, memberId);
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(top200PopularPost, memberId);
 
         top200PopularPost.forEach(matchingPost ->
             responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseTop200PopularPost.builder()
@@ -908,7 +908,7 @@ public class MatchingPostService {
     public HashMap<Long, MatchingPostDto.ResponseRecentPost> getRecentPost(Long nextIdx, String memberId){
         List<MatchingPost> recentPost = matchingPostRepository.findRecentMatchingPost(nextIdx);
         LinkedHashMap<Long, MatchingPostDto.ResponseRecentPost> responseData = new LinkedHashMap<>();
-        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findBookmarkedByMatchingPosts(recentPost, memberId);
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(recentPost, memberId);
 
         recentPost.forEach(matchingPost ->
                 responseData.put(matchingPost.getPk(), MatchingPostDto.ResponseRecentPost.builder()
@@ -934,7 +934,7 @@ public class MatchingPostService {
 
     public HashMap<String, Object> getSearchPost(String query, Long lastIdx, LocalDate lastExpiredDate, Integer callCnt, SortOption sortOption, String memberId){
         List<MatchingPost> searchMatchingPosts = getSearchMatchingPosts(query, lastIdx, lastExpiredDate, callCnt, sortOption);
-        List<BookmarkedMatchingPost> bookmarked = bookmarkRepository.findBookmarkedByMatchingPosts(searchMatchingPosts, memberId);
+        List<BookmarkedMatchingPost> bookmarked = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(searchMatchingPosts, memberId);
 
         Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, searchMatchingPosts);
         log.info("{}", nextUrlCallCnt == null ? 0 : nextUrlCallCnt);
@@ -1038,10 +1038,10 @@ public class MatchingPostService {
 
     @Transactional
     public void deleteMatchingPost(MatchingPost matchingPost, List<Matching> matchings){
-        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkRepository.findByMatchingPost(matchingPost);
+        List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkMatchingPostRepository.findByMatchingPost(matchingPost);
 
         //신고 글 서비스 구현되면 신고 된 내역도 삭제
-        bookmarkRepository.deleteAllInBatch(bookmarkedMatchingPosts);
+        bookmarkMatchingPostRepository.deleteAllInBatch(bookmarkedMatchingPosts);
         matchingRequestRepository.deleteAllInBatch(matchingRequestRepository.findByMatchingPost(matchingPost));
         matchingRepository.deleteAllInBatch(matchings);
         matchingPostRepository.delete(matchingPost);
@@ -1082,7 +1082,7 @@ public class MatchingPostService {
                 .recruiterType(matchingPost.getRecruiterType())
                 .expiryDate(matchingPost.getExpiryDate())
                 .recruitmentType(matchingPost.getRecruitmentType())
-                .isBookmarked(bookmarkRepository.existsByMatchingPostAndMember(matchingPost, requester))
+                .isBookmarked(bookmarkMatchingPostRepository.existsByMatchingPostAndMember(matchingPost, requester))
                 .isCompleted(matchingPost.isComplete())
                 .isWriter(isWriter(requesterTeamMember, matchingPost.getWriter()))
                 .build();

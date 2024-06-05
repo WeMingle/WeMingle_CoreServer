@@ -2,7 +2,7 @@ package com.wemingle.core.global.initdb;
 
 
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
-import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
+import com.wemingle.core.domain.bookmark.repository.BookmarkMatchingPostRepository;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
@@ -60,7 +60,7 @@ public class InitDatabase {
     @Autowired
     MatchingPostAreaRepository matchingPostAreaRepository;
     @Autowired
-    BookmarkRepository bookmarkRepository;
+    BookmarkMatchingPostRepository bookmarkRepository;
 
     @PostConstruct
     public void InitDatabase() throws NoSuchAlgorithmException, InvalidKeySpecException {

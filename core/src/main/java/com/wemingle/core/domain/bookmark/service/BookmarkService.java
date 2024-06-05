@@ -3,7 +3,7 @@ package com.wemingle.core.domain.bookmark.service;
 import com.wemingle.core.domain.bookmark.dto.GroupBookmarkDto;
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
 import com.wemingle.core.domain.bookmark.entity.BookmarkedTeamPost;
-import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
+import com.wemingle.core.domain.bookmark.repository.BookmarkMatchingPostRepository;
 import com.wemingle.core.domain.bookmark.repository.BookmarkedTeamPostRepository;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.entity.Member;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BookmarkService {
-    private final BookmarkRepository bookmarkRepository;
+    private final BookmarkMatchingPostRepository bookmarkMatchingPostRepository;
     private final MemberService memberService;
     private final MatchingPostService matchingPostService;
     private final S3ImgService s3ImgService;
@@ -51,14 +51,14 @@ public class BookmarkService {
                 .matchingPost(post)
                 .member(member)
                 .build();
-        bookmarkRepository.save(bookmarkedMatchingPost);
+        bookmarkMatchingPostRepository.save(bookmarkedMatchingPost);
     }
 
     @Transactional
     public void deleteMatchingPostBookmark(long postId, String memberId) {
-        BookmarkedMatchingPost bookmarked = bookmarkRepository.findByMatchingPost_PkAndMember_MemberId(postId, memberId)
+        BookmarkedMatchingPost bookmarked = bookmarkMatchingPostRepository.findByMatchingPost_PkAndMember_MemberId(postId, memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.BOOKMARKED_NOT_FOUND.getExceptionMessage()));
-        bookmarkRepository.delete(bookmarked);
+        bookmarkMatchingPostRepository.delete(bookmarked);
     }
 
     @Transactional
@@ -81,12 +81,12 @@ public class BookmarkService {
     }
 
     public List<BookmarkedMatchingPost> getBookmarkedByMatchingPosts(List<MatchingPost> matchingPostList, String memberId) {
-        return bookmarkRepository.findBookmarkedByMatchingPosts(matchingPostList, memberId);
+        return bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(matchingPostList, memberId);
     }
 
     public List<MatchingPostDto.ResponseMyBookmarkDto> getMyBookmarkedList(Long nextIdx, boolean excludeExpired, RecruiterType recruiterType, String memberId) {
         ArrayList<MatchingPostDto.ResponseMyBookmarkDto> matchingPostDtoList = new ArrayList<>();
-        bookmarkRepository.findMyBookmarkedList(nextIdx, memberId, !excludeExpired ? null : LocalDate.now(), recruiterType, PageRequest.of(0, 30))
+        bookmarkMatchingPostRepository.findMyBookmarkedList(nextIdx, memberId, !excludeExpired ? null : LocalDate.now(), recruiterType, PageRequest.of(0, 30))
                 .forEach(matchingPost -> matchingPostDtoList.add(
                         MatchingPostDto.ResponseMyBookmarkDto.builder()
                                 .pk(matchingPost.getPk())

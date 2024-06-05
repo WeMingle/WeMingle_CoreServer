@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookmarkRepository extends JpaRepository<BookmarkedMatchingPost,Long>,DSLBookmarkRepository {
+public interface BookmarkMatchingPostRepository extends JpaRepository<BookmarkedMatchingPost,Long>,DSLBookmarkRepository {
     @Query("select bm from BookmarkedMatchingPost bm " +
             "where bm.matchingPost in :matchingPostList and bm.member.memberId = :memberId")
     List<BookmarkedMatchingPost> findBookmarkedByMatchingPosts(@Param("matchingPostList") List<MatchingPost> matchingPostList, @Param("memberId") String memberId);
