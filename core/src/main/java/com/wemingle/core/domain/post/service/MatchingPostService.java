@@ -1134,4 +1134,9 @@ public class MatchingPostService {
 //
 //        return responseData;
 //    }
+
+    public MatchingPost findById(Long postId) {
+        return matchingPostRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+    }
 }
