@@ -4,7 +4,7 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.dto.TeamMemberDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberAbilityRepository;
-import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
@@ -12,6 +12,7 @@ import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
+import com.wemingle.core.global.exception.NotManagerException;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class TeamMemberService {
     private final S3ImgService s3ImgService;
     private final MemberAbilityRepository memberAbilityRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamsAsLeaderOrMember(String memberId) {
         List<TeamMember> teamsAsLeaderOrMember = teamMemberRepository.findTeamsAsLeaderOrMember(memberId);
@@ -42,8 +43,8 @@ public class TeamMemberService {
         return responseTeamInfo;
     }
 
-    public HashMap<Long, TeamMemberDto.ResponseTeamMembers> getTeamMembersInTeam(Long teamPk, String memberId){
-        List<TeamMember> teamMembersWithoutMe = teamMemberRepository.findWithTeamWithoutMe(teamPk, memberId);
+    public HashMap<Long, TeamMemberDto.ResponseTeamMembers> getTeamMembersInTeam(Long teamId, String memberId){
+        List<TeamMember> teamMembersWithoutMe = teamMemberRepository.findWithTeamWithoutMe(teamId, memberId);
 
         LinkedHashMap<Long, TeamMemberDto.ResponseTeamMembers> responseData = new LinkedHashMap<>();
 
@@ -56,17 +57,16 @@ public class TeamMemberService {
         return responseData;
     }
 
-    public List<String> getTeamMembersImgUrl(List<Long> teamMembersPk){
-        List<TeamMember> teamMembers = teamMemberRepository.findAllById(teamMembersPk);
+    public List<String> getTeamMembersImgUrl(List<Long> teamMembersId){
+        List<TeamMember> teamMembers = teamMemberRepository.findAllById(teamMembersId);
 
         return teamMembers.stream()
                 .map(teamMember -> s3ImgService.getTeamMemberPreSignedUrl(teamMember.getProfileImg()))
                 .toList();
     }
 
-    public TeamMemberDto.ResponseTeamMemberProfile getTeamMemberProfile(Long teamMemberPk) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+    public TeamMemberDto.ResponseTeamMemberProfile getTeamMemberProfile(Long teamMemberId) {
+        TeamMember teamMember = findById(teamMemberId);
         Member requester = teamMember.getMember();
         String findAbility = memberAbilityRepository.findAbilityByMemberAndSport(requester, teamMember.getTeam().getSportsCategory())
                 .orElse(null);
@@ -91,54 +91,60 @@ public class TeamMemberService {
 
     @Transactional
     public void updateTeamMemberProfile(TeamMemberDto.RequestTeamMemberProfileUpdate updateDto) {
-        TeamMember teamMember = teamMemberRepository.findById(updateDto.getTeamMemberPk())
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+        TeamMember teamMember = findById(updateDto.getTeamMemberPk());
 
         teamMember.updateNickname(updateDto.getNickname());
     }
 
-    public boolean isExistOtherManager(Long teamMemberPk) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
+    public boolean isExistOtherManager(Long teamMemberId) {
+        TeamMember teamMember = teamMemberRepository.findById(teamMemberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
 
         return teamMemberRepository.isExistOtherManagerRole(teamMember.getTeam());
     }
 
     @Transactional
-    public void updateManagerRoleToLower(Long teamMemberPk) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+    public void updateManagerRoleToLower(Long teamMemberId) {
+        TeamMember teamMember = findById(teamMemberId);
 
         teamMember.demoteManagerRole();
     }
 
-    public boolean isManager(Long teamMemberPk) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+    public boolean isManager(Long teamMemberId) {
+        if (!isManager(teamMemberId)) {
+            throw new NotManagerException();
+        }
+
+        TeamMember teamMember = findById(teamMemberId);
 
         return teamMember.isManager();
     }
 
     @Transactional
-    public void updateParticipantRoleToHigher(Long teamMemberPk) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+    public void updateParticipantRoleToHigher(Long teamMemberId) {
+        if (!isManager(teamMemberId)) {
+            throw new NotManagerException();
+        }
+
+        TeamMember teamMember = findById(teamMemberId);
 
         teamMember.promoteParticipantRole();
     }
 
     @Transactional
-    public void blockTeamMember(Long teamMemberPk) {
-        TeamMember teamMember = teamMemberRepository.findById(teamMemberPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+    public void blockTeamMember(Long teamMemberId) {
+        if (!isManager(teamMemberId)) {
+            throw new NotManagerException();
+        }
+
+        TeamMember teamMember = findById(teamMemberId);
 
         teamMember.block();
     }
 
-    public HashMap<Long, TeamMemberDto.ResponseTeamMemberInfo> getAllTeamMembersInfo(Long teamPk, String memberId) {
-        Member requester = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
-        List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Pk(teamPk);
+    public HashMap<Long, TeamMemberDto.ResponseTeamMemberInfo> getAllTeamMembersInfo(Long teamId, String memberId) {
+        Member requester = memberService.findByMemberId(memberId);
+        List<TeamMember> teamMembers = teamMemberRepository.findByTeam_Pk(teamId);
         LinkedHashMap<Long, TeamMemberDto.ResponseTeamMemberInfo> responseData = new LinkedHashMap<>();
 
         teamMembers.forEach(teamMember -> responseData.put(teamMember.getPk(), TeamMemberDto.ResponseTeamMemberInfo.builder()
@@ -153,6 +159,11 @@ public class TeamMemberService {
 
     public TeamMember findByTeamAndMember_MemberId(Team team, String memberId) {
         return teamMemberRepository.findByTeamAndMember_MemberId(team, memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+    }
+
+    public TeamMember findById(Long teamMemberId) {
+        return teamMemberRepository.findById(teamMemberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
     }
 }
