@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.bookmark.service;
 
 import com.wemingle.core.domain.bookmark.dto.GroupBookmarkDto;
+import com.wemingle.core.domain.bookmark.dto.RequestMyBookMarkListDto;
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
 import com.wemingle.core.domain.bookmark.entity.BookmarkedTeamPost;
 import com.wemingle.core.domain.bookmark.repository.BookmarkMatchingPostRepository;
@@ -84,9 +85,9 @@ public class BookmarkService {
         return bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(matchingPostList, memberId);
     }
 
-    public List<MatchingPostDto.ResponseMyBookmarkDto> getMyBookmarkedList(Long nextIdx, boolean excludeExpired, RecruiterType recruiterType, String memberId) {
+    public List<MatchingPostDto.ResponseMyBookmarkDto> getMyBookmarkedList(RequestMyBookMarkListDto requestMyBookMarkListDto, String memberId) {
         ArrayList<MatchingPostDto.ResponseMyBookmarkDto> matchingPostDtoList = new ArrayList<>();
-        bookmarkMatchingPostRepository.findMyBookmarkedList(nextIdx, memberId, !excludeExpired ? null : LocalDate.now(), recruiterType, PageRequest.of(0, 30))
+        bookmarkMatchingPostRepository.findMyBookmarkedList(requestMyBookMarkListDto.getNextIdx(), memberId, !requestMyBookMarkListDto.isExcludeExpired() ? null : LocalDate.now(), requestMyBookMarkListDto.getRecruiterType(), PageRequest.of(0, 30))
                 .forEach(matchingPost -> matchingPostDtoList.add(
                         MatchingPostDto.ResponseMyBookmarkDto.builder()
                                 .pk(matchingPost.getPk())
