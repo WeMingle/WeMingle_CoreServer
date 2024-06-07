@@ -7,7 +7,6 @@ import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.global.responseform.ResponseHandler;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 @Slf4j
@@ -145,8 +142,7 @@ public class MemberController {
     ResponseEntity<ResponseHandler<HashMap<Long, MemberDto.ResponseMemberInfoInSearch>>> getSearchMemberByNickname(@RequestParam(required = false) Long nextIdx,
                                                                                             @RequestParam @NotBlank String query,
                                                                                             @AuthenticationPrincipal UserDetails userDetails){
-        String nickname = URLDecoder.decode(query, StandardCharsets.UTF_8);
-        HashMap<Long, MemberDto.ResponseMemberInfoInSearch> responseData = memberService.getMemberByNickname(nextIdx, nickname, userDetails.getUsername());
+        HashMap<Long, MemberDto.ResponseMemberInfoInSearch> responseData = memberService.getMemberByNickname(nextIdx, query, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, MemberDto.ResponseMemberInfoInSearch>>builder()

@@ -4,7 +4,6 @@ import com.wemingle.core.domain.bookmark.repository.BookmarkedTeamPostRepository
 import com.wemingle.core.domain.img.entity.TeamPostImg;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.entity.Member;
-import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.TeamPostDto;
 import com.wemingle.core.domain.post.entity.TeamPost;
@@ -113,8 +112,8 @@ public class TeamPostService {
         return teamPostLikes.stream().anyMatch(teamPostLike -> teamPostLike.getTeamPost().equals(teamPost));
     }
 
-    public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamPk, String memberId) {
-        Team team = teamService.findById(teamPk);
+    public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamId, String memberId) {
+        Team team = teamService.findById(teamId);
         Member member = memberService.findByMemberId(memberId);
         Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId);
         List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithTeam(nextIdx, team, isNotice);
@@ -237,9 +236,9 @@ public class TeamPostService {
     }
 
 
-    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(Long nextIdx, Long teamPk, String searchWord, String memberId) {
+    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(Long nextIdx, Long teamId, String searchWord, String memberId) {
         Member member = memberService.findByMemberId(memberId);
-        Team team = teamService.findById(teamPk);
+        Team team = teamService.findById(teamId);
 
         List<TeamPost> myBookmarkedTeamPosts = bookmarkedTeamPostRepository.findTeamPostByMember(member);
         List<TeamPost> searchTeamPosts = teamPostRepository.getSearchTeamPost(nextIdx, team, searchWord);
@@ -263,16 +262,16 @@ public class TeamPostService {
         return responseData;
     }
 
-    public boolean isTeamPostWriter(Long teamPostPk, String memberId) {
-        TeamPost teamPost = findById(teamPostPk);
+    public boolean isTeamPostWriter(Long teamPostId, String memberId) {
+        TeamPost teamPost = findById(teamPostId);
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
 
         return teamPost.isWriter(requester);
     }
 
     @Transactional
-    public void saveOrDeletePostLike(Long teamPostPk, String memberId) {
-        TeamPost teamPost = findById(teamPostPk);
+    public void saveOrDeletePostLike(Long teamPostId, String memberId) {
+        TeamPost teamPost = findById(teamPostId);
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
         Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
 
@@ -292,9 +291,9 @@ public class TeamPostService {
         }
     }
 
-    public TeamPostDto.ResponseTeamPostDetail getTeamPostDetail(Long teamPostPk, String memberId) {
+    public TeamPostDto.ResponseTeamPostDetail getTeamPostDetail(Long teamPostId, String memberId) {
         Member member = memberService.findByMemberId(memberId);
-        TeamPost teamPost = findById(teamPostPk);
+        TeamPost teamPost = findById(teamPostId);
         TeamMember teamMember = teamMemberRepository.findByTeamAndMember(teamPost.getTeam(), member)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
 

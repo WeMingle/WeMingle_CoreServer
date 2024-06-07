@@ -17,7 +17,6 @@ import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.member.vo.SignupVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
-import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -185,8 +184,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public HashMap<Long, MemberDto.ResponseMemberInfoInSearch> getMemberByNickname(Long nextIdx, String nickname, String memberId) {
-        Member findMember = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member findMember = findByMemberId(memberId);
         List<Member> members = memberRepository.getMemberByNickname(nextIdx, nickname);
 
         LinkedHashMap<Long, MemberDto.ResponseMemberInfoInSearch> membersInfoHashMap = new LinkedHashMap<>();
