@@ -2,7 +2,7 @@ package com.wemingle.core.global.initdb;
 
 
 import com.wemingle.core.domain.bookmark.entity.BookmarkedMatchingPost;
-import com.wemingle.core.domain.bookmark.repository.BookmarkRepository;
+import com.wemingle.core.domain.bookmark.repository.BookmarkMatchingPostRepository;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
@@ -32,6 +32,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.security.NoSuchAlgorithmException;
@@ -60,7 +61,9 @@ public class InitDatabase {
     @Autowired
     MatchingPostAreaRepository matchingPostAreaRepository;
     @Autowired
-    BookmarkRepository bookmarkRepository;
+    BookmarkMatchingPostRepository bookmarkRepository;
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @PostConstruct
     public void InitDatabase() throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -196,7 +199,7 @@ public class InitDatabase {
                 .gender(Gender.MALE)
                 .majorActivityArea(AreaName.강원)
                 .oneLineIntroduction("안녕")
-                .password("password")
+                .password(passwordEncoder.encode("wemingle@gmail.com"))
                 .nickname("leeking")
                 .profileImgId(UUID.randomUUID())
                 .phoneType(PhoneType.AOS)

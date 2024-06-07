@@ -1,5 +1,6 @@
 package com.wemingle.core.domain.member.entity;
 
+import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
 import com.wemingle.core.domain.member.entity.phonetype.PhoneType;
 import com.wemingle.core.domain.member.entity.role.Role;
@@ -104,6 +105,10 @@ public class Member extends BaseEntity implements UserDetails {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "POLICY_TERMS")
     private PolicyTerms policyTerms;
+
+    @Getter
+    @Enumerated(EnumType.STRING)
+    private SportsType preferenceSport;
 
 
     @Override

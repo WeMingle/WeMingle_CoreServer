@@ -1,9 +1,9 @@
 package com.wemingle.core.domain.bookmark.controller;
 
 import com.wemingle.core.domain.bookmark.dto.GroupBookmarkDto;
+import com.wemingle.core.domain.bookmark.dto.RequestMyBookMarkListDto;
 import com.wemingle.core.domain.bookmark.service.BookmarkService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
-import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,15 +21,36 @@ import java.util.List;
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;
-    @PostMapping
-    ResponseEntity<ResponseHandler<Object>> createBookmark(@RequestBody long postId, @AuthenticationPrincipal UserDetails userDetails) {
-        bookmarkService.saveBookmark(postId, userDetails.getUsername());
-        return ResponseEntity.ok().body(ResponseHandler.builder().responseMessage("Bookmark Added Successfully").build());
+    @PostMapping("/matching/post/{postId}")
+    ResponseEntity<ResponseHandler<Object>> createMatchingPostBookmark(@PathVariable long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        bookmarkService.saveMatchingPostBookmark(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/matching/post/{postId}")
+    ResponseEntity<ResponseHandler<Object>> deleteMatchingPostBookmark(@PathVariable long postId,
+                                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        bookmarkService.deleteMatchingPostBookmark(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/team/post/{postId}")
+    ResponseEntity<ResponseHandler<Object>> createTeamPostBookmark(@PathVariable long postId,
+                                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        bookmarkService.saveTeamPostBookmark(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/team/post/{postId}")
+    ResponseEntity<ResponseHandler<Object>> deleteTeamPostBookmark(@PathVariable long postId,
+                                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        bookmarkService.deleteTeamPostBookmark(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/my")
-    ResponseEntity<ResponseHandler<Object>> getMyBookMarkList(@RequestParam(required = false) Long nextIdx, @RequestParam boolean excludeExpired, @RequestParam(required = false) RecruiterType recruiterType, @AuthenticationPrincipal UserDetails userDetails) {
-        List<MatchingPostDto.ResponseMyBookmarkDto> myBookmarkedList = bookmarkService.getMyBookmarkedList(nextIdx, excludeExpired, recruiterType, userDetails.getUsername());
+    ResponseEntity<ResponseHandler<Object>> getMyBookMarkList(@ModelAttribute RequestMyBookMarkListDto requestMyBookMarkListDto, @AuthenticationPrincipal UserDetails userDetails) {
+        List<MatchingPostDto.ResponseMyBookmarkDto> myBookmarkedList = bookmarkService.getMyBookmarkedList(requestMyBookMarkListDto, userDetails.getUsername());
 
         return ResponseEntity.ok().body(ResponseHandler.builder()
                 .responseMessage("Bookmark list retrieval successfully")

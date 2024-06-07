@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.authentication.service;
 
 import com.wemingle.core.domain.authentication.dto.TokenDto;
+import com.wemingle.core.domain.member.dto.SignInDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.domain.member.service.MemberService;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -20,16 +22,23 @@ public class TokenService {
     private final MemberService memberService;
 
 
-    public boolean verifyRefreshAndAccessToken(String refreshToken, String accessToken) {
-        return !tokenProvider.validToken(refreshToken) && !tokenProvider.validToken(accessToken);
+    public boolean isVerifiedRefreshAndAccessToken(String refreshToken, String accessToken) {
+        return tokenProvider.validToken(refreshToken) && tokenProvider.validToken(accessToken);
     }
 
-    public boolean verifyRefreshToken(String refreshToken) {
+    public boolean isVerifiedRefreshToken(String refreshToken) {
         return tokenProvider.validToken(refreshToken);
     }
 
     public boolean isExpiredRefreshAndAccessToken(String refreshToken, String accessToken) {
         return tokenProvider.isExpired(refreshToken) && tokenProvider.isExpired(accessToken);
+    }
+
+    public boolean isSignInRequired(TokenDto.RequestTokenDto requestTokenDto) {
+        String refreshToken = requestTokenDto.getRefreshToken();
+        String accessToken = requestTokenDto.getAccessToken();
+
+        return !isVerifiedRefreshAndAccessToken(refreshToken, accessToken) && isExpiredRefreshAndAccessToken(refreshToken, accessToken);
     }
 
     public Date getExpirationTime(String jwtToken) {
@@ -78,18 +87,28 @@ public class TokenService {
     }
 
     @Transactional
-    public TokenDto.ResponseTokenDto getTokensForRegisteredMember(String memberId) {
+    public SignInDto.ResponseSignInDto getTokensForRegisteredMember(String memberId) {
         Member member = memberService.findByMemberId(memberId);
 
         String accessToken = tokenProvider.createAccessToken(memberId, member.getRole());
         String refreshToken = tokenProvider.createRefreshToken(memberId, member.getRole());
+        boolean isEmailVerified = member.getRole().equals(Role.USER);
+        boolean isOnboardingComplete = !Objects.isNull(member.getPreferenceSport());
+
 
         member.patchRefreshToken(refreshToken);
-        return TokenDto.ResponseTokenDto.builder()
+
+        TokenDto.ResponseTokenDto responseTokenDto = TokenDto.ResponseTokenDto.builder()
                 .refreshToken(refreshToken)
                 .refreshTokenExpiredTime(getExpirationTime(refreshToken))
                 .accessToken(accessToken)
                 .accessTokenExpiredTime(getExpirationTime(accessToken))
+                .build();
+
+        return SignInDto.ResponseSignInDto.builder()
+                .token(responseTokenDto)
+                .isEmailVerified(isEmailVerified)
+                .isOnboardingComplete(isOnboardingComplete)
                 .build();
     }
 
@@ -99,5 +118,24 @@ public class TokenService {
 
     public boolean isExpiredAfter21Days(String refreshToken) {
         return tokenProvider.getRemainingTokenExpirationTime(refreshToken).compareTo(Duration.ofDays(21)) < 0;
+    }
+
+    @Transactional
+    public TokenDto.ResponseTokenDto createNewTokens(String refreshToken) {
+        TokenDto.ResponseTokenDto.ResponseTokenDtoBuilder responseTokenDtoBuilder = TokenDto.ResponseTokenDto.builder();
+
+        if (isVerifiedRefreshToken(refreshToken)) {
+            String newAccessToken = createAccessTokenByRefreshToken(refreshToken);
+            responseTokenDtoBuilder.accessToken(newAccessToken);
+            responseTokenDtoBuilder.accessTokenExpiredTime(getExpirationTime(newAccessToken));
+
+            if (isExpiredAfter21Days(refreshToken)) {
+                String newRefreshToken = createAndPatchRefreshTokenInMember(refreshToken);
+                responseTokenDtoBuilder.refreshToken(newRefreshToken);
+                responseTokenDtoBuilder.refreshTokenExpiredTime(getExpirationTime(newRefreshToken));
+            }
+        }
+
+        return responseTokenDtoBuilder.build();
     }
 }

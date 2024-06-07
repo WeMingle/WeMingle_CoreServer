@@ -14,11 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 @Slf4j
@@ -29,33 +26,41 @@ public class MemberController {
 
     private final MemberService memberService;
     private final TokenService tokenService;
-    private final BCryptPasswordEncoder passwordEncoder;
+
+    @PostMapping("/id/check")
+    ResponseEntity<ResponseHandler<Object>> checkAvailableId(@RequestBody SignUpDto.RequestCheckAvailableIdDto checkAvailableIdDto) {
+        if (memberService.isRegisteredMember(checkAvailableIdDto.getMemberId())) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(ResponseHandler.builder().responseMessage("Is availableId").build());
+    }
 
     @PostMapping("/signin")
-    ResponseEntity<ResponseHandler<Object>> signInMember(@RequestBody SignUpDto.RequestSignInDto signInDto) {
-        boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId(), signInDto.getSignupPlatform());
+    ResponseEntity<ResponseHandler<Object>> signInMember(@RequestBody SignInDto.RequestSignInDto signInDto) {
+        boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId());
+        boolean isMatchesPassword = memberService.isMatchesPassword(signInDto.getMemberId(), signInDto.getPassword());
         if (!isRegisteredMember) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ResponseHandler.builder()
                             .responseMessage("Member not found")
                             .build());
         }
-        if (!memberService.isMatchesPassword(signInDto.getMemberId(), signInDto.getPassword())) {
+        if (!isMatchesPassword) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ResponseHandler.builder()
                             .responseMessage("Passwords do not match")
                             .build());
         }
-        TokenDto.ResponseTokenDto tokensForRegisteredMember = tokenService.getTokensForRegisteredMember(signInDto.getMemberId());
+        SignInDto.ResponseSignInDto responseSignInDto = tokenService.getTokensForRegisteredMember(signInDto.getMemberId());
         return ResponseEntity.ok(ResponseHandler.builder()
                 .responseMessage("Token reissuance complete")
-                .responseData(tokensForRegisteredMember)
+                .responseData(responseSignInDto)
                 .build());
     }
 
     @PostMapping("/signup")
     ResponseEntity<ResponseHandler<Object>> signUpMember(@RequestBody SignUpDto.RequestSignUpDto signUpDto) {
-        boolean registeredMember = memberService.isRegisteredMember(signUpDto.getMemberId(), signUpDto.getSignupPlatform());
+        boolean registeredMember = memberService.isRegisteredMember(signUpDto.getMemberId());
         if (registeredMember) {
             SignupPlatform registeredPlatformByMember = memberService.findRegisteredPlatformByMember(signUpDto.getMemberId());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -113,7 +118,6 @@ public class MemberController {
 
     @PatchMapping("/info")
     ResponseEntity<ResponseHandler<Object>> setMyInfo(@RequestBody MemberInfoDto memberInfoDto, @AuthenticationPrincipal UserDetails userDetails) {
-        log.info("{}",memberInfoDto.getBirthYear());
         memberService.setMemberInfo(userDetails.getUsername(), memberInfoDto);
         return ResponseEntity.ok().body(ResponseHandler.builder()
                 .responseMessage("member info update successfully")
@@ -135,8 +139,7 @@ public class MemberController {
     ResponseEntity<ResponseHandler<HashMap<Long, MemberDto.ResponseMemberInfoInSearch>>> getSearchMemberByNickname(@RequestParam(required = false) Long nextIdx,
                                                                                             @RequestParam @NotBlank String query,
                                                                                             @AuthenticationPrincipal UserDetails userDetails){
-        String nickname = URLDecoder.decode(query, StandardCharsets.UTF_8);
-        HashMap<Long, MemberDto.ResponseMemberInfoInSearch> responseData = memberService.getMemberByNickname(nextIdx, nickname, userDetails.getUsername());
+        HashMap<Long, MemberDto.ResponseMemberInfoInSearch> responseData = memberService.getMemberByNickname(nextIdx, query, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, MemberDto.ResponseMemberInfoInSearch>>builder()

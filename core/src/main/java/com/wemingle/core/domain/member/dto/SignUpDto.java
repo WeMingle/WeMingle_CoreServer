@@ -7,26 +7,22 @@ import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * DTO for {@link com.wemingle.core.domain.member.entity.Member}
  */
 public class SignUpDto {
 
+    @Setter
     @Getter
     @NoArgsConstructor
-    public static class RequestSignInDto{
+    public static class RequestCheckAvailableIdDto{
         @Essential
         String memberId;
-
-        @Essential
-        @Size(min = 8, max = 20)
-        String password;
-
-        @Essential
-        SignupPlatform signupPlatform;
-
     }
+
+
 
     @Getter
     @NoArgsConstructor
