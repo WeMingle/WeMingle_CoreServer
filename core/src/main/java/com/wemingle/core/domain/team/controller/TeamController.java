@@ -113,10 +113,10 @@ public class TeamController {
                         .build());
     }
 
-    @GetMapping("/{teamPk}")
-    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamPk,
+    @GetMapping("/{teamId}")
+    public ResponseEntity<ResponseHandler<TeamDto.TeamInfo>> getTeamInfoWithTeam(@PathVariable Long teamId,
                                                                                  @AuthenticationPrincipal UserDetails userDetails) {
-        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamPk, userDetails.getUsername());
+        TeamDto.TeamInfo responseData = teamService.getTeamInfoWithTeam(teamId, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamDto.TeamInfo>builder()
@@ -134,10 +134,10 @@ public class TeamController {
         );
     }
 
-    @GetMapping("/{teamPk}/condition")
-    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamParticipantCond>> getTeamParticipantCond(@PathVariable Long teamPk,
+    @GetMapping("/{teamId}/condition")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamParticipantCond>> getTeamParticipantCond(@PathVariable Long teamId,
                                                                                                        @AuthenticationPrincipal UserDetails userDetails){
-        TeamDto.ResponseTeamParticipantCond responseData = teamService.getTeamParticipantCond(teamPk, userDetails.getUsername());
+        TeamDto.ResponseTeamParticipantCond responseData = teamService.getTeamParticipantCond(teamId, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamDto.ResponseTeamParticipantCond>builder()
@@ -160,9 +160,9 @@ public class TeamController {
         );
     }
 
-    @GetMapping("/setting/{teamPk}")
-    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamSetting>> getTeamSetting(@PathVariable Long teamPk){
-        TeamDto.ResponseTeamSetting responseData = teamService.getTeamSetting(teamPk);
+    @GetMapping("/setting/{teamId}")
+    public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamSetting>> getTeamSetting(@PathVariable Long teamId){
+        TeamDto.ResponseTeamSetting responseData = teamService.getTeamSetting(teamId);
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamDto.ResponseTeamSetting>builder()
