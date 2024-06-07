@@ -32,6 +32,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.security.NoSuchAlgorithmException;
@@ -61,6 +62,8 @@ public class InitDatabase {
     MatchingPostAreaRepository matchingPostAreaRepository;
     @Autowired
     BookmarkMatchingPostRepository bookmarkRepository;
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @PostConstruct
     public void InitDatabase() throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -196,7 +199,7 @@ public class InitDatabase {
                 .gender(Gender.MALE)
                 .majorActivityArea(AreaName.강원)
                 .oneLineIntroduction("안녕")
-                .password("password")
+                .password(passwordEncoder.encode("wemingle@gmail.com"))
                 .nickname("leeking")
                 .profileImgId(UUID.randomUUID())
                 .phoneType(PhoneType.AOS)

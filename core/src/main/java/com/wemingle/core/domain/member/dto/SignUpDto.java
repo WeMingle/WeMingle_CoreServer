@@ -20,20 +20,7 @@ public class SignUpDto {
         String memberId;
     }
 
-    @Getter
-    @NoArgsConstructor
-    public static class RequestSignInDto{
-        @Essential
-        String memberId;
 
-        @Essential
-        @Size(min = 8, max = 20)
-        String password;
-
-        @Essential
-        SignupPlatform signupPlatform;
-
-    }
 
     @Getter
     @NoArgsConstructor

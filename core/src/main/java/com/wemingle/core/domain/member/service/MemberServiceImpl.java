@@ -109,11 +109,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void saveMemberPreferenceSports(String memberId, SportsType preferenceSport) {
         Member findMember = findByMemberId(memberId);
-
-        memberPreferenceSportsRepository.save(MemberPreferenceSports.builder()
-                .member(findMember)
-                .sports(preferenceSport)
-                .build());
+        findMember.setPreferenceSport(preferenceSport);
     }
 
     @Override
