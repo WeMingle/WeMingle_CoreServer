@@ -1,9 +1,9 @@
 package com.wemingle.core.domain.bookmark.controller;
 
 import com.wemingle.core.domain.bookmark.dto.GroupBookmarkDto;
+import com.wemingle.core.domain.bookmark.dto.RequestMyBookMarkListDto;
 import com.wemingle.core.domain.bookmark.service.BookmarkService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
-import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +49,8 @@ public class BookmarkController {
     }
 
     @GetMapping("/my")
-    ResponseEntity<ResponseHandler<Object>> getMyBookMarkList(@RequestParam(required = false) Long nextIdx, @RequestParam boolean excludeExpired, @RequestParam(required = false) RecruiterType recruiterType, @AuthenticationPrincipal UserDetails userDetails) {
-        List<MatchingPostDto.ResponseMyBookmarkDto> myBookmarkedList = bookmarkService.getMyBookmarkedList(nextIdx, excludeExpired, recruiterType, userDetails.getUsername());
+    ResponseEntity<ResponseHandler<Object>> getMyBookMarkList(@ModelAttribute RequestMyBookMarkListDto requestMyBookMarkListDto, @AuthenticationPrincipal UserDetails userDetails) {
+        List<MatchingPostDto.ResponseMyBookmarkDto> myBookmarkedList = bookmarkService.getMyBookmarkedList(requestMyBookMarkListDto, userDetails.getUsername());
 
         return ResponseEntity.ok().body(ResponseHandler.builder()
                 .responseMessage("Bookmark list retrieval successfully")

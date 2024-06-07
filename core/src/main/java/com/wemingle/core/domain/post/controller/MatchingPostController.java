@@ -85,35 +85,11 @@ public class MatchingPostController {
         );
     }
 
+
     @GetMapping("/calendar")
-    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalender(@RequestParam SortOption sortOption,
-                                                                             @RequestParam(required = false) Long lastIdx,
-                                                                             @RequestParam(required = false) RecruitmentType recruitmentType,
-                                                                             @RequestParam(required = false) Ability ability,
-                                                                             @RequestParam(required = false) Gender gender,
-                                                                             @RequestParam(required = false) RecruiterType recruiterType,
-                                                                             @RequestParam(required = false) List<AreaName> areaList,
-                                                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateFilter,
-                                                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
-                                                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
-                                                                             @RequestParam(required = false) Boolean excludeExpired,
-                                                                             @RequestParam(required = false) Integer callCnt,
-                                                                             @RequestParam SportsType sportsType,
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalender(@ModelAttribute MatchingPostDto.RequestCalendarDto requestCalendarDto,
                                                                              @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByCalendar(userDetails.getUsername(),
-                lastIdx,
-                recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                areaList,
-                dateFilter,
-                monthFilter,
-                excludeExpired,
-                sortOption,
-                lastExpiredDate,
-                callCnt,
-                sportsType);
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByCalendar(userDetails.getUsername(),requestCalendarDto);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
@@ -123,24 +99,8 @@ public class MatchingPostController {
     }
 
     @GetMapping("/calendar/count")
-    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalenderCnt(@RequestParam(required = false) RecruitmentType recruitmentType,
-                                                                                @RequestParam(required = false) Ability ability,
-                                                                                @RequestParam(required = false) Gender gender,
-                                                                                @RequestParam(required = false) RecruiterType recruiterType,
-                                                                                @RequestParam(required = false) List<AreaName> areaList,
-                                                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateFilter,
-                                                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
-                                                                                @RequestParam(required = false) Boolean excludeExpired,
-                                                                                @RequestParam SportsType sportsType){
-        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                areaList,
-                dateFilter,
-                monthFilter,
-                excludeExpired,
-                sportsType);
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByCalenderCnt(@ModelAttribute MatchingPostDto.RequestCalenderCntDto requestCalenderCntDto){
+        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostCnt(requestCalenderCntDto);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
@@ -150,35 +110,8 @@ public class MatchingPostController {
     }
 
     @GetMapping("/map/count")
-    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMapCnt(@RequestParam(required = false) RecruitmentType recruitmentType,
-                                                                           @RequestParam(required = false) Ability ability,
-                                                                           @RequestParam(required = false) Gender gender,
-                                                                           @RequestParam(required = false) RecruiterType recruiterType,
-                                                                           @RequestParam(required = false) List<LocalDate> dateFilter,
-                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
-                                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
-                                                                           @RequestParam(required = false) Boolean excludeExpired,
-                                                                           @RequestParam("topLat") double topLat,
-                                                                           @RequestParam("bottomLat") double bottomLat,
-                                                                           @RequestParam("leftLon") double leftLon,
-                                                                           @RequestParam("rightLon") double rightLon,
-                                                                           @RequestParam("excludeRegionUnit") boolean excludeRegionUnit,
-                                                                           @RequestParam SportsType sportsType){
-        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostByMapCnt(
-                recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                dateFilter,
-                monthFilter,
-                excludeExpired,
-                lastExpiredDate,
-                sportsType,
-                topLat,
-                bottomLat,
-                leftLon,
-                rightLon,
-                excludeRegionUnit);
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMapCnt(MatchingPostMapDto.RequestMapCnt requestMapCnt){
+        Integer filteredMatchingPostCnt = matchingPostService.getFilteredMatchingPostByMapCnt(requestMapCnt);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
@@ -188,36 +121,8 @@ public class MatchingPostController {
     }
 
     @GetMapping("/map/detail")
-    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMapDetail(@RequestParam(required = false) RecruitmentType recruitmentType,
-                                                                              @RequestParam(required = false) Ability ability,
-                                                                              @RequestParam(required = false) Gender gender,
-                                                                              @RequestParam(required = false) RecruiterType recruiterType,
-                                                                              @RequestParam(required = false) List<LocalDate> dateFilter,
-                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
-                                                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
-                                                                              @RequestParam(required = false) Boolean excludeExpired,
-                                                                              @RequestParam("topLat") double topLat,
-                                                                              @RequestParam("bottomLat") double bottomLat,
-                                                                              @RequestParam("leftLon") double leftLon,
-                                                                              @RequestParam("rightLon") double rightLon,
-                                                                              @RequestParam("excludeRegionUnit") boolean excludeRegionUnit,
-                                                                              @RequestParam SportsType sportsType,
-                                                                              @AuthenticationPrincipal UserDetails userDetails) {
-        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByMapDetail(userDetails.getUsername(),
-                recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                dateFilter,
-                monthFilter,
-                excludeExpired,
-                lastExpiredDate,
-                sportsType,
-                topLat,
-                bottomLat,
-                leftLon,
-                rightLon,
-                excludeRegionUnit);
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMapDetail(@ModelAttribute MatchingPostMapDto.RequestMapDetail requestMapDetail, @AuthenticationPrincipal UserDetails userDetails) {
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByMapDetail(userDetails.getUsername(), requestMapDetail);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
@@ -227,42 +132,9 @@ public class MatchingPostController {
     }
 
     @GetMapping("/map")
-    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMap(@RequestParam SortOption sortOption,
-                                                                        @RequestParam(required = false) Long lastIdx,
-                                                                        @RequestParam(required = false) RecruitmentType recruitmentType,
-                                                                        @RequestParam(required = false) Ability ability,
-                                                                        @RequestParam(required = false) Gender gender,
-                                                                        @RequestParam(required = false) RecruiterType recruiterType,
-                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") List<LocalDate> dateFilter,
-                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth monthFilter,
-                                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastExpiredDate,
-                                                                        @RequestParam(required = false) Boolean excludeExpired,
-                                                                        @RequestParam(required = false) Integer callCnt,
-                                                                        @RequestParam("topLat") double topLat,
-                                                                        @RequestParam("bottomLat") double bottomLat,
-                                                                        @RequestParam("leftLon") double leftLon,
-                                                                        @RequestParam("rightLon") double rightLon,
-                                                                        @RequestParam("excludeRegionUnit") boolean excludeRegionUnit,
-                                                                        @RequestParam SportsType sportsType,
+    public ResponseEntity<ResponseHandler<Object>> getMatchingPostByMap(@ModelAttribute MatchingPostMapDto.RequestMap requestMap,
                                                                         @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByMap(userDetails.getUsername(),
-                lastIdx,
-                recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                dateFilter,
-                monthFilter,
-                excludeExpired,
-                sortOption,
-                lastExpiredDate,
-                callCnt,
-                sportsType,
-                topLat,
-                bottomLat,
-                leftLon,
-                rightLon,
-                excludeRegionUnit);
+        HashMap<String, Object> getFilteredMatchingPost = matchingPostService.getFilteredMatchingPostByMap(userDetails.getUsername(), requestMap);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
@@ -292,7 +164,7 @@ public class MatchingPostController {
                                                                         @RequestParam("rightLon") double rightLon,
                                                                         @RequestParam("heightTileCnt") int heightTileCnt,
                                                                         @RequestParam("widthTileCnt") int widthTileCnt) {
-        List<MatchingPostMapDto> matchingPostByMap = matchingPostService.getMatchingPostByMap(topLat, bottomLat, leftLon, rightLon, heightTileCnt, widthTileCnt);
+        List<MatchingPostMapDto.ResponseClusterMapDetail> matchingPostByMap = matchingPostService.getMatchingPostByMap(topLat, bottomLat, leftLon, rightLon, heightTileCnt, widthTileCnt);
         return ResponseEntity.ok(ResponseHandler.builder().responseMessage("completed location data clustering successfully").responseData(matchingPostByMap).build());
     }
 

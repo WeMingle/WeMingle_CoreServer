@@ -36,6 +36,7 @@ import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +52,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.wemingle.core.domain.post.dto.sortoption.SortOption.NEW;
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
 import static com.wemingle.core.global.matchingstatusdescription.MatchingStatusDescription.*;
 
@@ -92,122 +94,85 @@ public class MatchingPostService {
                 .orElseThrow(()->new NoSuchElementException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
     }
 
-    public Integer getFilteredMatchingPostCnt(RecruitmentType recruitmentType,
-                                              Ability ability,
-                                              Gender gender,
-                                              RecruiterType recruiterType,
-                                              List<AreaName> areaList,
-                                              LocalDate dateFilter,
-                                              YearMonth monthFilter,
-                                              Boolean excludeExpired,
-                                              SportsType sportsType) {
-        isDateFilterAndMonthFilterCoexist(dateFilter, monthFilter);
+    public Integer getFilteredMatchingPostCnt(MatchingPostDto.RequestCalenderCntDto requestCalenderCntDto) {
+        isDateFilterAndMonthFilterCoexist(requestCalenderCntDto.getDateFilter(), requestCalenderCntDto.getMonthFilter());
 
         return matchingPostRepository.findFilteredMatchingPostCnt(
-                recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                areaList,
-                excludeExpired == null ? null : LocalDate.now(),
-                dateFilter,
-                monthFilter,
-                sportsType
+                requestCalenderCntDto.getRecruitmentType(),
+                requestCalenderCntDto.getAbility(),
+                requestCalenderCntDto.getGender(),
+                requestCalenderCntDto.getRecruiterType(),
+                requestCalenderCntDto.getAreaList(),
+                requestCalenderCntDto.getExcludeExpired() == null ? null : LocalDate.now(),
+                requestCalenderCntDto.getDateFilter(),
+                requestCalenderCntDto.getMonthFilter(),
+                requestCalenderCntDto.getSportsTyp()
         );
     }
 
-    public Integer getFilteredMatchingPostByMapCnt(RecruitmentType recruitmentType,
-                                                   Ability ability,
-                                                   Gender gender,
-                                                   RecruiterType recruiterType,
-                                                   List<LocalDate> dateFilter,
-                                                   YearMonth monthFilter,
-                                                   Boolean excludeExpired,
-                                                   LocalDate lastExpiredDate,
-                                                   SportsType sportsType,
-                                                   double topLat,
-                                                   double bottomLat,
-                                                   double leftLon,
-                                                   double rightLon,
-                                                   boolean excludeRegionUnit) {
+    public Integer getFilteredMatchingPostByMapCnt(MatchingPostMapDto.RequestMapCnt requestMapCnt) {
 
         return matchingPostRepository.findFilteredMatchingPostByMapCnt(
-                recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                excludeExpired == null ? null : LocalDate.now(),
-                dateFilter,
-                monthFilter,
-                excludeExpired,
-                lastExpiredDate,
-                sportsType,
-                topLat,
-                bottomLat,
-                leftLon,
-                rightLon,
-                excludeRegionUnit
+                requestMapCnt.getRecruitmentType(),
+                requestMapCnt.getAbility(),
+                requestMapCnt.getGender(),
+                requestMapCnt.getRecruiterType(),
+                requestMapCnt.getExcludeExpired() == null ? null : LocalDate.now(),
+                requestMapCnt.getDateFilter(),
+                requestMapCnt.getMonthFilter(),
+                requestMapCnt.getExcludeExpired(),
+                requestMapCnt.getLastExpiredDate(),
+                requestMapCnt.getSportsTyp(),
+                requestMapCnt.getTopLat(),
+                requestMapCnt.getBottomLat(),
+                requestMapCnt.getLeftLon(),
+                requestMapCnt.getRightLon(),
+                requestMapCnt.isExcludeRegionUnit()
         );
     }
 
-    public LinkedHashMap<String, Object> getFilteredMatchingPostByCalendar(String memberId,
-                                                                           Long lastIdx,
-                                                                           RecruitmentType recruitmentType,
-                                                                           Ability ability,
-                                                                           Gender gender,
-                                                                           RecruiterType recruiterType,
-                                                                           List<AreaName> areaList,
-                                                                           LocalDate dateFilter,
-                                                                           YearMonth monthFilter,
-                                                                           Boolean excludeExpired,
-                                                                           SortOption sortOption,
-                                                                           LocalDate lastExpiredDate,
-                                                                           Integer callCnt,
-                                                                           SportsType sportsType){
-        isDateFilterAndMonthFilterCoexist(dateFilter, monthFilter);
+    @Getter
+    private static class MatchingPostByCalendarVo{
+        private final Long lastIdx;
+        private final RecruitmentType recruitmentType;
+        private final Ability ability;
+        private final Gender gender;
+        private final RecruiterType recruiterType;
+        private final List<AreaName> areaList;
+        private final LocalDate dateFilter;
+        private final YearMonth monthFilter;
+        private final Boolean excludeExpired;
+        private final SortOption sortOption;
+        private final LocalDate lastExpiredDate;
+        private final Integer callCnt;
+        private final SportsType sportsType;
+
+        public MatchingPostByCalendarVo(MatchingPostDto.RequestCalendarDto requestCalendarDto) {
+            this.lastIdx = requestCalendarDto.getLastIdx();
+            this.recruitmentType = requestCalendarDto.getRecruitmentType();//
+            this.ability = requestCalendarDto.getAbility();//
+            this.gender = requestCalendarDto.getGender();//
+            this.recruiterType = requestCalendarDto.getRecruiterType();//
+            this.areaList = requestCalendarDto.getAreaList();//
+            this.dateFilter = requestCalendarDto.getDateFilter();//
+            this.monthFilter = requestCalendarDto.getMonthFilter();//
+            this.excludeExpired = requestCalendarDto.getExcludeExpired();//
+            this.sortOption = requestCalendarDto.getSortOption();//
+            this.lastExpiredDate = requestCalendarDto.getLastExpiredDate();
+            this.callCnt = requestCalendarDto.getCallCnt();
+            this.sportsType = requestCalendarDto.getSportsType();
+        }
+    }
+
+    public LinkedHashMap<String, Object> getFilteredMatchingPostByCalendar(String memberId,MatchingPostDto.RequestCalendarDto requestCalendarDto){
+        isDateFilterAndMonthFilterCoexist(requestCalendarDto.getDateFilter(), requestCalendarDto.getMonthFilter());
 
         List<MatchingPost> filteredMatchingPost;
-        filteredMatchingPost = getMatchingPostByCalendar(lastIdx, recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType);
+        filteredMatchingPost = getMatchingPostByCalendar(new MatchingPostByCalendarVo(requestCalendarDto));
         
-        Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, filteredMatchingPost);
+        Integer nextUrlCallCnt = createNextUrlCallCnt(requestCalendarDto.getCallCnt(), filteredMatchingPost);
 
-        String nextRetrieveUrlParams = createNextRetrieveUrlParamsByCalendar(getLastIdxInMatchingPostList(filteredMatchingPost), recruitmentType, ability, gender, recruiterType, areaList, dateFilter, monthFilter, excludeExpired, sortOption, getLastExpiredDateInMatchingPostList(sortOption, filteredMatchingPost), nextUrlCallCnt);
-
-
-        LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
-
-
-        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
-
-        HashMap<Long, Object> postsMap = createMatchingPostDtoMap(filteredMatchingPost, bookmarkedByMatchingPosts);
-        responseObj.put("post list", postsMap);
-        return responseObj;
-    }
-
-    public LinkedHashMap<String, Object> getFilteredMatchingPostByMap(String memberId,
-                                                                      Long lastIdx,
-                                                                      RecruitmentType recruitmentType,
-                                                                      Ability ability,
-                                                                      Gender gender,
-                                                                      RecruiterType recruiterType,
-                                                                      List<LocalDate> dateFilter,
-                                                                      YearMonth monthFilter,
-                                                                      Boolean excludeExpired,
-                                                                      SortOption sortOption,
-                                                                      LocalDate lastExpiredDate,
-                                                                      Integer callCnt,
-                                                                      SportsType sportsType,
-                                                                      double topLat,
-                                                                      double bottomLat,
-                                                                      double leftLon,
-                                                                      double rightLon,
-                                                                      boolean excludeRegionUnit) {
-        List<MatchingPost> filteredMatchingPost;
-        filteredMatchingPost = getMatchingPostByMap(lastIdx, recruitmentType, ability, gender, recruiterType, dateFilter, monthFilter, excludeExpired, sortOption, lastExpiredDate, callCnt, sportsType, topLat, bottomLat, leftLon, rightLon, excludeRegionUnit);
-
-        Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, filteredMatchingPost);
-
-        String nextRetrieveUrlParams = createNextRetrieveUrlParamsByMap(getLastIdxInMatchingPostList(filteredMatchingPost), recruitmentType, ability, gender, recruiterType, dateFilter, monthFilter, excludeExpired, sortOption, getLastExpiredDateInMatchingPostList(sortOption, filteredMatchingPost), nextUrlCallCnt, topLat, bottomLat, leftLon, rightLon);
+        String nextRetrieveUrlParams = createNextRetrieveUrlParamsByCalendar(getLastIdxInMatchingPostList(filteredMatchingPost), requestCalendarDto.getRecruitmentType(), requestCalendarDto.getAbility(), requestCalendarDto.getGender(), requestCalendarDto.getRecruiterType(), requestCalendarDto.getAreaList(), requestCalendarDto.getDateFilter(), requestCalendarDto.getMonthFilter(), requestCalendarDto.getExcludeExpired(), requestCalendarDto.getSortOption(), getLastExpiredDateInMatchingPostList(requestCalendarDto.getSortOption(), filteredMatchingPost), nextUrlCallCnt);
 
 
         LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
@@ -220,71 +185,90 @@ public class MatchingPostService {
         return responseObj;
     }
 
-    private List<MatchingPost> getMatchingPostByMap(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<LocalDate> dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit) {
+    public LinkedHashMap<String, Object> getFilteredMatchingPostByMap(String memberId, MatchingPostMapDto.RequestMap requestMap) {
         List<MatchingPost> filteredMatchingPost;
-        switch (Objects.requireNonNull(sortOption)) {
+        filteredMatchingPost = getMatchingPostByMap(requestMap);
+
+        Integer nextUrlCallCnt = createNextUrlCallCnt(requestMap.getCallCnt(), filteredMatchingPost);
+
+        String nextRetrieveUrlParams = createNextRetrieveUrlParamsByMap(getLastIdxInMatchingPostList(filteredMatchingPost), requestMap.getRecruitmentType(), requestMap.getAbility(), requestMap.getGender(), requestMap.getRecruiterType(), requestMap.getDateFilter(), requestMap.getMonthFilter(), requestMap.getExcludeExpired(), requestMap.getSortOption(), getLastExpiredDateInMatchingPostList(requestMap.getSortOption(), filteredMatchingPost), nextUrlCallCnt, requestMap.getTopLat(), requestMap.getBottomLat(), requestMap.getLeftLon(), requestMap.getRightLon());
+
+
+        LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, nextRetrieveUrlParams);
+
+
+        List<BookmarkedMatchingPost> bookmarkedByMatchingPosts = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(filteredMatchingPost, memberId);
+
+        HashMap<Long, Object> postsMap = createMatchingPostDtoMap(filteredMatchingPost, bookmarkedByMatchingPosts);
+        responseObj.put("post list", postsMap);
+        return responseObj;
+    }
+
+    private List<MatchingPost> getMatchingPostByMap(MatchingPostMapDto.RequestMap requestMap) {
+        List<MatchingPost> filteredMatchingPost;
+        switch (Objects.requireNonNull(requestMap.getSortOption())) {
 
             case NEW -> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPostByMap(
-                    lastIdx,
-                    recruitmentType,
-                    ability,
-                    gender,
-                    recruiterType,
-                    excludeExpired == null ? null : LocalDate.now(),
-                    dateFilter,
-                    monthFilter,
-                    sortOption,
-                    lastExpiredDate,
-                    sportsType,
-                    topLat,
-                    bottomLat,
-                    leftLon,
-                    rightLon,
-                    excludeRegionUnit,
+                    requestMap.getLastIdx(),
+                    requestMap.getRecruitmentType(),
+                    requestMap.getAbility(),
+                    requestMap.getGender(),
+                    requestMap.getRecruiterType(),
+                    requestMap.getExcludeExpired() == null ? null : LocalDate.now(),
+                    requestMap.getDateFilter(),
+                    requestMap.getMonthFilter(),
+                    requestMap.getSortOption(),
+                    requestMap.getLastExpiredDate(),
+                    requestMap.getSportsType(),
+                    requestMap.getTopLat(),
+                    requestMap.getBottomLat(),
+                    requestMap.getLeftLon(),
+                    requestMap.getRightLon(),
+                    requestMap.isExcludeRegionUnit(),
                     PageRequest.of(0, 30)
             );
             case DEADLINE -> {
-                int pageNumber = Optional.ofNullable(callCnt).orElse(0);
+                int pageNumber = Optional.ofNullable(requestMap.getCallCnt()).orElse(0);
                 filteredMatchingPost = matchingPostRepository.findFilteredMatchingPostByMap(
                         null,
-                        recruitmentType,
-                        ability,
-                        gender,
-                        recruiterType,
-                        excludeExpired == null ? null : LocalDate.now(),
-                        dateFilter,
-                        monthFilter,
-                        sortOption,
-                        lastExpiredDate,
-                        sportsType,
-                        topLat,
-                        bottomLat,
-                        leftLon,
-                        rightLon,
-                        excludeRegionUnit,
+                        requestMap.getRecruitmentType(),
+                        requestMap.getAbility(),
+                        requestMap.getGender(),
+                        requestMap.getRecruiterType(),
+                        requestMap.getExcludeExpired() == null ? null : LocalDate.now(),
+                        requestMap.getDateFilter(),
+                        requestMap.getMonthFilter(),
+                        requestMap.getSortOption(),
+                        requestMap.getLastExpiredDate(),
+                        requestMap.getSportsType(),
+                        requestMap.getTopLat(),
+                        requestMap.getBottomLat(),
+                        requestMap.getLeftLon(),
+                        requestMap.getRightLon(),
+                        requestMap.isExcludeRegionUnit(),
                         PageRequest.of(pageNumber, 30)
                 );
-                removeDuplicatePosts(lastIdx, filteredMatchingPost);
+                removeDuplicatePosts(requestMap.getLastIdx(), filteredMatchingPost);
 
                 if (filteredMatchingPost.size() < 30) {
                     filteredMatchingPost.addAll(
                             matchingPostRepository.findFilteredMatchingPostByMap(
                                     null,
-                                    recruitmentType,
-                                    ability,
-                                    gender,
-                                    recruiterType,
-                                    excludeExpired == null ? null : LocalDate.now(),
-                                    dateFilter,
-                                    monthFilter,
-                                    sortOption,
-                                    lastExpiredDate,
-                                    sportsType,
-                                    topLat,
-                                    bottomLat,
-                                    leftLon,
-                                    rightLon,
-                                    excludeRegionUnit,
+                                    requestMap.getRecruitmentType(),
+                                    requestMap.getAbility(),
+                                    requestMap.getGender(),
+                                    requestMap.getRecruiterType(),
+                                    requestMap.getExcludeExpired() == null ? null : LocalDate.now(),
+                                    requestMap.getDateFilter(),
+                                    requestMap.getMonthFilter(),
+                                    requestMap.getSortOption(),
+                                    requestMap.getLastExpiredDate(),
+                                    requestMap.getSportsType(),
+                                    requestMap.getTopLat(),
+                                    requestMap.getBottomLat(),
+                                    requestMap.getLeftLon(),
+                                    requestMap.getRightLon(),
+                                    requestMap.isExcludeRegionUnit(),
                                     PageRequest.of(pageNumber +1, 30)
                             )
                     );
@@ -296,42 +280,28 @@ public class MatchingPostService {
         return filteredMatchingPost;
     }
 
-    private List<MatchingPost> getMatchingPostByMapDetail(RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<LocalDate> dateFilter, YearMonth monthFilter, Boolean excludeExpired, LocalDate lastExpiredDate, SportsType sportsType, double topLat, double bottomLat, double leftLon, double rightLon, boolean excludeRegionUnit) {
+    private List<MatchingPost> getMatchingPostByMapDetail(MatchingPostMapDto.RequestMapDetail requestMapDetail) {
         return matchingPostRepository.findFilteredMatchingPostByMapDetail(
-                recruitmentType,
-                ability,
-                gender,
-                recruiterType,
-                excludeExpired == null ? null : LocalDate.now(),
-                dateFilter,
-                monthFilter,
-                lastExpiredDate,
-                sportsType,
-                topLat,
-                bottomLat,
-                leftLon,
-                rightLon,
-                excludeRegionUnit
+                requestMapDetail.getRecruitmentType(),
+                requestMapDetail.getAbility(),
+                requestMapDetail.getGender(),
+                requestMapDetail.getRecruiterType(),
+                requestMapDetail.getExcludeExpired() == null ? null : LocalDate.now(),
+                requestMapDetail.getDateFilter(),
+                requestMapDetail.getMonthFilter(),
+                requestMapDetail.getLastExpiredDate(),
+                requestMapDetail.getSportsType(),
+                requestMapDetail.getTopLat(),
+                requestMapDetail.getBottomLat(),
+                requestMapDetail.getLeftLon(),
+                requestMapDetail.getRightLon(),
+                requestMapDetail.isExcludeRegionUnit()
         );
     }
 
-    public LinkedHashMap<String, Object> getFilteredMatchingPostByMapDetail(String memberId,
-                                                                            RecruitmentType recruitmentType,
-                                                                            Ability ability,
-                                                                            Gender gender,
-                                                                            RecruiterType recruiterType,
-                                                                            List<LocalDate> dateFilter,
-                                                                            YearMonth monthFilter,
-                                                                            Boolean excludeExpired,
-                                                                            LocalDate lastExpiredDate,
-                                                                            SportsType sportsType,
-                                                                            double topLat,
-                                                                            double bottomLat,
-                                                                            double leftLon,
-                                                                            double rightLon,
-                                                                            boolean excludeRegionUnit) {
+    public LinkedHashMap<String, Object> getFilteredMatchingPostByMapDetail(String memberId, MatchingPostMapDto.RequestMapDetail requestMapDetail) {
         List<MatchingPost> filteredMatchingPost;
-        filteredMatchingPost = getMatchingPostByMapDetail(recruitmentType, ability, gender, recruiterType, dateFilter, monthFilter, excludeExpired, lastExpiredDate, sportsType, topLat, bottomLat, leftLon, rightLon, excludeRegionUnit);
+        filteredMatchingPost = getMatchingPostByMapDetail(requestMapDetail);
 
         LinkedHashMap<String, Object> responseObj = createResponseObj(filteredMatchingPost, null);
 
@@ -427,59 +397,59 @@ public class MatchingPostService {
         return postsMap;
     }
 
-    private List<MatchingPost> getMatchingPostByCalendar(Long lastIdx, RecruitmentType recruitmentType, Ability ability, Gender gender, RecruiterType recruiterType, List<AreaName> areaList, LocalDate dateFilter, YearMonth monthFilter, Boolean excludeExpired, SortOption sortOption, LocalDate lastExpiredDate, Integer callCnt, SportsType sportsType) {
+    private List<MatchingPost> getMatchingPostByCalendar(MatchingPostByCalendarVo matchingPostByCalendarVo) {
         List<MatchingPost> filteredMatchingPost;
-        switch (Objects.requireNonNull(sortOption)) {
+        switch (Objects.requireNonNull(matchingPostByCalendarVo.getSortOption())) {
 
             case NEW -> filteredMatchingPost = matchingPostRepository.findFilteredMatchingPostByCalendar(
-                    lastIdx,
-                    recruitmentType,
-                    ability,
-                    gender,
-                    recruiterType,
-                    areaList,
-                    excludeExpired == null ? null : LocalDate.now(),
-                    dateFilter,
-                    monthFilter,
-                    sortOption,
+                    matchingPostByCalendarVo.getLastIdx(),
+                    matchingPostByCalendarVo.getRecruitmentType(),
+                    matchingPostByCalendarVo.getAbility(),
+                    matchingPostByCalendarVo.getGender(),
+                    matchingPostByCalendarVo.getRecruiterType(),
+                    matchingPostByCalendarVo.getAreaList(),
+                    matchingPostByCalendarVo.getExcludeExpired() == null ? null : LocalDate.now(),
+                    matchingPostByCalendarVo.getDateFilter(),
+                    matchingPostByCalendarVo.getMonthFilter(),
+                    matchingPostByCalendarVo.getSortOption(),
                     null,
-                    sportsType,
+                    matchingPostByCalendarVo.getSportsType(),
                     PageRequest.of(0, 30)
             );
             case DEADLINE -> {
-                int pageNumber = Optional.ofNullable(callCnt).orElse(0);
+                int pageNumber = Optional.ofNullable(matchingPostByCalendarVo.getCallCnt()).orElse(0);
                 filteredMatchingPost = matchingPostRepository.findFilteredMatchingPostByCalendar(
-                    null,
-                    recruitmentType,
-                    ability,
-                    gender,
-                    recruiterType,
-                    areaList,
-                    excludeExpired == null ? null : LocalDate.now(),
-                    dateFilter,
-                    monthFilter,
-                    sortOption,
-                    lastExpiredDate,
-                    sportsType,
-                    PageRequest.of(pageNumber, 30)
+                        null,
+                        matchingPostByCalendarVo.getRecruitmentType(),
+                        matchingPostByCalendarVo.getAbility(),
+                        matchingPostByCalendarVo.getGender(),
+                        matchingPostByCalendarVo.getRecruiterType(),
+                        matchingPostByCalendarVo.getAreaList(),
+                        matchingPostByCalendarVo.getExcludeExpired() == null ? null : LocalDate.now(),
+                        matchingPostByCalendarVo.getDateFilter(),
+                        matchingPostByCalendarVo.getMonthFilter(),
+                        matchingPostByCalendarVo.getSortOption(),
+                        matchingPostByCalendarVo.getLastExpiredDate(),
+                        matchingPostByCalendarVo.getSportsType(),
+                        PageRequest.of(pageNumber, 30)
                 );
-                removeDuplicatePosts(lastIdx, filteredMatchingPost);
+                removeDuplicatePosts(matchingPostByCalendarVo.getLastIdx(), filteredMatchingPost);
 
                 if (filteredMatchingPost.size() < 30) {
                     filteredMatchingPost.addAll(
                             matchingPostRepository.findFilteredMatchingPostByCalendar(
                                     null,
-                                    recruitmentType,
-                                    ability,
-                                    gender,
-                                    recruiterType,
-                                    areaList,
-                                    excludeExpired == null ? null : LocalDate.now(),
-                                    dateFilter,
-                                    monthFilter,
-                                    sortOption,
-                                    lastExpiredDate,
-                                    sportsType,
+                                    matchingPostByCalendarVo.getRecruitmentType(),
+                                    matchingPostByCalendarVo.getAbility(),
+                                    matchingPostByCalendarVo.getGender(),
+                                    matchingPostByCalendarVo.getRecruiterType(),
+                                    matchingPostByCalendarVo.getAreaList(),
+                                    matchingPostByCalendarVo.getExcludeExpired() == null ? null : LocalDate.now(),
+                                    matchingPostByCalendarVo.getDateFilter(),
+                                    matchingPostByCalendarVo.getMonthFilter(),
+                                    matchingPostByCalendarVo.getSortOption(),
+                                    matchingPostByCalendarVo.getLastExpiredDate(),
+                                    matchingPostByCalendarVo.getSportsType(),
                                     PageRequest.of(pageNumber +1, 30)
                             )
                     );
@@ -755,7 +725,7 @@ public class MatchingPostService {
         return recruiterType.equals(RecruiterType.TEAM) && !participantsPk.isEmpty();
     }
 
-    public List<MatchingPostMapDto> getMatchingPostByMap(double topLat,
+    public List<MatchingPostMapDto.ResponseClusterMapDetail> getMatchingPostByMap(double topLat,
                                      double bottomLat,
                                      double leftLon,
                                      double rightLon,
@@ -766,7 +736,7 @@ public class MatchingPostService {
         double latTileRange = (topLat - bottomLat) / heightTileCnt;
         double lonTileRange = (rightLon - leftLon) / widthTileCnt;
 
-        List<MatchingPostMapDto> clusterData = new LinkedList<>();
+        List<MatchingPostMapDto.ResponseClusterMapDetail> clusterData = new LinkedList<>();
 
         IntStream.rangeClosed(1,heightTileCnt)
                 .forEach(hIdx->
@@ -780,7 +750,7 @@ public class MatchingPostService {
                                                         matchingPost.getLon() <= (leftLon + lonTileRange * hIdx)
                                         ).toList();
                                         if (!matchingPosts.isEmpty()) {
-                                            clusterData.add(MatchingPostMapDto.builder()
+                                            clusterData.add(MatchingPostMapDto.ResponseClusterMapDetail.builder()
                                                     .lat(matchingPosts.get(0).getLat())
                                                     .lon(matchingPosts.get(0).getLon())
                                                     .cnt(matchingPosts.size()).build());

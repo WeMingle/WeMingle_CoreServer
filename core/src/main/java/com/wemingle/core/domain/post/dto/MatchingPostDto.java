@@ -2,6 +2,7 @@ package com.wemingle.core.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
+import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
 import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
@@ -18,12 +19,47 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MatchingPostDto {
+
+    @Setter
+    @Getter
+    public static class RequestCalenderCntDto{
+        private RecruitmentType recruitmentType;
+        private Ability ability;
+        private Gender gender;
+        private RecruiterType recruiterType;
+        private List<AreaName> areaList;
+        private LocalDate dateFilter;
+        private YearMonth monthFilter;
+        private Boolean excludeExpired;
+        private SportsType sportsTyp;
+    }
+
+    @Setter
+    @Getter
+    public static class RequestCalendarDto{
+        private SortOption sortOption;
+        private Long lastIdx;
+        private RecruitmentType recruitmentType;
+        private Ability ability;
+        private Gender gender;
+        private RecruiterType recruiterType;
+        private List<AreaName> areaList;
+        private LocalDate dateFilter;
+        private YearMonth monthFilter;
+        private LocalDate lastExpiredDate;
+        private Boolean excludeExpired;
+        private Integer callCnt;
+        private SportsType sportsType;
+    }
     @Setter
     @Getter
     public static class ResponseMyBookmarkDto {
