@@ -19,11 +19,11 @@ public class CommentResponseUtil<T> {
         this.serverIp = serverIp;
     }
 
-    public String createRepliesNextUrl(List<Reply> replies, Long commentPk){
+    public String createRepliesNextUrl(List<Reply> replies, Long commentId){
         String nextUrl = null;
         if (isExistNextData(replies)){
-            long minReplyPk = replies.stream().map(Reply::getPk).min(Comparator.naturalOrder()).orElse(0L);
-            nextUrl = serverIp + REPLY_RETRIEVE_PATH + createReplyParametersUrl(commentPk, minReplyPk);
+            long minReplyId = replies.stream().map(Reply::getPk).min(Comparator.naturalOrder()).orElse(0L);
+            nextUrl = serverIp + REPLY_RETRIEVE_PATH + createReplyParametersUrl(commentId, minReplyId);
         }
 
         return nextUrl;
@@ -41,10 +41,10 @@ public class CommentResponseUtil<T> {
         return data;
     }
 
-    private String createReplyParametersUrl(Long commentPk, Long minReplyPk) {
+    private String createReplyParametersUrl(Long commentId, Long minReplyId) {
         HashMap<String, Object> parameters = new LinkedHashMap<>();
-        parameters.put("nextIdx", minReplyPk);
-        parameters.put("commentPk", commentPk);
+        parameters.put("nextIdx", minReplyId);
+        parameters.put("commentId", commentId);
 
         return "?" + parameters.entrySet().stream()
                 .map(parameter -> parameter.getKey() + "=" + parameter.getValue())

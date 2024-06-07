@@ -31,9 +31,9 @@ public class VoteController {
         );
     }
 
-    @GetMapping("/{votePk}")
-    public ResponseEntity<ResponseHandler<VoteDto.ResponseVoteResult>> getVoteResults(@PathVariable Long votePk) {
-        VoteDto.ResponseVoteResult responseData = voteService.getVoteResult(votePk);
+    @GetMapping("/{voteId}")
+    public ResponseEntity<ResponseHandler<VoteDto.ResponseVoteResult>> getVoteResults(@PathVariable Long voteId) {
+        VoteDto.ResponseVoteResult responseData = voteService.getVoteResult(voteId);
 
         return ResponseEntity.ok(
                 ResponseHandler.<VoteDto.ResponseVoteResult>builder()
@@ -59,9 +59,9 @@ public class VoteController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{votePk}")
-    public ResponseEntity<Object> completeVote(@PathVariable Long votePk) {
-        voteService.completeVote(votePk);
+    @PatchMapping("/{voteId}")
+    public ResponseEntity<Object> completeVote(@PathVariable Long voteId) {
+        voteService.completeVote(voteId);
 
         return ResponseEntity.noContent().build();
     }

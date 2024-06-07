@@ -4,7 +4,7 @@ import com.wemingle.core.domain.bookmark.repository.BookmarkedTeamPostRepository
 import com.wemingle.core.domain.img.entity.TeamPostImg;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.entity.Member;
-import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.TeamPostDto;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.entity.TeamPostLike;
@@ -14,7 +14,8 @@ import com.wemingle.core.domain.post.vo.SaveVoteVo;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
-import com.wemingle.core.domain.team.repository.TeamRepository;
+import com.wemingle.core.domain.team.service.TeamMemberService;
+import com.wemingle.core.domain.team.service.TeamService;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
 import com.wemingle.core.domain.vote.entity.VoteOption;
 import com.wemingle.core.domain.vote.repository.TeamPostVoteRepository;
@@ -33,8 +34,6 @@ import java.util.*;
 @Transactional(readOnly = true)
 @Slf4j
 public class TeamPostService {
-    private final MemberRepository memberRepository;
-    private final TeamRepository teamRepository;
     private final TeamPostRepository teamPostRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final BookmarkedTeamPostRepository bookmarkedTeamPostRepository;
@@ -42,6 +41,9 @@ public class TeamPostService {
     private final TeamPostVoteRepository teamPostVoteRepository;
     private final TeamPostLikeRepository teamPostLikeRepository;
     private final VoteResultRepository voteResultRepository;
+    private final MemberService memberService;
+    private final TeamService teamService;
+    private final TeamMemberService teamMemberService;
 
     public HashMap<Long, Object> getMyTeamPosts(Long nextIdx, Long teamId, String memberId) {
         List<TeamPost> myTeamPosts = teamPostRepository.findMyTeamPosts(nextIdx, teamId, memberId);
@@ -75,8 +77,7 @@ public class TeamPostService {
     }
 
     public HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> getTeamPostWithMember(Long nextIdx, String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = memberService.findByMemberId(memberId);
         List<Team> myTeams = teamMemberRepository.findMyTeams(memberId);
         List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithMember(nextIdx, myTeams);
 
@@ -111,11 +112,9 @@ public class TeamPostService {
         return teamPostLikes.stream().anyMatch(teamPostLike -> teamPostLike.getTeamPost().equals(teamPost));
     }
 
-    public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamPk, String memberId) {
-        Team team = teamRepository.findById(teamPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+    public TeamPostDto.ResponseTeamPostsInfoWithTeam getTeamPostWithTeam(Long nextIdx, boolean isNotice, Long teamId, String memberId) {
+        Team team = teamService.findById(teamId);
+        Member member = memberService.findByMemberId(memberId);
         Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId);
         List<TeamPost> teamPosts = teamPostRepository.getTeamPostWithTeam(nextIdx, team, isNotice);
 
@@ -179,10 +178,8 @@ public class TeamPostService {
 
     @Transactional
     public void saveTeamPost(TeamPostDto.RequestTeamPostSave savePostDto, String memberId) {
-        Team team = teamRepository.findById(savePostDto.getTeamPk())
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
-        TeamMember teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+        Team team = teamService.findById(savePostDto.getTeamPk());
+        TeamMember teamMember = teamMemberService.findByTeamAndMember_MemberId(team, memberId);
 
         TeamPost teamPost = TeamPost.builder()
                 .title(savePostDto.getPostTitle())
@@ -239,11 +236,9 @@ public class TeamPostService {
     }
 
 
-    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(Long nextIdx, Long teamPk, String searchWord, String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
-        Team team = teamRepository.findById(teamPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(Long nextIdx, Long teamId, String searchWord, String memberId) {
+        Member member = memberService.findByMemberId(memberId);
+        Team team = teamService.findById(teamId);
 
         List<TeamPost> myBookmarkedTeamPosts = bookmarkedTeamPostRepository.findTeamPostByMember(member);
         List<TeamPost> searchTeamPosts = teamPostRepository.getSearchTeamPost(nextIdx, team, searchWord);
@@ -267,21 +262,17 @@ public class TeamPostService {
         return responseData;
     }
 
-    public boolean isTeamPostWriter(Long teamPostPk, String memberId) {
-        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
-        TeamMember requester = teamMemberRepository.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+    public boolean isTeamPostWriter(Long teamPostId, String memberId) {
+        TeamPost teamPost = findById(teamPostId);
+        TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
 
         return teamPost.isWriter(requester);
     }
 
     @Transactional
-    public void saveOrDeletePostLike(Long teamPostPk, String memberId) {
-        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
-        TeamMember requester = teamMemberRepository.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+    public void saveOrDeletePostLike(Long teamPostId, String memberId) {
+        TeamPost teamPost = findById(teamPostId);
+        TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
         Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
 
         if (postLike.isPresent()){
@@ -300,11 +291,9 @@ public class TeamPostService {
         }
     }
 
-    public TeamPostDto.ResponseTeamPostDetail getTeamPostDetail(Long teamPostPk, String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
-        TeamPost teamPost = teamPostRepository.findById(teamPostPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+    public TeamPostDto.ResponseTeamPostDetail getTeamPostDetail(Long teamPostId, String memberId) {
+        Member member = memberService.findByMemberId(memberId);
+        TeamPost teamPost = findById(teamPostId);
         TeamMember teamMember = teamMemberRepository.findByTeamAndMember(teamPost.getTeam(), member)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
 
@@ -356,5 +345,15 @@ public class TeamPostService {
                         .build()
                 )
                 .toList();
+    }
+
+    public TeamPost findById(Long postId) {
+        return teamPostRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+    }
+
+    public Team findTeam(Long postId) {
+        return teamPostRepository.findTeam(postId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
     }
 }

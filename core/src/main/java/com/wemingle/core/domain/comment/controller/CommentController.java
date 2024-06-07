@@ -5,7 +5,6 @@ import com.wemingle.core.domain.comment.service.CommentService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,14 +29,7 @@ public class CommentController {
     @PatchMapping
     public ResponseEntity<Object> updateComment(@RequestBody @Valid CommentDto.RequestCommentUpdate updateDto,
                                               @AuthenticationPrincipal UserDetails userDetails){
-        if (!commentService.isCommentWriter(updateDto.getCommentPk(), userDetails.getUsername())){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ResponseHandler.builder()
-                            .responseMessage("Only writer can update comment")
-                            .build());
-        }
-
-        commentService.updateComment(updateDto);
+        commentService.updateComment(updateDto, userDetails.getUsername());
 
         return ResponseEntity.noContent().build();
     }
@@ -45,23 +37,16 @@ public class CommentController {
     @DeleteMapping
     public ResponseEntity<Object> deleteComment(@RequestBody CommentDto.RequestCommentDelete deleteDto,
                                                 @AuthenticationPrincipal UserDetails userDetails){
-        if (!commentService.isCommentWriter(deleteDto.getCommentPk(), userDetails.getUsername())){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ResponseHandler.builder()
-                            .responseMessage("Only writer can delete comment")
-                            .build());
-        }
-
-        commentService.deleteComment(deleteDto);
+        commentService.deleteComment(deleteDto, userDetails.getUsername());
 
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<ResponseHandler<HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve>>> getComments(@RequestParam Long teamPostPk,
+    public ResponseEntity<ResponseHandler<HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve>>> getComments(@RequestParam Long teamPostId,
                                                                                                                @RequestParam(required = false) Long nextIdx,
                                                                                                                @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve> responseData = commentService.getComments(nextIdx, teamPostPk, userDetails.getUsername());
+        HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve> responseData = commentService.getComments(nextIdx, teamPostId, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve>>builder()

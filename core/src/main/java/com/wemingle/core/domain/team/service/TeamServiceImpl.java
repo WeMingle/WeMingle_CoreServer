@@ -5,11 +5,13 @@ import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
+import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.review.repository.TeamReviewRepository;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
@@ -43,19 +45,19 @@ import java.util.Optional;
 public class TeamServiceImpl implements TeamService{
     private final TeamRepository teamRepository;
     private final S3ImgService s3ImgService;
-    private final MemberRepository memberRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final TeamQuestionnaireRepository teamQuestionnaireRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     private final TeamReviewRepository teamReviewRepository;
     private final TeamRatingRepository teamRatingRepository;
     private final TeamRequestRepository teamRequestRepository;
-    private final MatchingPostRepository matchingPostRepository;
+    private final MemberService memberService;
+    private final MatchingPostService matchingPostService;
+
     private static final int PAGE_SIZE = 30;
     @Override
     public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getTeamInfoWithAvailableWrite(SportsType sportsType, String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = memberService.findByMemberId(memberId);
         List<Team> teamList = teamMemberRepository.findTeamsWithAvailableWrite(sportsType, member);
 
         HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> responseTeamInfo = new HashMap<>();
@@ -84,8 +86,7 @@ public class TeamServiceImpl implements TeamService{
 
     @Override
     public TeamDto.ResponseTeamHomeConditions getTeamHomeConditions(String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = memberService.findByMemberId(memberId);
 
         return TeamDto.ResponseTeamHomeConditions.builder()
                 .isExistMyTeam(isPresentTeamWithMe(member))
@@ -156,8 +157,7 @@ public class TeamServiceImpl implements TeamService{
 
     @Override
     public HashMap<Long, TeamDto.ResponseTeamByMemberUniv> getTeamWithMemberUniv(Long nextIdx, String memberId){
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = memberService.findByMemberId(memberId);
         UnivEntity univEntity = verifiedUniversityEmailRepository.findUnivEntityByMember(member)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
         List<Member> univMates = verifiedUniversityEmailRepository.findUnivMates(univEntity, member);
@@ -178,8 +178,7 @@ public class TeamServiceImpl implements TeamService{
     @Override
     public TeamDto.TeamInfo getTeamInfoWithTeam(Long teamPk, String memberId) {
         TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
-        Team team = teamRepository.findById(teamPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Team team = findById(teamPk);
         Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember_MemberId(team, memberId);
         Integer reviewCnt = teamReviewRepository.findTeamReviewCntWithReviewee(team);
         Double totalRating = teamRatingRepository.findTotalRatingWithTeam(team);
@@ -211,8 +210,7 @@ public class TeamServiceImpl implements TeamService{
     @Transactional
     @Override
     public void saveTeam(String ownerId, CreateTeamDto createTeamDto) {
-        Member owner = memberRepository.findByMemberId(ownerId)
-                .orElseThrow(() -> new RuntimeException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member owner = memberService.findByMemberId(ownerId);
         Team team = Team.builder().teamOwner(owner)
                 .teamName(createTeamDto.getTeamName())
                 .content(createTeamDto.getContent())
@@ -235,10 +233,8 @@ public class TeamServiceImpl implements TeamService{
 
     @Override
     public TeamDto.ResponseTeamParticipantCond getTeamParticipantCond(Long teamPk, String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
-        Team team = teamRepository.findById(teamPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Member member = memberService.findByMemberId(memberId);
+        Team team = findById(teamPk);
         Optional<TeamMember> teamMember = teamMemberRepository.findByTeamAndMember(team, member);
         UnivEntity teamOwnerUniv = verifiedUniversityEmailRepository.findUnivEntityByMember(team.getTeamOwner())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.NOT_VERIFIED_UNIV_EMAIL.getExceptionMessage()));
@@ -295,10 +291,8 @@ public class TeamServiceImpl implements TeamService{
 
     @Override
     public HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> getRequestableTeamsInfo(Long matchingPostPk, SportsType sportsType, String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MEMBER_NOT_FOUNT.getExceptionMessage()));
-        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        Member member = memberService.findByMemberId(memberId);
+        MatchingPost matchingPost = matchingPostService.findById(matchingPostPk);
 
         List<Team> teamList = teamMemberRepository.findTeamsWithAvailableRequest(member, sportsType, TeamType.valueOf(matchingPost.getRecruiterType().toString()));
 
@@ -315,15 +309,14 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public Team findByTeamPk(Long teamPk) {
-        return teamRepository.findById(teamPk)
+    public Team findById(Long teamId) {
+        return teamRepository.findById(teamId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
     }
 
     @Override
     public TeamDto.ResponseTeamSetting getTeamSetting(Long teamPk){
-        Team team = teamRepository.findById(teamPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Team team = findById(teamPk);
 
         return TeamDto.ResponseTeamSetting.builder()
                 .createDate(team.getCreatedTime().toLocalDate())
@@ -370,8 +363,7 @@ public class TeamServiceImpl implements TeamService{
     @Override
     @Transactional
     public void updateTeamSetting(TeamDto.RequestTeamSettingUpdate updateDto){
-        Team team = teamRepository.findById(updateDto.getTeamPk())
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+        Team team = findById(updateDto.getTeamPk());
 
         team.updateTeamSetting(updateDto);
 
