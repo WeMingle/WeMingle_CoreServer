@@ -2,7 +2,7 @@ package com.wemingle.core.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.post.entity.posttype.PostType;
-import com.wemingle.core.domain.post.vo.SaveVoteVo;
+import com.wemingle.core.domain.vote.vo.SaveVoteVo;
 import com.wemingle.core.domain.vote.entity.votestatus.VoteStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

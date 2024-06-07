@@ -9,7 +9,7 @@ import com.wemingle.core.domain.matching.entity.MatchingRequest;
 import com.wemingle.core.domain.matching.repository.MatchingRepository;
 import com.wemingle.core.domain.matching.repository.MatchingRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
-import com.wemingle.core.domain.member.repository.MemberRepository;
+import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
 import com.wemingle.core.domain.post.dto.sortoption.SortOption;
@@ -25,6 +25,7 @@ import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostAreaRepository;
 import com.wemingle.core.domain.post.repository.MatchingPostMatchingDateRepository;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
+import com.wemingle.core.domain.post.vo.MatchingPostByCalendarVo;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.review.repository.TeamReviewRepository;
 import com.wemingle.core.domain.team.entity.Team;
@@ -33,10 +34,11 @@ import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
+import com.wemingle.core.domain.team.service.TeamMemberService;
+import com.wemingle.core.global.exception.NotWriterException;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import com.wemingle.core.global.util.teamrating.TeamRatingUtil;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +54,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.wemingle.core.domain.post.dto.sortoption.SortOption.NEW;
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.*;
 import static com.wemingle.core.global.matchingstatusdescription.MatchingStatusDescription.*;
 
@@ -66,7 +67,6 @@ public class MatchingPostService {
     private final MatchingPostAreaRepository matchingPostAreaRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final MemberRepository memberRepository;
     private final MatchingRepository matchingRepository;
     private final BookmarkMatchingPostRepository bookmarkMatchingPostRepository;
     private final TeamReviewRepository teamReviewRepository;
@@ -74,6 +74,8 @@ public class MatchingPostService {
     private final MatchingPostMatchingDateRepository matchingPostMatchingDateRepository;
     private final MatchingRequestRepository matchingRequestRepository;
     private final TeamRatingRepository teamRatingRepository;
+    private final TeamMemberService teamMemberService;
+    private final MemberService memberService;
 
     @Value("${wemingle.ip}")
     private String serverIp;
@@ -129,39 +131,6 @@ public class MatchingPostService {
                 requestMapCnt.getRightLon(),
                 requestMapCnt.isExcludeRegionUnit()
         );
-    }
-
-    @Getter
-    private static class MatchingPostByCalendarVo{
-        private final Long lastIdx;
-        private final RecruitmentType recruitmentType;
-        private final Ability ability;
-        private final Gender gender;
-        private final RecruiterType recruiterType;
-        private final List<AreaName> areaList;
-        private final LocalDate dateFilter;
-        private final YearMonth monthFilter;
-        private final Boolean excludeExpired;
-        private final SortOption sortOption;
-        private final LocalDate lastExpiredDate;
-        private final Integer callCnt;
-        private final SportsType sportsType;
-
-        public MatchingPostByCalendarVo(MatchingPostDto.RequestCalendarDto requestCalendarDto) {
-            this.lastIdx = requestCalendarDto.getLastIdx();
-            this.recruitmentType = requestCalendarDto.getRecruitmentType();//
-            this.ability = requestCalendarDto.getAbility();//
-            this.gender = requestCalendarDto.getGender();//
-            this.recruiterType = requestCalendarDto.getRecruiterType();//
-            this.areaList = requestCalendarDto.getAreaList();//
-            this.dateFilter = requestCalendarDto.getDateFilter();//
-            this.monthFilter = requestCalendarDto.getMonthFilter();//
-            this.excludeExpired = requestCalendarDto.getExcludeExpired();//
-            this.sortOption = requestCalendarDto.getSortOption();//
-            this.lastExpiredDate = requestCalendarDto.getLastExpiredDate();
-            this.callCnt = requestCalendarDto.getCallCnt();
-            this.sportsType = requestCalendarDto.getSportsType();
-        }
     }
 
     public LinkedHashMap<String, Object> getFilteredMatchingPostByCalendar(String memberId,MatchingPostDto.RequestCalendarDto requestCalendarDto){
@@ -318,7 +287,7 @@ public class MatchingPostService {
         if (filteredMatchingPost.isEmpty()) {
             responseObj.put("next url", null);
         } else {
-            responseObj.put("next url", serverIp + "/post/mathch/calendar?"+ nextRetrieveUrlParams);
+            responseObj.put("next url", serverIp + "/post/match/calendar?"+ nextRetrieveUrlParams);
         }
         return responseObj;
     }
@@ -532,13 +501,9 @@ public class MatchingPostService {
 
     private void removeDuplicatePosts(Long lastIdx, List<MatchingPost> filteredMatchingPost) {
         Iterator<MatchingPost> iterator = filteredMatchingPost.iterator();
-        log.info("{}",iterator.hasNext());
-        log.info("{}",!Objects.isNull(lastIdx));
-        log.info("{}",filteredMatchingPost.stream().anyMatch(matchingPost -> matchingPost.getPk().equals(lastIdx)));
         while (iterator.hasNext()&&!Objects.isNull(lastIdx)&& filteredMatchingPost.stream().anyMatch(matchingPost -> matchingPost.getPk().equals(lastIdx))) {
             MatchingPost next = iterator.next();
             iterator.remove();
-            log.info("delete this = {}",next.getPk());
             if (next.getPk().equals(lastIdx)) {
                 break;
             }
@@ -555,10 +520,9 @@ public class MatchingPostService {
     }
 
     public LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> getCompletedMatchingPosts(Long nextIdx, RecruiterType recruiterType, boolean excludeCompleteMatchesFilter, String memberId){
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = memberService.findByMemberId(memberId);
         List<MatchingPost> matchingPostWrittenReview = teamReviewRepository.findMatchingPostWithMemberId(member);
         List<MatchingPost> matchingPosts = matchingPostRepository.findCompletedMatchingPosts(nextIdx, recruiterType, excludeCompleteMatchesFilter, member, matchingPostWrittenReview);
-//        List<MatchingPostArea> matchingPostAreas = matchingPostAreaRepository.findByMatchingPostIn(matchingPosts);
         List<TeamMember> managerOrHigherTeamMembers = teamMemberRepository.findWithManagerOrHigher(getTeamsWithMatchingPosts(matchingPosts));
         LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
 
@@ -568,7 +532,6 @@ public class MatchingPostService {
                 .nickname(getNickname(matchingPost))
                 .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
                 .content(matchingPost.getContent())
-//                .areaNames(getAreaNames(matchingPost, matchingPostAreas))
                 .areaNames(getAreas(matchingPost))
                 .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
                 .ability(matchingPost.getAbility())
@@ -583,14 +546,6 @@ public class MatchingPostService {
     private List<Team> getTeamsWithMatchingPosts(List<MatchingPost> matchingPosts) {
         return matchingPosts.stream().map(MatchingPost::getTeam).toList();
     }
-
-//
-//    private List<AreaName> getAreaNames(MatchingPost matchingPost, List<MatchingPostArea> matchingPostAreas) {
-//        return matchingPostAreas.stream()
-//                .filter(matchingPostArea -> matchingPostArea.getMatchingPost().equals(matchingPost))
-//                .map(MatchingPostArea::getAreaName)
-//                .toList();
-//    }
 
     private String getProfileImgUrl(MatchingPost matchingPost) {
         return isTeam(matchingPost)
@@ -621,7 +576,7 @@ public class MatchingPostService {
                 : createScheduledRequestWithMember(matchingPost.getMatchingStatus(), matchingPost, matchingPostWrittenReview);
     }
 
-    private static LocalDate getMinMatchingDate(MatchingPost matchingPost) {
+    private LocalDate getMinMatchingDate(MatchingPost matchingPost) {
         return matchingPost.getMatchingDates().stream()
                 .map(MatchingPostMatchingDate::getMatchingDate)
                 .min(Comparator.naturalOrder())
@@ -685,13 +640,12 @@ public class MatchingPostService {
         List<Long> participantsTeamMemberId = createMatchingPostDto.getParticipantsId();
 
         Team team = teamRepository.findById(teamPk).orElseThrow(() -> new EntityNotFoundException(TEAM_NOT_FOUND.getExceptionMessage()));
-        TeamMember writerInTeam = teamMemberRepository.findByTeamAndMember_MemberId(team, writerId)
-                .orElseThrow(() -> new EntityNotFoundException(TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+        TeamMember writerInTeam = teamMemberService.findByTeamAndMember_MemberId(team, writerId);
 
         MatchingPost matchingPost = createMatchingPostDto.of(team, writerInTeam, createMatchingPostDto.getMatchingDate());
         matchingPostRepository.save(matchingPost);
 
-        Member teamOwner = memberRepository.findByMemberId(writerId).orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member teamOwner = memberService.findByMemberId(writerId);
         saveMatchingOwner(team, teamOwner, matchingPost);
 
         if (isExistTeamParticipant(recruiterType, participantsTeamMemberId)){
@@ -762,7 +716,14 @@ public class MatchingPostService {
     }
 
     @Transactional
-    public void rePostMatchingPost(MatchingPost matchingPost){
+    public void rePostMatchingPost(Long postId, String memberId){
+        Member requester = memberService.findByMemberId(memberId);
+        MatchingPost matchingPost = getMatchingPostByPostId(postId);
+
+        if (matchingPost.isWriter(requester)) {
+            throw new NotWriterException();
+        }
+
         List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkMatchingPostRepository.findByMatchingPost(matchingPost);
         List<Matching> matchings = matchingRepository.findByMatchingPost(matchingPost);
         matchingRepository.deleteAllInBatch(matchings);
@@ -807,8 +768,7 @@ public class MatchingPostService {
 
     @Transactional
     public void completeMatchingPost(Long matchingPostPk){
-        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.MATCHING_POST_NOT_FOUND.getExceptionMessage()));
+        MatchingPost matchingPost = findById(matchingPostPk);
 
         matchingPost.complete();
     }
@@ -902,21 +862,19 @@ public class MatchingPostService {
         return matchingPostRepository.findSearchMatchingPostCnt(query);
     }
 
-    public HashMap<String, Object> getSearchPost(String query, Long lastIdx, LocalDate lastExpiredDate, Integer callCnt, SortOption sortOption, String memberId){
-        List<MatchingPost> searchMatchingPosts = getSearchMatchingPosts(query, lastIdx, lastExpiredDate, callCnt, sortOption);
+    public HashMap<String, Object> getSearchPost(MatchingPostDto.RequestSearchPost searchDto, String memberId){
+        List<MatchingPost> searchMatchingPosts = getSearchMatchingPosts(searchDto.getQuery(), searchDto.getLastIdx(), searchDto.getLastExpiredDate(), searchDto.getCallCnt(), searchDto.getSortOption());
         List<BookmarkedMatchingPost> bookmarked = bookmarkMatchingPostRepository.findBookmarkedByMatchingPosts(searchMatchingPosts, memberId);
 
-        Integer nextUrlCallCnt = createNextUrlCallCnt(callCnt, searchMatchingPosts);
-        log.info("{}", nextUrlCallCnt == null ? 0 : nextUrlCallCnt);
-        String nextUrl = createNextRetrieveUrlParamsBySearch(getLastIdxInMatchingPostList(searchMatchingPosts), sortOption, getLastExpiredDateInMatchingPostList(sortOption, searchMatchingPosts), query, nextUrlCallCnt);
+        Integer nextUrlCallCnt = createNextUrlCallCnt(searchDto.getCallCnt(), searchMatchingPosts);
+        String nextUrl = createNextRetrieveUrlParamsBySearch(getLastIdxInMatchingPostList(searchMatchingPosts), searchDto.getSortOption(), getLastExpiredDateInMatchingPostList(searchDto.getSortOption(), searchMatchingPosts), searchDto.getQuery(), nextUrlCallCnt);
         HashMap<Long, MatchingPostDto.ResponseSearchPost> responsePostList = createResponsePostList(searchMatchingPosts, bookmarked);
 
         return createResponseData(responsePostList, nextUrl);
     }
 
     private HashMap<String, Object> createResponseData(HashMap<Long, MatchingPostDto.ResponseSearchPost> responsePostList, String nextUrl) {
-//        nextUrl = responsePostList.isEmpty() ? null : serverIp + SEARCH_MATCHING_POST_PATH + "?" + nextUrl;
-        nextUrl = responsePostList.isEmpty() ? null : "http://localhost:8080" + SEARCH_MATCHING_POST_PATH + "?" + nextUrl;
+        nextUrl = responsePostList.isEmpty() ? null : serverIp + SEARCH_MATCHING_POST_PATH + "?" + nextUrl;
         HashMap<String, Object> responseData = new HashMap<>();
         responseData.put("nextUrl", nextUrl);
         responseData.put("postList", responsePostList);
@@ -1010,7 +968,7 @@ public class MatchingPostService {
     public void deleteMatchingPost(MatchingPost matchingPost, List<Matching> matchings){
         List<BookmarkedMatchingPost> bookmarkedMatchingPosts = bookmarkMatchingPostRepository.findByMatchingPost(matchingPost);
 
-        //신고 글 서비스 구현되면 신고 된 내역도 삭제
+        //todo 신고 글 서비스 구현되면 신고 된 내역도 삭제
         bookmarkMatchingPostRepository.deleteAllInBatch(bookmarkedMatchingPosts);
         matchingRequestRepository.deleteAllInBatch(matchingRequestRepository.findByMatchingPost(matchingPost));
         matchingRepository.deleteAllInBatch(matchings);
@@ -1019,8 +977,7 @@ public class MatchingPostService {
 
     @Transactional
     public void updateMatchingPostContent(Long matchingPostPk, String content){
-        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
-                .orElseThrow(() -> new EntityNotFoundException(MATCHING_POST_NOT_FOUND.getExceptionMessage()));
+        MatchingPost matchingPost = findById(matchingPostPk);
 
         matchingPost.updateContent(content);
     }
@@ -1028,10 +985,8 @@ public class MatchingPostService {
 
     public MatchingPostDto.ResponseMatchingPostDetail getMatchingPostDetail(Long matchingPostPk, String memberId){
         TeamRatingUtil teamRatingUtil = new TeamRatingUtil();
-        Member requester = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
-        MatchingPost matchingPost = matchingPostRepository.findById(matchingPostPk)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+        Member requester = memberService.findByMemberId(memberId);
+        MatchingPost matchingPost = findById(matchingPostPk);
         Team writerTeam = matchingPost.getTeam();
         Optional<TeamMember> requesterTeamMember = teamMemberRepository.findByTeamAndMember(writerTeam, requester);
         Integer reviewCnt = teamReviewRepository.findTeamReviewCntWithReviewee(writerTeam);
@@ -1068,16 +1023,14 @@ public class MatchingPostService {
 
     private List<String> getParticipantsImgUrls(MatchingPost matchingPost){
         List<Member> participants = matchingRepository.findMatchingPostTeamParticipants(matchingPost.getTeam(), matchingPost);
-        log.info("par {}", participants.size());
         List<TeamMember> teamMembers = teamMemberRepository.findByTeamAndMemberIn(matchingPost.getTeam(), participants);
-        log.info("teamM {}", teamMembers.size());
 
         return teamMembers.stream()
                 .map(teamMember -> s3ImgService.getTeamMemberPreSignedUrl(teamMember.getProfileImg()))
                 .toList();
     }
 
-    private static boolean isWriter(Optional<TeamMember> requesterTeamMember, TeamMember writer) {
+    private boolean isWriter(Optional<TeamMember> requesterTeamMember, TeamMember writer) {
         return requesterTeamMember.isPresent() ? writer.equals(requesterTeamMember.get()) : false;
     }
 

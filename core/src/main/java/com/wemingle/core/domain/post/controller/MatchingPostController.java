@@ -7,21 +7,15 @@ import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
-import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
-import com.wemingle.core.domain.post.entity.abillity.Ability;
-import com.wemingle.core.domain.post.entity.area.AreaName;
-import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.post.service.TeamPostService;
-import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,8 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -168,20 +160,10 @@ public class MatchingPostController {
         return ResponseEntity.ok(ResponseHandler.builder().responseMessage("completed location data clustering successfully").responseData(matchingPostByMap).build());
     }
 
-    @PatchMapping("/re/{matchingPostPk}")
-    public ResponseEntity<?> rePostMatchingPost(@PathVariable Long matchingPostPk,
+    @PatchMapping("/{postId}/re")
+    public ResponseEntity<?> rePostMatchingPost(@PathVariable Long postId,
                                                 @AuthenticationPrincipal UserDetails userDetails){
-        Member member = memberService.findByMemberId(userDetails.getUsername());
-        MatchingPost matchingPost = matchingPostService.getMatchingPostByPostId(matchingPostPk);
-
-        if (!matchingPost.getWriter().getMember().equals(member)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ResponseHandler.builder()
-                            .responseMessage("RePost is only available for writer")
-                            .build());
-        }
-
-        matchingPostService.rePostMatchingPost(matchingPost);
+        matchingPostService.rePostMatchingPost(postId, userDetails.getUsername());
 
         return ResponseEntity.noContent().build();
     }
@@ -245,13 +227,9 @@ public class MatchingPostController {
     }
 
     @GetMapping("/result")
-    public ResponseEntity<ResponseHandler<HashMap<String, Object>>> getSearchPost(@RequestParam SortOption sortOption,
-                                                                                  @RequestParam @NotBlank String query,
-                                                                                  @RequestParam(required = false) Long lastIdx,
-                                                                                  @RequestParam(required = false) Integer callCnt,
-                                                                                  @RequestParam(required = false) LocalDate lastExpiredDate,
+    public ResponseEntity<ResponseHandler<HashMap<String, Object>>> getSearchPost(@ModelAttribute @Valid MatchingPostDto.RequestSearchPost searchDto,
                                                                                   @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<String, Object> responseData = matchingPostService.getSearchPost(query, lastIdx, lastExpiredDate, callCnt, sortOption, userDetails.getUsername());
+        HashMap<String, Object> responseData = matchingPostService.getSearchPost(searchDto, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<String, Object>>builder()

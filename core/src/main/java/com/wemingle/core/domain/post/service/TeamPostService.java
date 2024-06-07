@@ -10,7 +10,7 @@ import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.entity.TeamPostLike;
 import com.wemingle.core.domain.post.repository.TeamPostLikeRepository;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
-import com.wemingle.core.domain.post.vo.SaveVoteVo;
+import com.wemingle.core.domain.vote.vo.SaveVoteVo;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
