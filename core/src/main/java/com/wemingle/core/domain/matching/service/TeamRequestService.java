@@ -179,7 +179,7 @@ public class TeamRequestService {
 
     @Transactional
     public void deleteTeamRequest(TeamRequestDto.RequestTeamRequestDelete deleteDto) {
-        teamRequestRepository.deleteAllByIdInBatch(deleteDto.getTeamRequestPk());
+        teamRequestRepository.deleteAllByIdInBatch(deleteDto.getTeamRequestId());
     }
 
     @Transactional

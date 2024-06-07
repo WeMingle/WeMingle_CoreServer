@@ -20,14 +20,14 @@ import java.util.HashMap;
 
 @Slf4j
 @RestController
-@RequestMapping("/member")
+@RequestMapping("/members")
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
     private final TokenService tokenService;
 
-    @PostMapping("/id/check")
+    @PostMapping("/available-id")
     ResponseEntity<ResponseHandler<Object>> checkAvailableId(@RequestBody SignUpDto.RequestCheckAvailableIdDto checkAvailableIdDto) {
         if (memberService.isRegisteredMember(checkAvailableIdDto.getMemberId())) {
             return ResponseEntity.badRequest().build();
@@ -90,7 +90,7 @@ public class MemberController {
         return ResponseEntity.ok(ResponseHandler.builder().responseMessage("password successfully changed").build());
     }
 
-    @PostMapping("/profile")
+    @PostMapping("/nickname")
     ResponseEntity<ResponseHandler<Object>> setMemberProfile(@RequestBody SetMemberProfileDto setMemberProfileDto,
                                        @AuthenticationPrincipal UserDetails userDetails) {
         String memberId = userDetails.getUsername();

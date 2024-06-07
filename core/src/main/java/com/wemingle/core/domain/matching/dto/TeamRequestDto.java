@@ -108,15 +108,15 @@ public class TeamRequestDto {
     @Setter
     @NoArgsConstructor
     public static class RequestTeamRequestDelete {
-        private List<Long> teamRequestPk;
+        private List<Long> teamRequestId;
     }
 
     @Getter
     @Setter
     @NoArgsConstructor
     public static class RequestTeamRequestApprove {
-        private Long teamPk;
-        private List<Long> teamRequestPk;
+        private Long teamId;
+        private List<Long> teamRequestId;
     }
 
     @Getter

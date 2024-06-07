@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/img")
+@RequestMapping("/images")
 @RequiredArgsConstructor
 public class ImgController {
     private final MemberService memberService;
@@ -27,7 +27,7 @@ public class ImgController {
     private final TeamService teamService;
 
     private static final int MAX_IMG_COUNT = 5;
-    @GetMapping("/member/profile/upload/{extension}")
+    @GetMapping("/members/profile/upload/{extension}")
     public ResponseEntity<ResponseHandler<Object>> getMemberProfilePicUploadPreSignUrl(@PathVariable("extension") String extension, @AuthenticationPrincipal UserDetails userDetails) {
         if (!s3ImgService.isAvailableExtension(extension)) {
             return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
@@ -41,7 +41,7 @@ public class ImgController {
                 .build());
     }
 
-    @GetMapping("/member/profile/{id}")
+    @GetMapping("/members/profile/{id}")
     public ResponseEntity<ResponseHandler<Object>> getMemberProfilePicRetrievePreSignUrl(@PathVariable("id") UUID picUUID) {
         String memberProfilePreSignedUrl = s3ImgService.getMemberProfilePicUrl(picUUID);
         return ResponseEntity.ok(ResponseHandler.builder()
@@ -50,7 +50,7 @@ public class ImgController {
                 .build());
     }
 
-    @GetMapping("/team/profile/upload/{teamImgUUID}/{extension}")
+    @GetMapping("/teams/profile/upload/{teamImgUUID}/{extension}")
     public ResponseEntity<ResponseHandler<Object>> getTeamProfilePicUploadPreSignUrl(@PathVariable("teamImgUUID") UUID teamImgUUID, @PathVariable("extension") String extension, @AuthenticationPrincipal UserDetails userDetails) {
         if (!s3ImgService.isAvailableExtension(extension)) {
             return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
@@ -62,7 +62,7 @@ public class ImgController {
                 .build());
     }
 
-    @GetMapping("/post/team/upload")
+    @GetMapping("/posts/teams/upload")
     public ResponseEntity<ResponseHandler<?>> getTeamPostPicUploadPreSignUrl(@RequestParam List<String> extensions) {
         int imgCnt = extensions.size();
 
@@ -88,9 +88,9 @@ public class ImgController {
                 .build());
     }
 
-    @GetMapping("/members/team")
-    public ResponseEntity<ResponseHandler<List<String>>> getTeamMembersRetrievePreSignedUrl(@RequestParam List<Long> teamMembersPk){
-        List<String> responseData = teamMemberService.getTeamMembersImgUrl(teamMembersPk);
+    @GetMapping("/members/teams")
+    public ResponseEntity<ResponseHandler<List<String>>> getTeamMembersRetrievePreSignedUrl(@RequestParam List<Long> teamMembersId){
+        List<String> responseData = teamMemberService.getTeamMembersImgUrl(teamMembersId);
 
         return ResponseEntity.ok(ResponseHandler.<List<String>>builder()
                 .responseMessage("s3 url issuance complete")
@@ -98,8 +98,8 @@ public class ImgController {
                 .build());
     }
 
-    @GetMapping("/member/team/request/profile/upload/{teamImgUUID}/{extension}")
-    public ResponseEntity<ResponseHandler<Object>> getTeamMemberProfilePicUploadPreSignUrl(@PathVariable("teamImgUUID")UUID teamImgUUID,
+    @GetMapping("/teams/request/profile/upload/{teamImgUUID}/{extension}")
+    public ResponseEntity<ResponseHandler<Object>> getTeamRequestProfilePicUploadPreSignUrl(@PathVariable("teamImgUUID")UUID teamImgUUID,
                                                                                            @PathVariable("extension")String extension) {
         if (!s3ImgService.isAvailableExtension(extension)) {
             return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
@@ -112,15 +112,14 @@ public class ImgController {
                 .build());
     }
 
-    @GetMapping("/team/background/upload/{teamPk}/{extension}")
-    public ResponseEntity<ResponseHandler<Object>> getTeamBackgroundUploadPreSignUrl(@PathVariable("teamPk") Long teamPk,
-                                                                                     @PathVariable("extension") String extension,
-                                                                                     @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("/teams/background/upload/{teamId}/{extension}")
+    public ResponseEntity<ResponseHandler<Object>> getTeamBackgroundUploadPreSignUrl(@PathVariable("teamId") Long teamId,
+                                                                                     @PathVariable("extension") String extension) {
         if (!s3ImgService.isAvailableExtension(extension)) {
             return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
         }
 
-        Team team = teamService.findById(teamPk);
+        Team team = teamService.findById(teamId);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()
