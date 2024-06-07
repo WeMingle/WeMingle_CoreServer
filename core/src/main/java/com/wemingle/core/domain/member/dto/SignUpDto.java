@@ -7,12 +7,14 @@ import com.wemingle.core.global.annotation.Essential;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * DTO for {@link com.wemingle.core.domain.member.entity.Member}
  */
 public class SignUpDto {
 
+    @Setter
     @Getter
     @NoArgsConstructor
     public static class RequestCheckAvailableIdDto{

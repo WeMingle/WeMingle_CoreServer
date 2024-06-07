@@ -95,13 +95,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public SignupPlatform findRegisteredPlatformByMember(String memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new RuntimeException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = findByMemberId(memberId);
         return member.getSignupPlatform();
     }
 
     @Override
     public boolean isMatchesPassword(String memberId, String rawPw) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = findByMemberId(memberId);
         return pwEncoder.matches(rawPw, member.getPassword());
     }
 
@@ -114,7 +114,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberInfoDto getMemberInfo(String memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = findByMemberId(memberId);
         List<MemberInfoDto.EachAbilityAboutMember> abilityAboutMembers = memberAbilityRepository.findMemberAbilitiesByMember(member).stream().map(memberAbility -> MemberInfoDto.EachAbilityAboutMember.builder().ability(memberAbility.getAbility()).sportsType(memberAbility.getSportsType()).build()).toList();
         return MemberInfoDto.builder().oneLineIntroduction(member.getOneLineIntroduction())
                 .nickname(member.getNickname())
@@ -133,7 +133,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void setMemberInfo(String memberId, MemberInfoDto memberInfoDto) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = findByMemberId(memberId);
 
         member.setNickname(memberInfoDto.getNickname());
         member.setMajorActivityAreaPublic(memberInfoDto.isMajorActivityAreaPublic());
@@ -166,7 +166,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = findByMemberId(memberId);
         VerifiedUniversityEmail verifiedUniversityEmail = verifiedUniversityEmailRepository.findByMember(member)
                 .orElse(
                         VerifiedUniversityEmail.builder()
@@ -199,7 +199,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     @Override
     public void patchMemberPassword(String memberId, String newPassword) {
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new RuntimeException(MEMBER_NOT_FOUNT.getExceptionMessage()));
+        Member member = findByMemberId(memberId);
         member.setPassword(newPassword);
     }
 }
