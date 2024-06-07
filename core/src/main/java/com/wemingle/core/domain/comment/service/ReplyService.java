@@ -109,4 +109,8 @@ public class ReplyService {
                 .nextUrl(nextUrl)
                 .build();
     }
+
+    public List<Reply> findRankRepliesByComments(List<Long> commentIds){
+        return replyRepository.findRankRepliesByComments(commentIds);
+    }
 }

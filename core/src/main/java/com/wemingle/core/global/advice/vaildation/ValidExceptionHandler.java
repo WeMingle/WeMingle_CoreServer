@@ -1,5 +1,6 @@
 package com.wemingle.core.global.advice.vaildation;
 
+import com.wemingle.core.global.exception.NotWriterException;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -89,6 +90,16 @@ public class ValidExceptionHandler {
         return ResponseEntity.badRequest().body(
                 ResponseHandler.<String>builder()
                         .responseMessage("imgs don't exist in s3")
+                        .responseData(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(NotWriterException.class)
+    public ResponseEntity<ResponseHandler<String>> NotWriterException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                ResponseHandler.<String>builder()
+                        .responseMessage("NotWriterException")
                         .responseData(e.getMessage())
                         .build()
         );

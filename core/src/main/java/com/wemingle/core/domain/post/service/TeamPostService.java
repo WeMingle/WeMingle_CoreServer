@@ -357,4 +357,14 @@ public class TeamPostService {
                 )
                 .toList();
     }
+
+    public TeamPost findById(Long postId) {
+        return teamPostRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_NOT_FOUND.getExceptionMessage()));
+    }
+
+    public Team findTeam(Long postId) {
+        return teamPostRepository.findTeam(postId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
+    }
 }

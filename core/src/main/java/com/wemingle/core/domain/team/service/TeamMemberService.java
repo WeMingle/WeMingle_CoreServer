@@ -9,6 +9,7 @@ import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.team.dto.TeamDto;
+import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
@@ -148,5 +149,10 @@ public class TeamMemberService {
                 .build()));
 
         return responseData;
+    }
+
+    public TeamMember findByTeamAndMember_MemberId(Team team, String memberId) {
+        return teamMemberRepository.findByTeamAndMember_MemberId(team, memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
     }
 }
