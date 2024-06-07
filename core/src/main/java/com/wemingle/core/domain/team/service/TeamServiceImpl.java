@@ -315,8 +315,8 @@ public class TeamServiceImpl implements TeamService{
     }
 
     @Override
-    public Team findByTeamPk(Long teamPk) {
-        return teamRepository.findById(teamPk)
+    public Team findById(Long teamId) {
+        return teamRepository.findById(teamId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
     }
 

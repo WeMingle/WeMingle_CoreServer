@@ -120,7 +120,7 @@ public class ImgController {
             return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("extension is not allowed").build());
         }
 
-        Team team = teamService.findByTeamPk(teamPk);
+        Team team = teamService.findById(teamPk);
 
         return ResponseEntity.ok(
                 ResponseHandler.builder()

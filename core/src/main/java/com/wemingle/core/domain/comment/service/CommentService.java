@@ -4,14 +4,11 @@ import com.wemingle.core.domain.comment.dto.CommentDto;
 import com.wemingle.core.domain.comment.entity.Comment;
 import com.wemingle.core.domain.comment.entity.Reply;
 import com.wemingle.core.domain.comment.repository.CommentRepository;
-import com.wemingle.core.domain.comment.repository.ReplyRepository;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.post.entity.TeamPost;
-import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.post.service.TeamPostService;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
-import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.exception.NotWriterException;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
@@ -42,7 +39,7 @@ public class CommentService {
 
     @Transactional
     public void saveComment(CommentDto.RequestCommentSave saveDto, String memberId){
-        TeamPost teamPost = teamPostService.findById(saveDto.getTeamPostPk());
+        TeamPost teamPost = teamPostService.findById(saveDto.getTeamPostId());
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
 
         commentRepository.save(Comment.builder()
@@ -64,11 +61,11 @@ public class CommentService {
 
     @Transactional
     public void updateComment(CommentDto.RequestCommentUpdate updateDto, String memberId){
-        if (!isCommentWriter(updateDto.getCommentPk(), memberId)) {
+        if (!isCommentWriter(updateDto.getCommentId(), memberId)) {
             throw new NotWriterException();
         }
 
-        Comment comment = commentRepository.findById(updateDto.getCommentPk())
+        Comment comment = commentRepository.findById(updateDto.getCommentId())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.COMMENT_NOT_FOUND.getExceptionMessage()));
 
         comment.updateContent(updateDto.getContent());
@@ -76,20 +73,20 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(CommentDto.RequestCommentDelete deleteDto, String memberId){
-        if (!isCommentWriter(deleteDto.getCommentPk(), memberId)) {
+        if (!isCommentWriter(deleteDto.getCommentId(), memberId)) {
             throw new NotWriterException();
         }
 
-        Comment comment = commentRepository.findByIdFetchPost(deleteDto.getCommentPk())
+        Comment comment = commentRepository.findByIdFetchPost(deleteDto.getCommentId())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.COMMENT_NOT_FOUND.getExceptionMessage()));
 
         comment.delete();
         comment.getTeamPost().reduceReplyCnt();
     }
 
-    public HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve> getComments(Long nextIdx, Long teamPostPk, String memberId){
-        List<Comment> comments = commentRepository.findCommentByNextIdx(nextIdx, teamPostPk);
-        Team team = teamPostService.findTeam(teamPostPk);
+    public HashMap<Long, CommentDto.ResponseCommentsInfoRetrieve> getComments(Long nextIdx, Long teamPostId, String memberId){
+        List<Comment> comments = commentRepository.findCommentByNextIdx(nextIdx, teamPostId);
+        Team team = teamPostService.findTeam(teamPostId);
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(team, memberId);
 
         return createResponseComments(comments, requester);

@@ -14,7 +14,7 @@ public class CommentDto {
     @Setter
     @NoArgsConstructor
     public static class RequestCommentSave{
-        private Long teamPostPk;
+        private Long teamPostId;
         @NotBlank(message = "댓글은 최소 1글자 이상 작성해야합니다.")
         private String content;
     }
@@ -23,7 +23,7 @@ public class CommentDto {
     @Setter
     @NoArgsConstructor
     public static class RequestCommentUpdate{
-        private Long commentPk;
+        private Long commentId;
         @NotBlank(message = "댓글은 최소 1글자 이상 작성해야합니다.")
         private String content;
     }
@@ -32,7 +32,7 @@ public class CommentDto {
     @Setter
     @NoArgsConstructor
     public static class RequestCommentDelete{
-        private Long commentPk;
+        private Long commentId;
     }
 
     @Getter

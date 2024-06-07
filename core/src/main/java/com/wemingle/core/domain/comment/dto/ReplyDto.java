@@ -15,7 +15,7 @@ public class ReplyDto {
     @Setter
     @NoArgsConstructor
     public static class RequestReplySave{
-        private Long commentPk;
+        private Long commentId;
         @NotBlank(message = "대댓글은 최소 1글자 이상 작성해야합니다.")
         private String content;
     }
@@ -24,7 +24,7 @@ public class ReplyDto {
     @Setter
     @NoArgsConstructor
     public static class RequestReplyUpdate{
-        private Long replyPk;
+        private Long replyId;
         @NotBlank(message = "대댓글은 최소 1글자 이상 작성해야합니다.")
         private String content;
     }
@@ -33,7 +33,8 @@ public class ReplyDto {
     @Setter
     @NoArgsConstructor
     public static class RequestReplyDelete{
-        private Long replyPk;
+        private Long teamPostId;
+        private Long replyId;
     }
 
     @Getter
