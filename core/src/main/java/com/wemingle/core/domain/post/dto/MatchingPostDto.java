@@ -19,8 +19,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -551,5 +549,19 @@ public class MatchingPostDto {
             this.isBookmarked = isBookmarked;
             this.isExpired = isExpired;
         }
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class RequestSearchPost {
+        @NotNull
+        private SortOption sortOption;
+        @NotNull @NotBlank
+        private String query;
+        private Long lastIdx;
+        private Integer callCnt;
+        private LocalDate lastExpiredDate;
     }
 }

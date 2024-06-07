@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -119,7 +118,6 @@ public class MemberController {
 
     @PatchMapping("/info")
     ResponseEntity<ResponseHandler<Object>> setMyInfo(@RequestBody MemberInfoDto memberInfoDto, @AuthenticationPrincipal UserDetails userDetails) {
-        log.info("{}",memberInfoDto.getBirthYear());
         memberService.setMemberInfo(userDetails.getUsername(), memberInfoDto);
         return ResponseEntity.ok().body(ResponseHandler.builder()
                 .responseMessage("member info update successfully")

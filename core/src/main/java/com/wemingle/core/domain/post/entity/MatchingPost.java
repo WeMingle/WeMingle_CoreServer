@@ -2,6 +2,7 @@ package com.wemingle.core.domain.post.entity;
 
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.common.entity.BaseEntity;
+import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelectionType;
@@ -200,5 +201,8 @@ public class MatchingPost extends BaseEntity {
     }
     public boolean isComplete(){
         return this.matchingStatus.equals(MatchingStatus.COMPLETE);
+    }
+    public boolean isWriter(Member requester) {
+        return getWriter().getMember().equals(requester);
     }
 }

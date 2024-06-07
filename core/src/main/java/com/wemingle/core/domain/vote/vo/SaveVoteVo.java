@@ -1,4 +1,4 @@
-package com.wemingle.core.domain.post.vo;
+package com.wemingle.core.domain.vote.vo;
 
 import lombok.Builder;
 import lombok.Getter;
