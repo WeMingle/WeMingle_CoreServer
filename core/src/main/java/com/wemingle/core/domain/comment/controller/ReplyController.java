@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/reply")
+@RequestMapping("/replies")
 public class ReplyController {
     private final ReplyService replyService;
 

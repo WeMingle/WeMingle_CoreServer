@@ -20,13 +20,13 @@ import java.util.LinkedHashMap;
 public class MatchingController {
     private final MatchingService matchingService;
 
-    @GetMapping("/summary")
+    @GetMapping("/summaries")
     ResponseEntity<ResponseHandler<Object>> getMyMatchingSummary(@AuthenticationPrincipal UserDetails userDetails) {
         LinkedHashMap<String, Integer> matchingSummaryInfo = matchingService.getMatchingSummaryInfo(userDetails.getUsername());
 
         return ResponseEntity.ok().body(
                 ResponseHandler.builder()
-                        .responseMessage("matching summary retrieval successfully")
+                        .responseMessage("match summaries retrieval successfully")
                         .responseData(matchingSummaryInfo).build()
         );
     }

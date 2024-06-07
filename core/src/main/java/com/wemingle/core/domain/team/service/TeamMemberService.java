@@ -91,7 +91,7 @@ public class TeamMemberService {
 
     @Transactional
     public void updateTeamMemberProfile(TeamMemberDto.RequestTeamMemberProfileUpdate updateDto) {
-        TeamMember teamMember = findById(updateDto.getTeamMemberPk());
+        TeamMember teamMember = findById(updateDto.getTeamMemberId());
 
         teamMember.updateNickname(updateDto.getNickname());
     }

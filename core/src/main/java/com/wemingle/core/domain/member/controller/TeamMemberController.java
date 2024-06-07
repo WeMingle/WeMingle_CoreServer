@@ -19,7 +19,7 @@ import java.util.HashMap;
 public class TeamMemberController {
     private final TeamMemberService teamMemberService;
 
-    @GetMapping("/member/team/{teamId}")
+    @GetMapping("/members/teams/{teamId}")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamMemberDto.ResponseTeamMembers>>> getTeamMembersInTeam(@PathVariable Long teamId,
                                                                                                                   @AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamMemberDto.ResponseTeamMembers> responseData = teamMemberService.getTeamMembersInTeam(teamId, userDetails.getUsername());
@@ -32,7 +32,7 @@ public class TeamMemberController {
         );
     }
 
-    @GetMapping("/member/{teamMemberId}/team")
+    @GetMapping("/members/{teamMemberId}/team")
     public ResponseEntity<ResponseHandler<TeamMemberDto.ResponseTeamMemberProfile>> getTeamMemberProfile(@PathVariable Long teamMemberId) {
         TeamMemberDto.ResponseTeamMemberProfile responseData = teamMemberService.getTeamMemberProfile(teamMemberId);
 
@@ -44,14 +44,14 @@ public class TeamMemberController {
         );
     }
 
-    @PatchMapping("/member/team")
+    @PatchMapping("/members/teams/profile")
     public ResponseEntity<Object> updateTeamMemberProfile(@RequestBody TeamMemberDto.RequestTeamMemberProfileUpdate updateDto) {
         teamMemberService.updateTeamMemberProfile(updateDto);
 
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/member/{teamMemberId}/team/participant")
+    @PatchMapping("/members/{teamMemberId}/teams/participant")
     public ResponseEntity<Object> updateManagerRoleToLower(@PathVariable Long teamMemberId) {
         if (!teamMemberService.isExistOtherManager(teamMemberId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -65,19 +65,19 @@ public class TeamMemberController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/member/team/manager")
+    @PatchMapping("/members/teams/manager")
     public ResponseEntity<Object> updateParticipantRoleToHigher(@RequestBody TeamMemberDto.RequestTeamMemberRoleToManagerUpdate updateUto) {
-        teamMemberService.updateParticipantRoleToHigher(updateUto.getGrantorPk());
+        teamMemberService.updateParticipantRoleToHigher(updateUto.getGrantorId());
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/member/team/block")
+    @PatchMapping("/members/teams/block")
     public ResponseEntity<Object> blockTeamMember(@RequestBody TeamMemberDto.RequestTeamMemberBlock blockDto) {
-        teamMemberService.blockTeamMember(blockDto.getBlockedMemberPk());
+        teamMemberService.blockTeamMember(blockDto.getBlockedMemberId());
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/member/team/{teamId}/info")
+    @GetMapping("/members/teams/{teamId}/info")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamMemberDto.ResponseTeamMemberInfo>>> getAllTeamMembersInfo(@PathVariable Long teamId,
                                                                                                                       @AuthenticationPrincipal UserDetails userDetails) {
         HashMap<Long, TeamMemberDto.ResponseTeamMemberInfo> responseData = teamMemberService.getAllTeamMembersInfo(teamId, userDetails.getUsername());
