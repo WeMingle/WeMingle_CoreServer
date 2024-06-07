@@ -30,7 +30,6 @@ public class MemberController {
 
     private final MemberService memberService;
     private final TokenService tokenService;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     @PostMapping("/id/check")
     ResponseEntity<ResponseHandler<Object>> checkAvailableId(@RequestBody SignUpDto.RequestCheckAvailableIdDto checkAvailableIdDto) {
@@ -40,26 +39,26 @@ public class MemberController {
         return ResponseEntity.ok(ResponseHandler.builder().responseMessage("Is availableId").build());
     }
 
-    //todo 이메일 인증 되었나, 온보딩 설정 여부 함께 반환
     @PostMapping("/signin")
-    ResponseEntity<ResponseHandler<Object>> signInMember(@RequestBody SignUpDto.RequestSignInDto signInDto) {
+    ResponseEntity<ResponseHandler<Object>> signInMember(@RequestBody SignInDto.RequestSignInDto signInDto) {
         boolean isRegisteredMember = memberService.isRegisteredMember(signInDto.getMemberId());
+        boolean isMatchesPassword = memberService.isMatchesPassword(signInDto.getMemberId(), signInDto.getPassword());
         if (!isRegisteredMember) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ResponseHandler.builder()
                             .responseMessage("Member not found")
                             .build());
         }
-        if (!memberService.isMatchesPassword(signInDto.getMemberId(), signInDto.getPassword())) {
+        if (!isMatchesPassword) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ResponseHandler.builder()
                             .responseMessage("Passwords do not match")
                             .build());
         }
-        TokenDto.ResponseTokenDto tokensForRegisteredMember = tokenService.getTokensForRegisteredMember(signInDto.getMemberId());
+        SignInDto.ResponseSignInDto responseSignInDto = tokenService.getTokensForRegisteredMember(signInDto.getMemberId());
         return ResponseEntity.ok(ResponseHandler.builder()
                 .responseMessage("Token reissuance complete")
-                .responseData(tokensForRegisteredMember)
+                .responseData(responseSignInDto)
                 .build());
     }
 

@@ -15,14 +15,29 @@ public class SignInDto {
     public static class ResponseSignInDto{
         @Essential
         TokenDto.ResponseTokenDto token;
-        Boolean email;
-        Boolean onboard;
+        Boolean isEmailVerified;
+        Boolean isOnboardingComplete;
 
         @Builder
-        public ResponseSignInDto(TokenDto.ResponseTokenDto token, Boolean email, Boolean onboard) {
+        public ResponseSignInDto(TokenDto.ResponseTokenDto token, Boolean isEmailVerified, Boolean isOnboardingComplete) {
             this.token = token;
-            this.email = email;
-            this.onboard = onboard;
+            this.isEmailVerified = isEmailVerified;
+            this.isOnboardingComplete = isOnboardingComplete;
         }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class RequestSignInDto{
+        @Essential
+        String memberId;
+
+        @Essential
+        @Size(min = 8, max = 20)
+        String password;
+
+        @Essential
+        SignupPlatform signupPlatform;
+
     }
 }

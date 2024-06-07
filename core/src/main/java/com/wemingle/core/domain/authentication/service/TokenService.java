@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.authentication.service;
 
 import com.wemingle.core.domain.authentication.dto.TokenDto;
+import com.wemingle.core.domain.member.dto.SignInDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.domain.member.service.MemberService;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -78,18 +80,28 @@ public class TokenService {
     }
 
     @Transactional
-    public TokenDto.ResponseTokenDto getTokensForRegisteredMember(String memberId) {
+    public SignInDto.ResponseSignInDto getTokensForRegisteredMember(String memberId) {
         Member member = memberService.findByMemberId(memberId);
 
         String accessToken = tokenProvider.createAccessToken(memberId, member.getRole());
         String refreshToken = tokenProvider.createRefreshToken(memberId, member.getRole());
+        boolean isEmailVerified = member.getRole().equals(Role.USER);
+        boolean isOnboardingComplete = !Objects.isNull(member.getPreferenceSport());
+
 
         member.patchRefreshToken(refreshToken);
-        return TokenDto.ResponseTokenDto.builder()
+
+        TokenDto.ResponseTokenDto responseTokenDto = TokenDto.ResponseTokenDto.builder()
                 .refreshToken(refreshToken)
                 .refreshTokenExpiredTime(getExpirationTime(refreshToken))
                 .accessToken(accessToken)
                 .accessTokenExpiredTime(getExpirationTime(accessToken))
+                .build();
+
+        return SignInDto.ResponseSignInDto.builder()
+                .token(responseTokenDto)
+                .isEmailVerified(isEmailVerified)
+                .isOnboardingComplete(isOnboardingComplete)
                 .build();
     }
 
