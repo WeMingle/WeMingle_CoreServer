@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/post/team")
+@RequestMapping("/posts/teams")
 @Slf4j
 public class TeamPostController {
     private final TeamPostService teamPostService;
@@ -39,12 +39,12 @@ public class TeamPostController {
         );
     }
 
-    @GetMapping("/{teamPk}")
-    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostsInfoWithTeam>> getTeamPostsWithTeam(@PathVariable Long teamPk,
+    @GetMapping("/{teamId}")
+    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostsInfoWithTeam>> getTeamPostsWithTeam(@PathVariable Long teamId,
                                                                                                            @RequestParam boolean isNotice,
                                                                                                            @RequestParam(required = false) Long nextIdx,
                                                                                                            @AuthenticationPrincipal UserDetails userDetails) {
-        TeamPostDto.ResponseTeamPostsInfoWithTeam responseData = teamPostService.getTeamPostWithTeam(nextIdx, isNotice, teamPk, userDetails.getUsername());
+        TeamPostDto.ResponseTeamPostsInfoWithTeam responseData = teamPostService.getTeamPostWithTeam(nextIdx, isNotice, teamId, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamPostDto.ResponseTeamPostsInfoWithTeam>builder()
@@ -97,10 +97,10 @@ public class TeamPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{teamPostPk}/detail")
-    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostDetail>> getTeamPostDetail(@PathVariable Long teamPostPk,
+    @GetMapping("/{teamPostId}/detail")
+    public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostDetail>> getTeamPostDetail(@PathVariable Long teamPostId,
                                                                                        @AuthenticationPrincipal UserDetails userDetails){
-        TeamPostDto.ResponseTeamPostDetail responseData = teamPostService.getTeamPostDetail(teamPostPk, userDetails.getUsername());
+        TeamPostDto.ResponseTeamPostDetail responseData = teamPostService.getTeamPostDetail(teamPostId, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamPostDto.ResponseTeamPostDetail>builder()
