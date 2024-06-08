@@ -111,10 +111,6 @@ public class TeamMemberService {
     }
 
     public boolean isManager(Long teamMemberId) {
-        if (!isManager(teamMemberId)) {
-            throw new NotManagerException();
-        }
-
         TeamMember teamMember = findById(teamMemberId);
 
         return teamMember.isManager();

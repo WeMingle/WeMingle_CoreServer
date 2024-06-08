@@ -2,9 +2,11 @@ package com.wemingle.core.global.advice.vaildation;
 
 import com.wemingle.core.global.exception.NotManagerException;
 import com.wemingle.core.global.exception.NotWriterException;
+import com.wemingle.core.global.exception.WriterNotAllowedException;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -98,7 +100,7 @@ public class ValidExceptionHandler {
 
     @ExceptionHandler(NotWriterException.class)
     public ResponseEntity<ResponseHandler<String>> NotWriterException(Exception e) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                 ResponseHandler.<String>builder()
                         .responseMessage("NotWriterException")
                         .responseData(e.getMessage())
@@ -108,9 +110,19 @@ public class ValidExceptionHandler {
 
     @ExceptionHandler(NotManagerException.class)
     public ResponseEntity<ResponseHandler<String>> NotManagerException(Exception e) {
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                 ResponseHandler.<String>builder()
                         .responseMessage("NotManagerException")
+                        .responseData(e.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(WriterNotAllowedException.class)
+    public ResponseEntity<ResponseHandler<String>> WriterNotAllowedException(Exception e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                ResponseHandler.<String>builder()
+                        .responseMessage("WriterNotAllowedException")
                         .responseData(e.getMessage())
                         .build()
         );
