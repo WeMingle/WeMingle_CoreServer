@@ -20,13 +20,12 @@ import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/posts/teams")
 @Slf4j
 public class TeamPostController {
     private final TeamPostService teamPostService;
     private final S3ImgService s3ImgService;
 
-    @GetMapping
+    @GetMapping("/posts/teams")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember>>> getTeamPostsInMyTeams(@RequestParam(required = false) Long nextIdx,
                                                                                                                              @AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamPostDto.ResponseTeamPostsInfoWithMember> responseData = teamPostService.getTeamPostWithMember(nextIdx, userDetails.getUsername());
@@ -39,7 +38,7 @@ public class TeamPostController {
         );
     }
 
-    @GetMapping("/{teamId}")
+    @GetMapping("/posts/teams/{teamId}")
     public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostsInfoWithTeam>> getTeamPostsWithTeam(@PathVariable Long teamId,
                                                                                                            @RequestParam boolean isNotice,
                                                                                                            @RequestParam(required = false) Long nextIdx,
@@ -54,7 +53,7 @@ public class TeamPostController {
         );
     }
 
-    @PostMapping
+    @PostMapping("/posts/teams")
     public ResponseEntity<Object> saveTeamPost(@RequestBody @Valid TeamPostDto.RequestTeamPostSave postSaveDto,
                                                @AuthenticationPrincipal UserDetails userDetails){
         s3ImgService.verifyImgsExistInTeamPostS3(postSaveDto.getImgIds());
@@ -63,7 +62,7 @@ public class TeamPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/result")
+    @GetMapping("/posts/teams/result")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseSearchTeamPost>>> getSearchTeamPosts(@RequestParam(required = false) Long nextIdx,
                                                                                                                  @RequestParam @NotBlank(message = "검색어는 최소 한글자입니다.") String query,
                                                                                                                  @RequestParam Long teamPk,
@@ -79,27 +78,26 @@ public class TeamPostController {
          );
     }
 
-    @PostMapping("/like")
-    public ResponseEntity<Object> saveOrDeletePostLike(@RequestBody TeamPostDto.RequestPostLike postLikeDto,
+    @PostMapping("/posts/{teamPostId}/teams/like")
+    public ResponseEntity<Object> saveOrDeletePostLike(@PathVariable Long teamPostId,
                                                        @AuthenticationPrincipal UserDetails userDetails){
-        Long teamPostPk = postLikeDto.getTeamPostPk();
         String memberId = userDetails.getUsername();
 
-        if (teamPostService.isTeamPostWriter(teamPostPk, memberId)){
+        if (teamPostService.isTeamPostWriter(teamPostId, memberId)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ResponseHandler.builder()
                             .responseMessage("Can't like your own post")
                             .build());
         }
 
-        teamPostService.saveOrDeletePostLike(teamPostPk, memberId);
+        teamPostService.saveOrDeletePostLike(teamPostId, memberId);
 
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{teamPostId}/detail")
+    @GetMapping("/posts/{teamPostId}/teams/detail")
     public ResponseEntity<ResponseHandler<TeamPostDto.ResponseTeamPostDetail>> getTeamPostDetail(@PathVariable Long teamPostId,
-                                                                                       @AuthenticationPrincipal UserDetails userDetails){
+                                                                                                 @AuthenticationPrincipal UserDetails userDetails){
         TeamPostDto.ResponseTeamPostDetail responseData = teamPostService.getTeamPostDetail(teamPostId, userDetails.getUsername());
 
         return ResponseEntity.ok(
