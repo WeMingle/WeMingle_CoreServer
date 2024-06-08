@@ -32,7 +32,8 @@ public enum ExceptionMessage {
     REPLY_NOT_FOUND("대댓글을 찾을 수 없습니다."),
     VOTE_NOT_FOUND("투표를 찾을 수 없습니다."),
     TEAM_REQUEST_NOT_FOUND("팀 신청 내역을 찾을 수 없습니다."),
-    BOOKMARKED_NOT_FOUND("북마크 내역을 찾을 수 없습니다.");
+    BOOKMARKED_NOT_FOUND("북마크 내역을 찾을 수 없습니다."),
+    POST_LIKE_NOT_FOUND("글 좋아요를 찾을 수 없습니다.");
 
     private final String exceptionMessage;
 }

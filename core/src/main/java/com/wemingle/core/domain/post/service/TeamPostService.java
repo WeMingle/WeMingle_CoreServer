@@ -10,7 +10,6 @@ import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.entity.TeamPostLike;
 import com.wemingle.core.domain.post.repository.TeamPostLikeRepository;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
-import com.wemingle.core.domain.vote.vo.SaveVoteVo;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
@@ -20,6 +19,8 @@ import com.wemingle.core.domain.vote.entity.TeamPostVote;
 import com.wemingle.core.domain.vote.entity.VoteOption;
 import com.wemingle.core.domain.vote.repository.TeamPostVoteRepository;
 import com.wemingle.core.domain.vote.repository.VoteResultRepository;
+import com.wemingle.core.domain.vote.vo.SaveVoteVo;
+import com.wemingle.core.global.exception.WriterNotAllowedException;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -270,25 +271,35 @@ public class TeamPostService {
     }
 
     @Transactional
-    public void saveOrDeletePostLike(Long teamPostId, String memberId) {
+    public void savePostLike(Long teamPostId, String memberId) {
         TeamPost teamPost = findById(teamPostId);
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
+
+        if (teamPost.isWriter(requester)){
+            throw new WriterNotAllowedException();
+        }
+
         Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
-
         if (postLike.isPresent()){
-            TeamPostLike postLikeGet = postLike.get();
-
-            if (postLikeGet.isDeleted()){
-                postLikeGet.restore();
-                teamPost.addLikeCnt();
-            } else {
-                postLikeGet.delete();
-                teamPost.reduceLikeCnt();
-            }
+            postLike.get().restore();
         }else {
             teamPostLikeRepository.save(TeamPostLike.builder().teamPost(teamPost).teamMember(requester).build());
             teamPost.addLikeCnt();
         }
+    }
+
+    @Transactional
+    public void deletePostLike(Long teamPostId, String memberId) {
+        TeamPost teamPost = findById(teamPostId);
+        TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
+
+        if (teamPost.isWriter(requester)){
+            throw new WriterNotAllowedException();
+        }
+
+        TeamPostLike postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_LIKE_NOT_FOUND.getExceptionMessage()));;
+        postLike.delete();
     }
 
     public TeamPostDto.ResponseTeamPostDetail getTeamPostDetail(Long teamPostId, String memberId) {

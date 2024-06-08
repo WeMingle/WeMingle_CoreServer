@@ -1,7 +1,7 @@
 package com.wemingle.core.global.exception;
 
-public class NotWriterException extends RuntimeException{
-    public NotWriterException() {
-        super("Not the writer");
+public class WriterNotAllowedException extends RuntimeException{
+    public WriterNotAllowedException() {
+        super("This action is not allowed for the writer.");
     }
 }
