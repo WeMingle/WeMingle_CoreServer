@@ -86,7 +86,7 @@ public class VoteService {
 
     private List<VoteDto.VoteOptionResult> getVoteOptionResult(TeamPostVote teamPostVote) {
         List<VoteOption> distinctVoteOptions = teamPostVote.getVoteOptions();
-        List<VoteResult> voteResults = voteResultRepository.findByVoteOptionIn(distinctVoteOptions);
+        List<VoteResult> voteResults = voteResultRepository.findFetchTeamMemberByVoteOptionIn(distinctVoteOptions);
 
         return distinctVoteOptions.stream()
                 .map(distinctVoteOption -> VoteDto.VoteOptionResult
@@ -173,5 +173,15 @@ public class VoteService {
     public TeamPostVote findById(Long voteId) {
         return teamPostVoteRepository.findById(voteId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.VOTE_NOT_FOUND.getExceptionMessage()));
+    }
+
+    @Transactional
+    public void deleteAllTeamPostVote(List<TeamPost> teamPost) {
+        List<TeamPostVote> allTeamPostVotes = teamPostVoteRepository.findByTeamPostIn(teamPost);
+        List<VoteOption> allVoteOptions = voteOptionRepository.findByTeamPostVoteIn(allTeamPostVotes);
+        List<VoteResult> allVoteResults = voteResultRepository.findByVoteOptionIn(allVoteOptions);
+        voteResultRepository.deleteAllInBatch(allVoteResults);
+        voteOptionRepository.deleteAllInBatch(allVoteOptions);
+        teamPostVoteRepository.deleteAllInBatch(allTeamPostVotes);
     }
 }

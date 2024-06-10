@@ -367,4 +367,20 @@ public class TeamPostService {
         return teamPostRepository.findTeam(postId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_NOT_FOUND.getExceptionMessage()));
     }
+
+    public List<TeamPost> findMyTeamPosts(TeamMember teamMember) {
+        return teamPostRepository.findByWriter(teamMember);
+    }
+
+    @Transactional
+    public void deleteMyTeamPostLike(TeamMember teamMember) {
+        List<TeamPostLike> teamPostLikes = teamPostLikeRepository.findByTeamMember(teamMember);
+        teamPostLikeRepository.deleteAllInBatch(teamPostLikes);
+    }
+
+    @Transactional
+    public void deleteAllTeamPostLike(List<TeamPost> teamPosts) {
+        List<TeamPostLike> teamPostLikes = teamPostLikeRepository.findByTeamPostIn(teamPosts);
+        teamPostLikeRepository.deleteAllInBatch(teamPostLikes);
+    }
 }

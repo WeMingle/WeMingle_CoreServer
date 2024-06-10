@@ -13,4 +13,6 @@ public interface TeamPostLikeRepository extends JpaRepository<TeamPostLike, Long
     Optional<TeamPostLike> findByTeamPostAndTeamMember(TeamPost teamPost, TeamMember teamMember);
     List<TeamPostLike> findByTeamPostInAndTeamMember_Member(List<TeamPost> teamPosts, Member member);
     boolean existsByTeamPostAndTeamMember(TeamPost teamPost, TeamMember teamMember);
+    List<TeamPostLike> findByTeamMember(TeamMember teamMember);
+    List<TeamPostLike> findByTeamPostIn(List<TeamPost> teamPosts);
 }

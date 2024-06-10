@@ -7,8 +7,8 @@ import com.wemingle.core.domain.member.dto.MemberDto;
 import com.wemingle.core.domain.member.dto.MemberInfoDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.MemberAbility;
-import com.wemingle.core.domain.member.entity.MemberPreferenceSports;
 import com.wemingle.core.domain.member.entity.PolicyTerms;
+import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.domain.member.entity.signupplatform.SignupPlatform;
 import com.wemingle.core.domain.member.repository.MemberAbilityRepository;
 import com.wemingle.core.domain.member.repository.MemberPreferenceSportsRepository;
@@ -24,7 +24,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
 
 import static com.wemingle.core.global.exceptionmessage.ExceptionMessage.MEMBER_NOT_FOUNT;
 
@@ -199,5 +202,11 @@ public class MemberServiceImpl implements MemberService {
     public void patchMemberPassword(String memberId, String newPassword) {
         Member member = findByMemberId(memberId);
         member.setPassword(newPassword);
+    }
+
+    @Override
+    public Member findWithdrawMember() {
+        return memberRepository.findByRole(Role.WITHDRAW_USER)
+                .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUNT.getExceptionMessage()));
     }
 }

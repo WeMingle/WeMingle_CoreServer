@@ -66,8 +66,7 @@ public class TeamPost extends BaseEntity {
     @JoinColumn(name = "WRITER")
     private TeamMember writer;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "TEAM_POST_VOTE")
+    @OneToOne(mappedBy = "teamPost", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private TeamPostVote teamPostVote;
 
     @NotNull

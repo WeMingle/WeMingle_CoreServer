@@ -63,4 +63,8 @@ public class Comment extends BaseEntity {
     public boolean isWriter(TeamMember requester){
         return this.writer.equals(requester);
     }
+    public void updateByWithdrawMember() {
+        this.content = "탈퇴된 회원이 작성한 댓글입니다";
+        this.isDeleted = true;
+    }
 }

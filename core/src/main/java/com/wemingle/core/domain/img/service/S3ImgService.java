@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -131,7 +132,7 @@ public class S3ImgService {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + imgId).build();
         GetObjectPresignRequest preSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
         String url = s3Presigner.presignGetObject(preSignRequest).url().toString();
-        s3Client.close();
+        s3Presigner.close();
 
         return url;
     }
@@ -148,7 +149,7 @@ public class S3ImgService {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(TEAM_BACKGROUND_PATH + teamBackgroundUUID).build();
         GetObjectPresignRequest preSignRequest = GetObjectPresignRequest.builder().getObjectRequest(getObjectRequest).signatureDuration(EXPIRY_TIME).build();
         URL url = s3Presigner.presignGetObject(preSignRequest).url();
-        s3Client.close();
+        s3Presigner.close();
 
         return url.toString();
     }
@@ -159,5 +160,16 @@ public class S3ImgService {
         URL url = s3Presigner.presignPutObject(objectResignRequest).url();
         s3Presigner.close();
         return url.toString();
+    }
+
+    public void deleteTeamMemberProfile(UUID imgId) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket).key(TEAM_MEMBER_PATH + imgId).build();
+        try {
+            s3Client.deleteObject(deleteObjectRequest);
+        }catch (Exception e) {
+            log.info("사용자의 프로필 사진이 없습니다");
+        }finally {
+            s3Client.close();
+        }
     }
 }

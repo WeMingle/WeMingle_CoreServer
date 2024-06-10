@@ -72,4 +72,8 @@ public class TeamMember extends BaseEntity {
     public boolean isMe(Member requester) {
         return this.member.equals(requester);
     }
+    public void withdraw(Member withdrawMember) {
+        this.member = withdrawMember;
+        this.nickname = UUID.randomUUID().toString();
+    }
 }

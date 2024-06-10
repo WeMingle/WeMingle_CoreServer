@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.member.repository;
 
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.entity.role.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,5 @@ public interface MemberRepository extends JpaRepository<Member, Long>, DSLMember
     Optional<Member> findByNickname(String nickname);
     List<Member> findByMemberIdIn(List<String> memberIdList);
     boolean existsByPkLessThanAndNicknameContains(Long memberPk, String nickname);
+    Optional<Member> findByRole(Role role);
 }

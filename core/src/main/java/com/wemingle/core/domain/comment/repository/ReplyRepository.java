@@ -1,7 +1,9 @@
 package com.wemingle.core.domain.comment.repository;
 
+import com.wemingle.core.domain.comment.entity.Comment;
 import com.wemingle.core.domain.comment.entity.Reply;
 import com.wemingle.core.domain.post.entity.TeamPost;
+import com.wemingle.core.domain.team.entity.TeamMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +20,6 @@ public interface ReplyRepository extends JpaRepository<Reply, Long>, DSLReplyRep
             "   from reply) as ranking " +
             "where ranking.rn <= 51 and ranking.comment in :comments",nativeQuery = true)
     List<Reply> findRankRepliesByComments(@Param("comments") List<Long> comments);
+    List<Reply> findByWriter(TeamMember writer);
+    List<Reply> findByCommentIn(List<Comment> comments);
 }
