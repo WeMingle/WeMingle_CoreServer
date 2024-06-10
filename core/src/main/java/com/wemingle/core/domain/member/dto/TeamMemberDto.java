@@ -108,4 +108,18 @@ public class TeamMemberDto {
         Long requesterId;
         Long targetId;
     }
+
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseBanEndDate {
+        private LocalDate banStartDate;
+        private LocalDate banEndDate;
+
+        @Builder
+        public ResponseBanEndDate(LocalDate banStartDate, LocalDate banEndDate) {
+            this.banStartDate = banStartDate;
+            this.banEndDate = banEndDate;
+        }
+    }
 }

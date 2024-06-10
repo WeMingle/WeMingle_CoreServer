@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.team.controller;
 
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
+import com.wemingle.core.domain.member.dto.TeamMemberDto;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
@@ -187,5 +188,20 @@ public class TeamController {
                         .responseData(responseData)
                         .build()
         );
+    }
+
+    @GetMapping("/{teamId}/members/status")
+    public ResponseEntity<ResponseHandler<TeamMemberDto.ResponseBanEndDate>> getMemberStatusInTeam(@PathVariable Long teamId,
+                                                                                @AuthenticationPrincipal UserDetails userDetails) {
+        if (teamMemberService.isBannedInTeam(teamId, userDetails.getUsername())) {
+            return ResponseEntity.ok(
+                    ResponseHandler.<TeamMemberDto.ResponseBanEndDate>builder()
+                            .responseMessage("Banned in team")
+                            .responseData(teamMemberService.getBanEndDateInTeam(teamId, userDetails.getUsername()))
+                            .build()
+            );
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }
