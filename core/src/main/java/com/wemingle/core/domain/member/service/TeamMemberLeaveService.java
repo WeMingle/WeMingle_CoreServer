@@ -26,7 +26,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
-public class TeamMemberWithdrawService {
+public class TeamMemberLeaveService {
     private final MemberService memberService;
     private final TeamMemberService teamMemberService;
     private final S3ImgService s3ImgService;
