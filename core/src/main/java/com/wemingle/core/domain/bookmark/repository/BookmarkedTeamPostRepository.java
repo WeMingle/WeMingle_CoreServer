@@ -22,4 +22,5 @@ public interface BookmarkedTeamPostRepository extends JpaRepository<BookmarkedTe
     List<TeamPost> findBookmarkedTeamPost(@Param("teamId") Long teamId, @Param("memberId") String memberId, @Param("nextIdx")Long nextIdx);
     boolean existsByTeamPostAndMember(TeamPost teamPost, Member member);
     Optional<BookmarkedTeamPost> findByTeamPost_PkAndMember_MemberId(Long teamPostPk, String memberId);
+    List<BookmarkedTeamPost> findByTeamPostIn(List<TeamPost> teamPosts);
 }

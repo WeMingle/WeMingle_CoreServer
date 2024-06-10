@@ -10,7 +10,6 @@ import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.service.TeamPostService;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
-import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.exception.NotWriterException;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
@@ -122,5 +121,11 @@ public class ReplyService {
     public Reply findById(Long replyId) {
         return replyRepository.findById(replyId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.REPLY_NOT_FOUND.getExceptionMessage()));
+    }
+
+    @Transactional
+    public void updateCommentsWithWithdrawMember(TeamMember withdrawMember) {
+        List<Reply> myReplies = replyRepository.findByWriter(withdrawMember);
+        myReplies.forEach(myReply -> myReply.updateByWithdrawMember(withdrawMember));
     }
 }

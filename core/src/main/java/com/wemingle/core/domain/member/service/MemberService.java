@@ -26,4 +26,5 @@ public interface MemberService {
     MemberAuthenticationInfoDto getMemberAuthenticationInfo(String memberId);
     HashMap<Long, MemberDto.ResponseMemberInfoInSearch> getMemberByNickname(Long nextIdx, String nickname, String memberId);
     void patchMemberPassword(String memberId, String newPassword);
+    Member findWithdrawMember();
 }

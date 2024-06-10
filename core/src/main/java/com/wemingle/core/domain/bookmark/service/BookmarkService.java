@@ -139,4 +139,10 @@ public class BookmarkService {
                 ).build()
         ).toList();
     }
+
+    @Transactional
+    public void deleteAllByTeamPosts(List<TeamPost> teamPosts) {
+        List<BookmarkedTeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findByTeamPostIn(teamPosts);
+        bookmarkedTeamPostRepository.deleteAllInBatch(bookmarkedTeamPosts);
+    }
 }
