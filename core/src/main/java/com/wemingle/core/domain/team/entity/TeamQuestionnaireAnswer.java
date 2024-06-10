@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.team.entity;
 
 import com.wemingle.core.domain.common.entity.BaseEntity;
+import com.wemingle.core.domain.member.entity.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -26,10 +27,15 @@ public class TeamQuestionnaireAnswer extends BaseEntity {
     @JoinColumn(name = "TEAM_QUESTIONNAIRE")
     private TeamQuestionnaire teamQuestionnaire;
 
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "REQUESTER")
+    private Member requester;
+
     @Builder
-    public TeamQuestionnaireAnswer(Long pk, String answer, TeamQuestionnaire teamQuestionnaire) {
-        this.pk = pk;
+    public TeamQuestionnaireAnswer(String answer, TeamQuestionnaire teamQuestionnaire, Member requester) {
         this.answer = answer;
         this.teamQuestionnaire = teamQuestionnaire;
+        this.requester = requester;
     }
 }

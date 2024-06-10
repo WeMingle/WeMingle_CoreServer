@@ -101,7 +101,7 @@ public class TeamRequestService {
     private void saveTeamRequest(TeamRequestDto.RequestTeamRequestSave requestSaveDto, Member requester, Team team) {
         if (requestSaveDto.getAnswers() != null) {
             if (!requestSaveDto.getAnswers().isEmpty()) {
-                saveTeamQuestionnairesAnswers(requestSaveDto);
+                saveTeamQuestionnairesAnswers(requestSaveDto, requester);
             }
         }
 
@@ -113,7 +113,7 @@ public class TeamRequestService {
                 .build());
     }
 
-    private void saveTeamQuestionnairesAnswers(TeamRequestDto.RequestTeamRequestSave requestSaveDto) {
+    private void saveTeamQuestionnairesAnswers(TeamRequestDto.RequestTeamRequestSave requestSaveDto, Member requester) {
         HashMap<Long, String> questionsAnswer = requestSaveDto.getAnswers();
         List<TeamQuestionnaire> teamQuestionnaires = teamQuestionnaireRepository.findAllById(questionsAnswer.keySet());
 
@@ -128,6 +128,7 @@ public class TeamRequestService {
             TeamQuestionnaireAnswer teamQuestionnaireAnswer = TeamQuestionnaireAnswer.builder()
                     .teamQuestionnaire(filteredTeamQuestionnaire)
                     .answer(questionsAnswer.get(filteredTeamQuestionnaire.getPk()))
+                    .requester(requester)
                     .build();
 
             teamQuestionnaireAnswers.add(teamQuestionnaireAnswer);
@@ -197,7 +198,7 @@ public class TeamRequestService {
         Team team = teamRequest.getTeam();
 
         List<TeamQuestionnaire> teamQuestions = teamQuestionnaireRepository.findAllByTeam(team);
-        List<TeamQuestionnaireAnswer> answers = teamQuestionnaireAnswerRepository.findByTeamQuestionnaireIn(teamQuestions);
+        List<TeamQuestionnaireAnswer> answers = teamQuestionnaireAnswerRepository.findByTeamQuestionnaireInAndRequester(teamQuestions, requester);
         String findAbility = memberAbilityRepository.findAbilityByMemberAndSport(requester, team.getSportsCategory())
                 .orElse(null);
         VerifiedUniversityEmail verifiedUniversity = verifiedUniversityEmailRepository.findByMemberFetchUniv(requester)
