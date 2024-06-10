@@ -124,8 +124,13 @@ public class ReplyService {
     }
 
     @Transactional
-    public void updateCommentsWithWithdrawMember(TeamMember withdrawMember) {
+    public void updateRepliesWithWithdrawMember(TeamMember withdrawMember) {
         List<Reply> myReplies = replyRepository.findByWriter(withdrawMember);
-        myReplies.forEach(myReply -> myReply.updateByWithdrawMember(withdrawMember));
+        myReplies.forEach(Reply::updateByWithdrawMember);
+    }
+
+    public void deleteAllByComments(List<Comment> comments) {
+        List<Reply> replies = replyRepository.findByCommentIn(comments);
+        replyRepository.deleteAllInBatch(replies);
     }
 }

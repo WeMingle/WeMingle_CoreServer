@@ -4,13 +4,11 @@ import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.matching.repository.TeamRequestRepository;
 import com.wemingle.core.domain.member.entity.Member;
-import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.gender.Gender;
-import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.post.service.MatchingPostService;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
 import com.wemingle.core.domain.review.repository.TeamReviewRepository;
@@ -22,6 +20,7 @@ import com.wemingle.core.domain.team.entity.TeamQuestionnaire;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;
+import com.wemingle.core.domain.team.repository.TeamQuestionnaireAnswerRepository;
 import com.wemingle.core.domain.team.repository.TeamQuestionnaireRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
@@ -53,6 +52,7 @@ public class TeamServiceImpl implements TeamService{
     private final TeamRequestRepository teamRequestRepository;
     private final MemberService memberService;
     private final MatchingPostService matchingPostService;
+    private final TeamQuestionnaireAnswerRepository teamQuestionnaireAnswerRepository;
 
     private static final int PAGE_SIZE = 30;
     @Override

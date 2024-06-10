@@ -17,6 +17,7 @@ import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.post.service.MatchingPostService;
+import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.vote.entity.VoteOption;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import jakarta.persistence.EntityNotFoundException;
@@ -143,6 +144,15 @@ public class BookmarkService {
     @Transactional
     public void deleteAllByTeamPosts(List<TeamPost> teamPosts) {
         List<BookmarkedTeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findByTeamPostIn(teamPosts);
+        bookmarkedTeamPostRepository.deleteAllInBatch(bookmarkedTeamPosts);
+    }
+
+    @Transactional
+    public void deleteByTeamAndMember(Team team, Member member) {
+        List<BookmarkedTeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findByTeamMember(team, member);
+        log.info("team : {}", team.getPk());
+        log.info("member : {}", member.getPk());
+        log.info("bookmarked size : {}", bookmarkedTeamPosts.size());
         bookmarkedTeamPostRepository.deleteAllInBatch(bookmarkedTeamPosts);
     }
 }

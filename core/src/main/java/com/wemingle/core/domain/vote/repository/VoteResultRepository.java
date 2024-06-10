@@ -15,5 +15,6 @@ public interface VoteResultRepository extends JpaRepository<VoteResult, Long> {
     List<VoteResult> findByTeamMemberAndVoteOptionIn(@Param("teamMember") TeamMember teamMember, @Param("voteOptions") List<VoteOption> voteOptions);
     @Query("select vr from VoteResult vr join fetch vr.voteOption join fetch vr.teamMember " +
             "where vr.voteOption in :voteOptions")
+    List<VoteResult> findFetchTeamMemberByVoteOptionIn(List<VoteOption> voteOptions);
     List<VoteResult> findByVoteOptionIn(List<VoteOption> voteOptions);
 }

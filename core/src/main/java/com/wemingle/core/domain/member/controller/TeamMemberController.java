@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.member.controller;
 
 import com.wemingle.core.domain.member.dto.TeamMemberDto;
+import com.wemingle.core.domain.member.service.TeamMemberWithdrawService;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 public class TeamMemberController {
     private final TeamMemberService teamMemberService;
+    private final TeamMemberWithdrawService teamMemberWithdrawService;
 
     @GetMapping("/members/teams/{teamId}")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamMemberDto.ResponseTeamMembers>>> getTeamMembersInTeam(@PathVariable Long teamId,
@@ -88,5 +90,13 @@ public class TeamMemberController {
                         .responseData(responseData)
                         .build()
         );
+    }
+
+    @DeleteMapping("/members/{teamMemberId}/teams")
+    public ResponseEntity<ResponseHandler<Object>> withdrawTeamMember(@PathVariable Long teamMemberId,
+                                                                      @AuthenticationPrincipal UserDetails userDetails) {
+        teamMemberWithdrawService.withdrawTeamMember(teamMemberId, userDetails.getUsername());
+
+        return ResponseEntity.noContent().build();
     }
 }

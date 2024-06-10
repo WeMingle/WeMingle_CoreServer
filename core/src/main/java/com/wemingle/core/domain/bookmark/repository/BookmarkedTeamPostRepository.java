@@ -3,6 +3,7 @@ package com.wemingle.core.domain.bookmark.repository;
 import com.wemingle.core.domain.bookmark.entity.BookmarkedTeamPost;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.TeamPost;
+import com.wemingle.core.domain.team.entity.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +24,6 @@ public interface BookmarkedTeamPostRepository extends JpaRepository<BookmarkedTe
     boolean existsByTeamPostAndMember(TeamPost teamPost, Member member);
     Optional<BookmarkedTeamPost> findByTeamPost_PkAndMember_MemberId(Long teamPostPk, String memberId);
     List<BookmarkedTeamPost> findByTeamPostIn(List<TeamPost> teamPosts);
+    @Query("select bt from BookmarkedTeamPost bt where bt.teamPost.team = :team and bt.member = :member")
+    List<BookmarkedTeamPost> findByTeamMember(@Param("team") Team team, @Param("member")Member member);
 }

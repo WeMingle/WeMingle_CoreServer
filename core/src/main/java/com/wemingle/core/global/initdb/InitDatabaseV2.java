@@ -208,6 +208,23 @@ public class InitDatabaseV2 {
                 .notifyAllow(true)
                 .policyTerms(policyTermsRepository.save(new PolicyTerms(true, true)))
                 .build());
+
+        memberRepository.save(Member.builder()
+                .memberId("wemingle@gmail.com")
+                .gender(Gender.MALE)
+                .majorActivityArea(AreaName.강원)
+                .oneLineIntroduction("안녕")
+                .password("password")
+                .nickname("withdraw member")
+                .profileImgId(UUID.randomUUID())
+                .phoneType(PhoneType.AOS)
+                .signupPlatform(SignupPlatform.APPLE)
+                .refreshToken("token")
+                .firebaseToken("fire")
+                .role(Role.WITHDRAW_USER)
+                .notifyAllow(true)
+                .policyTerms(policyTermsRepository.save(new PolicyTerms(true, true)))
+                .build());
     }
 
 

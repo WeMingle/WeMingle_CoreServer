@@ -59,9 +59,8 @@ public class Reply extends BaseEntity {
         this.isDeleted = true;
         this.content = "삭제된 댓글입니다";
     }
-    public void updateByWithdrawMember(TeamMember withdrawMember) {
+    public void updateByWithdrawMember() {
         this.content = "탈퇴된 회원이 작성한 댓글입니다";
-        this.writer = withdrawMember;
         this.isDeleted = true;
     }
 }
