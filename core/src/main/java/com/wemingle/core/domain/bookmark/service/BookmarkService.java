@@ -150,9 +150,6 @@ public class BookmarkService {
     @Transactional
     public void deleteByTeamAndMember(Team team, Member member) {
         List<BookmarkedTeamPost> bookmarkedTeamPosts = bookmarkedTeamPostRepository.findByTeamMember(team, member);
-        log.info("team : {}", team.getPk());
-        log.info("member : {}", member.getPk());
-        log.info("bookmarked size : {}", bookmarkedTeamPosts.size());
         bookmarkedTeamPostRepository.deleteAllInBatch(bookmarkedTeamPosts);
     }
 }
