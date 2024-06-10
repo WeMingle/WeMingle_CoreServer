@@ -100,4 +100,12 @@ public class TeamMemberDto {
             this.isMe = isMe;
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamMemberBan {
+        Long requesterId;
+        Long targetId;
+    }
 }

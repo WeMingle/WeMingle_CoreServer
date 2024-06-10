@@ -99,4 +99,11 @@ public class TeamMemberController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/members/teams/ban")
+    public ResponseEntity<ResponseHandler<Object>> banTeamMember(@RequestBody TeamMemberDto.RequestTeamMemberBan banDto) {
+        teamMemberLeaveService.banTeamMember(banDto);
+        
+        return ResponseEntity.noContent().build();
+    }
 }

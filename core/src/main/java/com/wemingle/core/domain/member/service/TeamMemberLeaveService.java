@@ -7,13 +7,17 @@ import com.wemingle.core.domain.comment.service.ReplyService;
 import com.wemingle.core.domain.img.entity.TeamPostImg;
 import com.wemingle.core.domain.img.repository.TeamPostImgRepository;
 import com.wemingle.core.domain.img.service.S3ImgService;
+import com.wemingle.core.domain.member.dto.TeamMemberDto;
+import com.wemingle.core.domain.member.entity.BannedTeamMember;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.repository.BannedTeamMemberRepository;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
 import com.wemingle.core.domain.post.service.TeamPostService;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.domain.vote.service.VoteService;
+import com.wemingle.core.global.exception.NotManagerException;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +41,7 @@ public class TeamMemberLeaveService {
     private final TeamPostRepository teamPostRepository;
     private final TeamPostImgRepository teamPostImgRepository;
     private final VoteService voteService;
+    private final BannedTeamMemberRepository bannedTeamMemberRepository;
 
     @Transactional
     public void withdrawTeamMember(Long teamMemberId, String memberId) {
@@ -69,5 +74,21 @@ public class TeamMemberLeaveService {
         teamPostImgRepository.deleteAllInBatch(allTeamPostImgs);
         voteService.deleteAllTeamPostVote(myTeamPosts);
         teamPostRepository.deleteAllInBatch(myTeamPosts);
+    }
+
+    @Transactional
+    public void banTeamMember(TeamMemberDto.RequestTeamMemberBan banDto) {
+        TeamMember requester = teamMemberService.findById(banDto.getRequesterId());
+        if (!requester.isManager()) {
+            throw new NotManagerException();
+        }
+
+        TeamMember target = teamMemberService.findById(banDto.getTargetId());
+        bannedTeamMemberRepository.save(BannedTeamMember.builder()
+                .team(target.getTeam())
+                .bannedMember(target.getMember())
+                .build());
+
+        withdrawTeamMember(banDto.getTargetId(), target.getMember().getMemberId());
     }
 }
