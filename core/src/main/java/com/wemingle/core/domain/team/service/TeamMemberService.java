@@ -2,7 +2,9 @@ package com.wemingle.core.domain.team.service;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
 import com.wemingle.core.domain.member.dto.TeamMemberDto;
+import com.wemingle.core.domain.member.entity.BannedTeamMember;
 import com.wemingle.core.domain.member.entity.Member;
+import com.wemingle.core.domain.member.repository.BannedTeamMemberRepository;
 import com.wemingle.core.domain.member.repository.MemberAbilityRepository;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;
@@ -23,6 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class TeamMemberService {
@@ -31,6 +34,7 @@ public class TeamMemberService {
     private final MemberAbilityRepository memberAbilityRepository;
     private final VerifiedUniversityEmailRepository verifiedUniversityEmailRepository;
     private final MemberService memberService;
+    private final BannedTeamMemberRepository bannedTeamMemberRepository;
 
     public HashMap<Long, TeamDto.ResponseTeamInfoDto> getTeamsAsLeaderOrMember(String memberId) {
         List<TeamMember> teamsAsLeaderOrMember = teamMemberRepository.findTeamsAsLeaderOrMember(memberId);
@@ -91,7 +95,7 @@ public class TeamMemberService {
 
     @Transactional
     public void updateTeamMemberProfile(TeamMemberDto.RequestTeamMemberProfileUpdate updateDto) {
-        TeamMember teamMember = findById(updateDto.getTeamMemberPk());
+        TeamMember teamMember = findById(updateDto.getTeamMemberId());
 
         teamMember.updateNickname(updateDto.getNickname());
     }
@@ -111,10 +115,6 @@ public class TeamMemberService {
     }
 
     public boolean isManager(Long teamMemberId) {
-        if (!isManager(teamMemberId)) {
-            throw new NotManagerException();
-        }
-
         TeamMember teamMember = findById(teamMemberId);
 
         return teamMember.isManager();
@@ -165,5 +165,19 @@ public class TeamMemberService {
     public TeamMember findById(Long teamMemberId) {
         return teamMemberRepository.findById(teamMemberId)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.TEAM_MEMBER_NOT_FOUND.getExceptionMessage()));
+    }
+
+    public boolean isBannedInTeam(Long teamId, String memberId) {
+        return bannedTeamMemberRepository.findByTeam_PkAndBannedMember_MemberId(teamId, memberId).isPresent();
+    }
+
+    public TeamMemberDto.ResponseBanEndDate getBanEndDateInTeam(Long teamId, String memberId) {
+        BannedTeamMember bannedTeamMember = bannedTeamMemberRepository.findByTeam_PkAndBannedMember_MemberId(teamId, memberId)
+                .orElseThrow(() -> new RuntimeException(ExceptionMessage.UNBANNED_USER.getExceptionMessage()));
+
+        return TeamMemberDto.ResponseBanEndDate.builder()
+                .banStartDate(bannedTeamMember.getBannedDate())
+                .banEndDate(bannedTeamMember.getBanEndDate())
+                .build();
     }
 }

@@ -29,7 +29,7 @@ public class MatchingRequestController {
     private String serverIp;
 
     private static final String MATCHING_POST_DETAIL_PATH = "/post/match";
-    @GetMapping("/history")
+    @GetMapping("/histories")
     public ResponseEntity<ResponseHandler<List<MatchingRequestDto.ResponseMatchingRequestHistory>>> getMatchingRequestHistories(@RequestParam(required = false) Long nextIdx,
                                                                                                                                 @RequestParam(required = false) RequestType requestType,
                                                                                                                                 @RequestParam(required = false) RecruiterType recruiterType,
@@ -44,27 +44,27 @@ public class MatchingRequestController {
                 .build());
     }
 
-    @GetMapping("/team/{matchingPostPk}")
-    public ResponseEntity<ResponseHandler<MatchingRequestDto.ResponsePendingRequestsByTeam>> getPendingMatchingRequestByTeam(@PathVariable Long matchingPostPk){
+    @GetMapping("/wait/teams")
+    public ResponseEntity<ResponseHandler<MatchingRequestDto.ResponsePendingRequestsByTeam>> getPendingMatchingRequestByTeam(@RequestParam Long matchingPostId){
 
-        MatchingRequestDto.ResponsePendingRequestsByTeam responseData = matchingRequestService.getPendingRequestsByTeam(matchingPostPk);
+        MatchingRequestDto.ResponsePendingRequestsByTeam responseData = matchingRequestService.getPendingRequestsByTeam(matchingPostId);
         return ResponseEntity.ok(ResponseHandler.<MatchingRequestDto.ResponsePendingRequestsByTeam>builder()
                 .responseMessage("Pending Matching Request By Team retrieval successfully")
                 .responseData(responseData)
                 .build());
     }
 
-    @GetMapping("/individual/{matchingPostPk}")
-    public ResponseEntity<ResponseHandler<MatchingRequestDto.ResponsePendingRequestsByIndividual>> getPendingMatchingRequestByIndividual(@PathVariable Long matchingPostPk){
+    @GetMapping("/wait/members")
+    public ResponseEntity<ResponseHandler<MatchingRequestDto.ResponsePendingRequestsByIndividual>> getPendingMatchingRequestByIndividual(@RequestParam Long matchingPostId){
 
-        MatchingRequestDto.ResponsePendingRequestsByIndividual responseData = matchingRequestService.getPendingRequestsByIndividual(matchingPostPk);
+        MatchingRequestDto.ResponsePendingRequestsByIndividual responseData = matchingRequestService.getPendingRequestsByIndividual(matchingPostId);
         return ResponseEntity.ok(ResponseHandler.<MatchingRequestDto.ResponsePendingRequestsByIndividual>builder()
                 .responseMessage("Pending Matching Request By Individual retrieval successfully")
                 .responseData(responseData)
                 .build());
     }
 
-    @PatchMapping
+    @PostMapping("/accept")
     public ResponseEntity<Object> approveMatchingRequests(@RequestBody MatchingRequestDto.MatchingRequestApprove matchingRequestApprove){
         matchingRequestService.approveMatchingRequests(matchingRequestApprove);
 
@@ -98,7 +98,7 @@ public class MatchingRequestController {
         return ResponseEntity.created(URI.create(createdUrl)).build();
     }
 
-    @GetMapping("/team/requestable")
+    @GetMapping("/teams/available")
     public ResponseEntity<Object> isTeamMatchRequested(@RequestParam Long matchingPostPk,
                                                        @RequestParam Long teamPk){
         if (matchingRequestService.isTeamMatchRequested(matchingPostPk, teamPk)){

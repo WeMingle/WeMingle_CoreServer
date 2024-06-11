@@ -21,7 +21,7 @@ public class AuthenticationController {
      * accessToken -> 무조건 재발급
      * refreshToken -> 만료 21일 전에만 재발급
      */
-    @PatchMapping("/token")
+    @PatchMapping("/tokens")
     public ResponseEntity<?> createNewTokens(@RequestBody TokenDto.RequestTokenDto requestTokenDto){
         if (tokenService.isSignInRequired(requestTokenDto)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN)

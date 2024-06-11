@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.*;
 public class TeamRequestController {
     private final TeamRequestService teamRequestService;
 
-    @GetMapping("/team/{teamPk}/request/member/info")
-    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponseRequesterInfo>> getTeamRequestPageInfo(@PathVariable Long teamPk,
+    @GetMapping("/teams/{teamId}/request/members/info")
+    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponseRequesterInfo>> getTeamRequestPageInfo(@PathVariable Long teamId,
                                                                                                         @AuthenticationPrincipal UserDetails userDetails){
-        TeamRequestDto.ResponseRequesterInfo responseData = teamRequestService.getTeamRequestPageInfo(teamPk, userDetails.getUsername());
+        TeamRequestDto.ResponseRequesterInfo responseData = teamRequestService.getTeamRequestPageInfo(teamId, userDetails.getUsername());
         return ResponseEntity.ok(
                 ResponseHandler.<TeamRequestDto.ResponseRequesterInfo>builder()
                         .responseMessage("Team request page data retrieval successfully")
@@ -33,7 +33,7 @@ public class TeamRequestController {
         );
     }
 
-    @PostMapping("/team/request")
+    @PostMapping("/teams/request")
     public ResponseEntity<ResponseHandler<Object>> saveTeamRequest(@RequestBody @Valid TeamRequestDto.RequestTeamRequestSave requestSaveDto,
                                                                    @AuthenticationPrincipal UserDetails userDetails){
         if (!teamRequestService.isRequestableTeam(requestSaveDto.getTeamPk())){
@@ -49,9 +49,9 @@ public class TeamRequestController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/team/{teamPk}/request")
-    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponseTeamRequests>> getPendingTeamRequests(@PathVariable Long teamPk) {
-        TeamRequestDto.ResponseTeamRequests responseData = teamRequestService.getPendingTeamRequests(teamPk);
+    @GetMapping("/teams/{teamId}/request/wait")
+    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponseTeamRequests>> getPendingTeamRequests(@PathVariable Long teamId) {
+        TeamRequestDto.ResponseTeamRequests responseData = teamRequestService.getPendingTeamRequests(teamId);
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamRequestDto.ResponseTeamRequests>builder()
@@ -61,16 +61,16 @@ public class TeamRequestController {
                 );
     }
 
-    @DeleteMapping("/team/request")
+    @DeleteMapping("/teams/request")
     public ResponseEntity<Object> deleteTeamRequest(@RequestBody TeamRequestDto.RequestTeamRequestDelete deleteDto) {
         teamRequestService.deleteTeamRequest(deleteDto);
 
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/team/request/approval")
+    @PostMapping("/teams/request/accept")
     public ResponseEntity<Object> approveTeamRequest(@RequestBody TeamRequestDto.RequestTeamRequestApprove approveDto) {
-        if (!teamRequestService.isRequestApprovable(approveDto.getTeamPk(), approveDto.getTeamRequestPk())){
+        if (!teamRequestService.isRequestApprovable(approveDto.getTeamId(), approveDto.getTeamRequestId())){
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(
                             ResponseHandler.builder()
@@ -79,13 +79,13 @@ public class TeamRequestController {
                     );
         }
 
-        teamRequestService.approveTeamRequest(approveDto.getTeamRequestPk());
+        teamRequestService.approveTeamRequest(approveDto.getTeamRequestId());
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/team/request/{teamRequestPk}")
-    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponseTeamRequestInfo>> getTeamRequestInfo(@PathVariable Long teamRequestPk) {
-        TeamRequestDto.ResponseTeamRequestInfo responseData = teamRequestService.getTeamRequestInfo(teamRequestPk);
+    @GetMapping("/teams/request/{teamRequestId}")
+    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponseTeamRequestInfo>> getTeamRequestInfo(@PathVariable Long teamRequestId) {
+        TeamRequestDto.ResponseTeamRequestInfo responseData = teamRequestService.getTeamRequestInfo(teamRequestId);
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamRequestDto.ResponseTeamRequestInfo>builder()
@@ -95,9 +95,9 @@ public class TeamRequestController {
         );
     }
 
-    @GetMapping("/team/{teamPk}/request/count")
-    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponsePendingTeamRequestCnt>> getPendingTeamRequestCnt(@PathVariable Long teamPk) {
-        TeamRequestDto.ResponsePendingTeamRequestCnt responseData = teamRequestService.getPendingTeamRequestCnt(teamPk);
+    @GetMapping("/teams/{teamId}/request/count")
+    public ResponseEntity<ResponseHandler<TeamRequestDto.ResponsePendingTeamRequestCnt>> getPendingTeamRequestCnt(@PathVariable Long teamId) {
+        TeamRequestDto.ResponsePendingTeamRequestCnt responseData = teamRequestService.getPendingTeamRequestCnt(teamId);
 
         return ResponseEntity.ok(
                 ResponseHandler.<TeamRequestDto.ResponsePendingTeamRequestCnt>builder()

@@ -117,4 +117,20 @@ public class CommentService {
                 .filter(reply -> reply.getComment().equals(comment))
                 .collect(Collectors.toList());
     }
+
+    public List<Comment> getAllCommentsByTeamPostIn(List<TeamPost> teamPosts) {
+        return commentRepository.findByTeamPostIn(teamPosts);
+    }
+
+    @Transactional
+    public void deleteCommentsByTeamPosts(List<TeamPost> teamPosts) {
+        List<Comment> comments = getAllCommentsByTeamPostIn(teamPosts);
+        commentRepository.deleteAllInBatch(comments);
+    }
+
+    @Transactional
+    public void updateCommentsWithWithdrawMember(TeamMember withdrawMember) {
+        List<Comment> myComments = commentRepository.findByWriter(withdrawMember);
+        myComments.forEach(Comment::updateByWithdrawMember);
+    }
 }

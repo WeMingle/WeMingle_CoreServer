@@ -17,20 +17,20 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-@RestController("/review")
+@RestController("/reviews")
 public class ReviewController {
     private final TeamReviewService teamReviewService;
 
-    @GetMapping("/my")
+    @GetMapping("/members")
     ResponseEntity<ResponseHandler<Object>> getMyReviews(@RequestParam Long nextIdx,
                                                          @AuthenticationPrincipal UserDetails userDetails) {
         List<ReviewDto> myReviews = teamReviewService.getMyReviews(userDetails.getUsername(), nextIdx);
         return ResponseEntity.ok(ResponseHandler.builder().responseMessage("My reviews retrieval successfully").responseData(myReviews).build());
     }
-    @GetMapping("/group")
+    @GetMapping("/teams")
     ResponseEntity<ResponseHandler<Object>> getGroupReviews(@RequestParam Long nextIdx,
-                                                            @RequestParam Long groupId) {
-        List<ReviewDto> myReviews = teamReviewService.getGroupReviews(groupId, nextIdx);
+                                                            @RequestParam Long teamId) {
+        List<ReviewDto> myReviews = teamReviewService.getGroupReviews(teamId, nextIdx);
         return ResponseEntity.ok(ResponseHandler.builder().responseMessage("My reviews retrieval successfully").responseData(myReviews).build());
     }
 }

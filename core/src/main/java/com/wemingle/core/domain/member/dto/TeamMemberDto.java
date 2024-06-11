@@ -62,7 +62,7 @@ public class TeamMemberDto {
     @Setter
     @NoArgsConstructor
     public static class RequestTeamMemberProfileUpdate {
-        private Long teamMemberPk;
+        private Long teamMemberId;
         private String nickname;
     }
 
@@ -70,16 +70,16 @@ public class TeamMemberDto {
     @Setter
     @NoArgsConstructor
     public static class RequestTeamMemberRoleToManagerUpdate {
-        private Long requesterPk;
-        private Long grantorPk;
+        private Long requesterId;
+        private Long grantorId;
     }
 
     @Getter
     @Setter
     @NoArgsConstructor
     public static class RequestTeamMemberBlock {
-        private Long requesterPk;
-        private Long blockedMemberPk;
+        private Long requesterId;
+        private Long blockedMemberId;
     }
 
     @Getter
@@ -98,6 +98,28 @@ public class TeamMemberDto {
             this.nickname = nickname;
             this.teamRole = teamRole;
             this.isMe = isMe;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestTeamMemberBan {
+        Long requesterId;
+        Long targetId;
+    }
+
+
+    @Getter
+    @NoArgsConstructor
+    public static class ResponseBanEndDate {
+        private LocalDate banStartDate;
+        private LocalDate banEndDate;
+
+        @Builder
+        public ResponseBanEndDate(LocalDate banStartDate, LocalDate banEndDate) {
+            this.banStartDate = banStartDate;
+            this.banEndDate = banEndDate;
         }
     }
 }

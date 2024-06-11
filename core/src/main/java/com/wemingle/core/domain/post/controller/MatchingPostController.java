@@ -23,8 +23,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +31,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/post/match")
+@RequestMapping("/posts/match")
 public class MatchingPostController {
     private final MatchingPostService matchingPostService;
     private final TeamPostService teamPostService;
@@ -51,7 +49,7 @@ public class MatchingPostController {
                 );
     }
 
-    @GetMapping("/my")
+    @GetMapping("/members")
     ResponseEntity<ResponseHandler<Object>> getAllMyPosts(@RequestParam(value = "nextIdx",required = false) Long nextIdx,
                                                           @RequestParam("recruiterType") RecruiterType recruiterType,
                                                           @AuthenticationPrincipal UserDetails userDetails) {
@@ -64,7 +62,7 @@ public class MatchingPostController {
         );
     }
 
-    @GetMapping("/group")
+    @GetMapping("/teams")
     ResponseEntity<ResponseHandler<Object>> getAllMyPosts(@RequestParam("nextIdx") Long nextIdx,
                                                           @RequestParam("teamId") Long teamId,
                                                           @AuthenticationPrincipal UserDetails userDetails) {
@@ -215,8 +213,7 @@ public class MatchingPostController {
 
     @GetMapping("/result/count")
     public ResponseEntity<ResponseHandler<Integer>> getSearchPostCnt(@RequestParam @NotBlank String query){
-        String decodeQuery = URLDecoder.decode(query, StandardCharsets.UTF_8);
-        Integer searchPostCnt = matchingPostService.getSearchPostCnt(decodeQuery);
+        Integer searchPostCnt = matchingPostService.getSearchPostCnt(query);
 
         return ResponseEntity.ok(
                 ResponseHandler.<Integer>builder()
@@ -239,11 +236,11 @@ public class MatchingPostController {
         );
     }
 
-    @DeleteMapping("/{matchingPostPk}")
-    public ResponseEntity<ResponseHandler<Object>> deleteMatchingPost(@PathVariable Long matchingPostPk,
+    @DeleteMapping("/{matchingPostId}")
+    public ResponseEntity<ResponseHandler<Object>> deleteMatchingPost(@PathVariable Long matchingPostId,
                                                                       @AuthenticationPrincipal UserDetails userDetails){
         Member member = memberService.findByMemberId(userDetails.getUsername());
-        MatchingPost matchingPost = matchingPostService.getMatchingPostByPostId(matchingPostPk);
+        MatchingPost matchingPost = matchingPostService.getMatchingPostByPostId(matchingPostId);
         List<Matching> matchings = matchingService.getMatchingsByMatchingPost(matchingPost);
 
         if (!matchingPostService.isWriter(matchingPost, member)){
@@ -265,18 +262,18 @@ public class MatchingPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{matchingPostPk}")
-    public ResponseEntity<ResponseHandler<Object>> updateMatchingPostContent(@PathVariable Long matchingPostPk,
+    @PatchMapping("/{matchingPostId}")
+    public ResponseEntity<ResponseHandler<Object>> updateMatchingPostContent(@PathVariable Long matchingPostId,
                                                                              @RequestBody @Valid MatchingPostDto.RequestUpdatePost updatePostDto){
-        matchingPostService.updateMatchingPostContent(matchingPostPk, updatePostDto.getContent());
+        matchingPostService.updateMatchingPostContent(matchingPostId, updatePostDto.getContent());
 
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{matchingPostPk}")
-    public ResponseEntity<ResponseHandler<MatchingPostDto.ResponseMatchingPostDetail>> getMatchingPostDetail(@PathVariable Long matchingPostPk,
+    @GetMapping("/{matchingPostId}")
+    public ResponseEntity<ResponseHandler<MatchingPostDto.ResponseMatchingPostDetail>> getMatchingPostDetail(@PathVariable Long matchingPostId,
                                                                                                              @AuthenticationPrincipal UserDetails userDetails){
-        MatchingPostDto.ResponseMatchingPostDetail responseData = matchingPostService.getMatchingPostDetail(matchingPostPk, userDetails.getUsername());
+        MatchingPostDto.ResponseMatchingPostDetail responseData = matchingPostService.getMatchingPostDetail(matchingPostId, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<MatchingPostDto.ResponseMatchingPostDetail>builder()

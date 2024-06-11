@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class NicknameController {
 
     private final NicknameService nicknameService;
-    @GetMapping("/{nickname}/availability")
+    @GetMapping("/{nickname}/available")
     ResponseEntity<ResponseHandler<Object>> checkNickname(@PathVariable("nickname")
                                                      @Size(min = 2, max = 10, message = "2~10글자 사이로 입력하세요")
                                                      String nickname) {
@@ -34,12 +34,12 @@ public class NicknameController {
 
     }
 
-    @GetMapping("/team/{teamPk}/{nickname}/availability")
-    public ResponseEntity<ResponseHandler<Object>> checkTeamMemberNickname(@PathVariable Long teamPk,
+    @GetMapping("/teams/{teamId}/members/{nickname}/available")
+    public ResponseEntity<ResponseHandler<Object>> checkTeamMemberNickname(@PathVariable Long teamId,
                                                                            @PathVariable("nickname")
                                                                            @Size(min = 2, max = 10, message = "2~10글자 사이로 입력하세요")
                                                                            String nickname) {
-        if (nicknameService.isAvailableNicknameInTeam(teamPk, nickname)) {
+        if (nicknameService.isAvailableNicknameInTeam(teamId, nickname)) {
             return ResponseEntity.ok(ResponseHandler.builder().responseMessage("사용 가능한 닉네임입니다.").build());
         }
 

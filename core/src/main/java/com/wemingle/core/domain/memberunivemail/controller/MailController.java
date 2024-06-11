@@ -54,8 +54,15 @@ public class MailController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/verification")
+    @GetMapping("/verification-code")
     ResponseEntity<ResponseHandler<Object>> getVerifyCode(@RequestBody MailDto.RequestSendMailDto mailDto, @AuthenticationPrincipal UserDetails userDetails) {
+        String domainInMailAddress = univCertificationService.getDomainInMailAddress(mailDto.getUnivEmail());
+        boolean isAvailableDomain = univCertificationService.validUnivDomain(domainInMailAddress);
+
+        if (!isAvailableDomain) {
+            return ResponseEntity.badRequest().body(ResponseHandler.builder().responseMessage("Not available Univ domain").build());
+        }
+
         Member byMemberId = memberService.findByMemberId(userDetails.getUsername());
         mailVerificationService.sendVerificationMail(mailDto.getUnivEmail(),byMemberId);
         return ResponseEntity.noContent().build();
@@ -75,17 +82,15 @@ public class MailController {
     @PostMapping("/verify")
     public ResponseEntity<?> verifyCode(@RequestBody MailDto.RequestVerifyCodeDto requestVerifyCodeDto,
                                         @AuthenticationPrincipal UserDetails userDetails){
-        String memberId = userDetails.getUsername();
-        Member findMember = memberService.findByMemberId(memberId);
-
         if(!mailVerificationService.validVerificationCode(requestVerifyCodeDto.getUnivEmail(), requestVerifyCodeDto.getVerificationCode())){
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ResponseHandler.builder()
                             .responseMessage("코드가 일치하지않습니다.")
-                            .responseData(null)
                             .build());
         }
+
+        String memberId = userDetails.getUsername();
+        Member findMember = memberService.findByMemberId(memberId);
 
         String univDomain = univCertificationService.getDomainInMailAddress(requestVerifyCodeDto.getUnivEmail());
         UnivEntity univEntity = univCertificationService.findByDomain(univDomain);

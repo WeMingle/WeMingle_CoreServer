@@ -1,6 +1,7 @@
 package com.wemingle.core.domain.team.controller;
 
 import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
+import com.wemingle.core.domain.member.dto.TeamMemberDto;
 import com.wemingle.core.domain.team.dto.CreateTeamDto;
 import com.wemingle.core.domain.team.dto.TeamDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/team")
+@RequestMapping("/teams")
 public class TeamController {
     private final TeamService teamService;
     private final TeamMemberService teamMemberService;
@@ -35,7 +36,7 @@ public class TeamController {
         );
     }
 
-    @GetMapping("/membership")
+    @GetMapping("/members")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseTeamInfoDto>>> getTeamsAsLeaderOrMember(@AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamDto.ResponseTeamInfoDto> teamListInfo = teamMemberService.getTeamsAsLeaderOrMember(userDetails.getUsername());
 
@@ -72,7 +73,7 @@ public class TeamController {
         );
     }
 
-    @GetMapping("/recommendation/member")
+    @GetMapping("/recommendation/members")
     public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo>>> getRecommendTeamsForMember(@RequestParam(required = false) Long nextIdx,
                                                                                                                                       @AuthenticationPrincipal UserDetails userDetails){
         HashMap<Long, TeamDto.ResponseRecommendationTeamForMemberInfo> randomTeams = teamService.getRecommendTeamsForMember(nextIdx, userDetails.getUsername());
@@ -123,7 +124,7 @@ public class TeamController {
                         .build());
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ResponseHandler<Object>> createTeam(@RequestBody CreateTeamDto createTeamDto,
                                                                        @AuthenticationPrincipal UserDetails userDetails) {
         teamService.saveTeam(userDetails.getUsername(),createTeamDto);
@@ -144,11 +145,11 @@ public class TeamController {
                         .build());
     }
 
-    @GetMapping("/profile/requestable")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getRequestableTeamsInfo(@RequestParam Long matchingPostPk,
+    @GetMapping("/profile/request")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>> getRequestableTeamsInfo(@RequestParam Long matchingPostId,
                                                                                                                        @RequestParam SportsType sportsType,
                                                                                                                        @AuthenticationPrincipal UserDetails userDetails){
-        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getRequestableTeamsInfo(matchingPostPk, sportsType, userDetails.getUsername());
+        HashMap<Long, TeamDto.ResponseWritableTeamInfoDto> teamListInfo = teamService.getRequestableTeamsInfo(matchingPostId, sportsType, userDetails.getUsername());
 
         return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamDto.ResponseWritableTeamInfoDto>>builder()
@@ -158,7 +159,7 @@ public class TeamController {
         );
     }
 
-    @GetMapping("/setting/{teamId}")
+    @GetMapping("/{teamId}/setting")
     public ResponseEntity<ResponseHandler<TeamDto.ResponseTeamSetting>> getTeamSetting(@PathVariable Long teamId){
         TeamDto.ResponseTeamSetting responseData = teamService.getTeamSetting(teamId);
 
@@ -187,5 +188,20 @@ public class TeamController {
                         .responseData(responseData)
                         .build()
         );
+    }
+
+    @GetMapping("/{teamId}/members/status")
+    public ResponseEntity<ResponseHandler<TeamMemberDto.ResponseBanEndDate>> getMemberStatusInTeam(@PathVariable Long teamId,
+                                                                                @AuthenticationPrincipal UserDetails userDetails) {
+        if (teamMemberService.isBannedInTeam(teamId, userDetails.getUsername())) {
+            return ResponseEntity.ok(
+                    ResponseHandler.<TeamMemberDto.ResponseBanEndDate>builder()
+                            .responseMessage("Banned in team")
+                            .responseData(teamMemberService.getBanEndDateInTeam(teamId, userDetails.getUsername()))
+                            .build()
+            );
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }

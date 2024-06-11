@@ -32,10 +32,12 @@ public class TeamPostLike extends BaseEntity {
 
     public void restore(){
         this.isDeleted = false;
+        this.teamPost.addLikeCnt();
     }
 
     public void delete(){
         this.isDeleted = true;
+        this.teamPost.reduceLikeCnt();
     }
 
     @Builder
