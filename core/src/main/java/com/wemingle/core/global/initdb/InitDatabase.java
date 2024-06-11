@@ -67,7 +67,7 @@ public class InitDatabase {
 
     @PostConstruct
     public void InitDatabase() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        log.info("initinit!");
+        log.info("initinit!!");
 
         createMember(10);
         List<Member> memberRepositoryAll = memberRepository.findAll();
