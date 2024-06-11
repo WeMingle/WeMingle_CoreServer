@@ -44,7 +44,7 @@ import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
-@Profile("prod")
+@Profile("prod1")
 @Component
 public class InitDatabase {
 
