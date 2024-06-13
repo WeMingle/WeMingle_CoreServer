@@ -20,8 +20,8 @@ public class VoteController {
 
     @GetMapping("/completion")
     public ResponseEntity<ResponseHandler<List<VoteDto.ResponseExpiredVoteInfo>>> getExpiredVotesInfo(@RequestParam(required = false) Long nextIdx,
-                                                                                                      @RequestParam Long teamPk){
-        List<VoteDto.ResponseExpiredVoteInfo> responseData = voteService.getExpiredVotesInfo(nextIdx, teamPk);
+                                                                                                      @RequestParam Long teamId){
+        List<VoteDto.ResponseExpiredVoteInfo> responseData = voteService.getExpiredVotesInfo(nextIdx, teamId);
 
         return ResponseEntity.ok(
                 ResponseHandler.<List<VoteDto.ResponseExpiredVoteInfo>>builder()
