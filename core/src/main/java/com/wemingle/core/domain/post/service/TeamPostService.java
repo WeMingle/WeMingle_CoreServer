@@ -62,6 +62,8 @@ public class TeamPostService {
                         .voteInfo(TeamPostDto.VoteInfo.builder()
                                 .votePk(teamPost.getTeamPostVote()
                                         .getPk())
+                                .title(teamPost.getTeamPostVote().getTitle())
+                                .expiryTime(teamPost.getTeamPostVote().getExpiryTime())
                                 .voteOptionInfos(teamPost.getTeamPostVote()
                                         .getVoteOptions().stream()
                                         .map(voteOption -> TeamPostDto.VoteOptionInfo.builder()
@@ -166,6 +168,8 @@ public class TeamPostService {
 
         return TeamPostDto.VoteInfo.builder()
                 .votePk(vote.getPk())
+                .title(vote.getTitle())
+                .expiryTime(vote.getExpiryTime())
                 .voteOptionInfos(vote.getVoteOptions().stream().map(voteOption -> TeamPostDto.VoteOptionInfo.builder()
                         .optionName(voteOption.getOptionName())
                         .resultCnt(voteOption.getVoteResults().size())
@@ -334,6 +338,8 @@ public class TeamPostService {
 
         return TeamPostDto.VoteInfoWithPk.builder()
                 .votePk(vote.getPk())
+                .title(vote.getTitle())
+                .expiryTime(vote.getExpiryTime())
                 .isMultiVoting(vote.isMultiVoting())
                 .isComplete(vote.isComplete())
                 .voteOptionInfos(vote.getVoteOptions().stream().map(voteOption -> TeamPostDto.VoteOptionInfoWithPk.builder()
