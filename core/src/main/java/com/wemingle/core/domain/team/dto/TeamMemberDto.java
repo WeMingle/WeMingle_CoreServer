@@ -1,4 +1,4 @@
-package com.wemingle.core.domain.member.dto;
+package com.wemingle.core.domain.team.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;

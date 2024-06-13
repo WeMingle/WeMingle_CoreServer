@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.team.service;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
-import com.wemingle.core.domain.member.dto.TeamMemberDto;
+import com.wemingle.core.domain.team.dto.TeamMemberDto;
 import com.wemingle.core.domain.member.entity.BannedTeamMember;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.BannedTeamMemberRepository;
