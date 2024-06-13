@@ -139,11 +139,17 @@ public class TeamPostDto {
     @NoArgsConstructor
     public static class VoteInfo{
         private Long votePk;
+        private String title;
+        private LocalDateTime expiryTime;
+        private int participantCnt;
         private List<VoteOptionInfo> voteOptionInfos;
 
         @Builder
-        public VoteInfo(Long votePk, List<VoteOptionInfo> voteOptionInfos) {
+        public VoteInfo(Long votePk, String title, LocalDateTime expiryTime, List<VoteOptionInfo> voteOptionInfos) {
             this.votePk = votePk;
+            this.title = title;
+            this.expiryTime = expiryTime;
+            this.participantCnt = voteOptionInfos.stream().mapToInt(VoteOptionInfo::getResultCnt).sum();
             this.voteOptionInfos = voteOptionInfos;
         }
     }
@@ -284,6 +290,9 @@ public class TeamPostDto {
     @NoArgsConstructor
     public static class VoteInfoWithPk{
         private Long votePk;
+        private String title;
+        private LocalDateTime expiryTime;
+        private int participantCnt;
         @JsonProperty(value = "isMultiVoting")
         private boolean isMultiVoting;
         @JsonProperty(value = "isComplete")
@@ -291,8 +300,11 @@ public class TeamPostDto {
         private List<VoteOptionInfoWithPk> voteOptionInfos;
 
         @Builder
-        public VoteInfoWithPk(Long votePk, boolean isMultiVoting, boolean isComplete, List<VoteOptionInfoWithPk> voteOptionInfos) {
+        public VoteInfoWithPk(Long votePk, String title, LocalDateTime expiryTime, boolean isMultiVoting, boolean isComplete, List<VoteOptionInfoWithPk> voteOptionInfos) {
             this.votePk = votePk;
+            this.title = title;
+            this.expiryTime = expiryTime;
+            this.participantCnt = voteOptionInfos.stream().mapToInt(VoteOptionInfoWithPk::getResultCnt).sum();
             this.isMultiVoting = isMultiVoting;
             this.isComplete = isComplete;
             this.voteOptionInfos = voteOptionInfos;
