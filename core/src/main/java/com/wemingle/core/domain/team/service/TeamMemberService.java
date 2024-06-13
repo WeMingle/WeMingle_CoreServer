@@ -180,4 +180,15 @@ public class TeamMemberService {
                 .banEndDate(bannedTeamMember.getBanEndDate())
                 .build();
     }
+
+    public HashMap<Long, TeamMemberDto.ResponseTeamMembers> getSearchTeamMembers(Long teamId, String query) {
+        List<TeamMember> teamMembers = teamMemberRepository.findByTeam_PkAndNicknameContaining(teamId, query);
+        LinkedHashMap<Long, TeamMemberDto.ResponseTeamMembers> responseData = new LinkedHashMap<>();
+
+        teamMembers.forEach(teamMember -> responseData.put(teamMember.getPk(), TeamMemberDto.ResponseTeamMembers.builder()
+                .nickname(teamMember.getNickname())
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamMember.getProfileImg()))
+                .build()));
+        return responseData;
+    }
 }

@@ -38,4 +38,5 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
             "where tm.team = :team and (tm.teamRole = 'OWNER' or tm.teamRole = 'MANAGER')")
     boolean isExistOtherManagerRole(@Param("team")Team team);
     List<TeamMember> findByTeam_Pk(Long teamPk);
+    List<TeamMember> findByTeam_PkAndNicknameContaining(Long teamId, String nickname);
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;
 import com.wemingle.core.domain.post.entity.gender.Gender;
 import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -121,5 +122,14 @@ public class TeamMemberDto {
             this.banStartDate = banStartDate;
             this.banEndDate = banEndDate;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestSearchTeamMember {
+        private Long teamId;
+        @NotBlank(message = "검색어는 최소 한글자입니다.")
+        private String query;
     }
 }
