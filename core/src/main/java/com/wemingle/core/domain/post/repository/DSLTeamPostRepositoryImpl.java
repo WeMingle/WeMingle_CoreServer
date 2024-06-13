@@ -2,6 +2,7 @@ package com.wemingle.core.domain.post.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.wemingle.core.domain.post.dto.searchoption.SearchOption;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.entity.posttype.PostType;
 import com.wemingle.core.domain.team.entity.Team;
@@ -55,16 +56,23 @@ public class DSLTeamPostRepositoryImpl implements DSLTeamPostRepository{
     }
 
     @Override
-    public List<TeamPost> getSearchTeamPost(Long nextIdx, Team team, String searchWord) {
+    public List<TeamPost> getSearchTeamPost(Long nextIdx, Team team, String searchWord, SearchOption searchOption) {
         return jpaQueryFactory.selectFrom(teamPost)
                 .where(
                         nextIdxLoe(nextIdx),
                         teamPost.team.eq(team),
-                        searchCond(searchWord)
+                        searchCond(searchOption, searchWord)
                 )
                 .limit(30)
                 .orderBy(teamPost.pk.desc())
                 .fetch();
+    }
+
+    private BooleanExpression searchCond(SearchOption searchOption, String searchWord){
+        return switch (searchOption) {
+            case TITLE -> teamPost.title.contains(searchWord);
+            case WRITER -> teamPost.writer.nickname.contains(searchWord);
+        };
     }
 
     @Override
@@ -77,11 +85,5 @@ public class DSLTeamPostRepositoryImpl implements DSLTeamPostRepository{
                 ).limit(30)
                 .orderBy(teamPost.pk.desc())
                 .fetch();
-    }
-
-    private BooleanExpression searchCond(String searchWord){
-        return teamPost.writer.nickname.contains(searchWord)
-                .or(teamPost.content.contains(searchWord))
-                .or(teamPost.title.contains(searchWord));
     }
 }

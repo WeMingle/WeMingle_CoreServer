@@ -35,7 +35,8 @@ public enum ExceptionMessage {
     BOOKMARKED_NOT_FOUND("북마크 내역을 찾을 수 없습니다."),
     POST_LIKE_NOT_FOUND("글 좋아요를 찾을 수 없습니다."),
     IS_NOT_ME("본인이 아닙니다"),
-    UNBANNED_USER("정지된 사용자가 아닙니다");
+    UNBANNED_USER("정지된 사용자가 아닙니다"),
+    SEARCH_OPTION_NOT_FOUND("검색 조건이 없습니다.");
 
     private final String exceptionMessage;
 }

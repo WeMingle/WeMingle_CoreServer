@@ -5,7 +5,6 @@ import com.wemingle.core.domain.post.dto.TeamPostDto;
 import com.wemingle.core.domain.post.service.TeamPostService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 @RestController
@@ -62,12 +59,9 @@ public class TeamPostController {
     }
 
     @GetMapping("/posts/teams/result")
-    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseSearchTeamPost>>> getSearchTeamPosts(@RequestParam(required = false) Long nextIdx,
-                                                                                                                 @RequestParam @NotBlank(message = "검색어는 최소 한글자입니다.") String query,
-                                                                                                                 @RequestParam Long teamPk,
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamPostDto.ResponseSearchTeamPost>>> getSearchTeamPosts(@ModelAttribute @Valid TeamPostDto.RequestSearchTeamPost searchDto,
                                                                                                                  @AuthenticationPrincipal UserDetails userDetails){
-         String searchKeyword = URLDecoder.decode(query, StandardCharsets.UTF_8);
-         HashMap<Long, TeamPostDto.ResponseSearchTeamPost> responseData = teamPostService.getSearchTeamPost(nextIdx, teamPk, searchKeyword, userDetails.getUsername());
+         HashMap<Long, TeamPostDto.ResponseSearchTeamPost> responseData = teamPostService.getSearchTeamPost(searchDto, userDetails.getUsername());
 
          return ResponseEntity.ok(
                 ResponseHandler.<HashMap<Long, TeamPostDto.ResponseSearchTeamPost>>builder()
