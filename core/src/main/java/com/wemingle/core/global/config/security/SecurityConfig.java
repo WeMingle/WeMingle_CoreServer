@@ -27,9 +27,9 @@ public class SecurityConfig {
         httpSecurity
                 .authorizeHttpRequests(httpRequest -> httpRequest
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/member/signup","member/signin","member/id/check","post/match/testcalendar").permitAll()
-                        .requestMatchers("/nickname/**").permitAll()
-                        .requestMatchers("/token").permitAll()
+                        .requestMatchers("/members/signin","members/signup","members/available-id").permitAll()
+                        .requestMatchers("/nickname/*/available").permitAll()
+                        .requestMatchers("/tokens").permitAll()
                         .anyRequest().authenticated());
 
         httpSecurity
