@@ -1,11 +1,15 @@
 package com.wemingle.core.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wemingle.core.domain.post.dto.searchoption.SearchOption;
 import com.wemingle.core.domain.post.entity.posttype.PostType;
-import com.wemingle.core.domain.vote.vo.SaveVoteVo;
 import com.wemingle.core.domain.vote.entity.votestatus.VoteStatus;
+import com.wemingle.core.domain.vote.vo.SaveVoteVo;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -337,5 +341,16 @@ public class TeamPostDto {
             this.myVotePk = myVotePk;
             this.myVoteOption = myVoteOption;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestSearchTeamPost {
+        private Long nextIdx;
+        private Long teamId;
+        private SearchOption searchOption;
+        @NotBlank(message = "검색어는 최소 한글자입니다.")
+        private String query;
     }
 }

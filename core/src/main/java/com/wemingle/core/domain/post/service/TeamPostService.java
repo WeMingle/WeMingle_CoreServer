@@ -241,12 +241,12 @@ public class TeamPostService {
     }
 
 
-    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(Long nextIdx, Long teamId, String searchWord, String memberId) {
+    public HashMap<Long, TeamPostDto.ResponseSearchTeamPost> getSearchTeamPost(TeamPostDto.RequestSearchTeamPost searchDto, String memberId) {
         Member member = memberService.findByMemberId(memberId);
-        Team team = teamService.findById(teamId);
+        Team team = teamService.findById(searchDto.getTeamId());
 
         List<TeamPost> myBookmarkedTeamPosts = bookmarkedTeamPostRepository.findTeamPostByMember(member);
-        List<TeamPost> searchTeamPosts = teamPostRepository.getSearchTeamPost(nextIdx, team, searchWord);
+        List<TeamPost> searchTeamPosts = teamPostRepository.getSearchTeamPost(searchDto.getNextIdx(), team, searchDto.getQuery(), searchDto.getSearchOption());
         List<TeamPostLike> teamPostLikes = teamPostLikeRepository.findByTeamPostInAndTeamMember_Member(searchTeamPosts, member);
         LinkedHashMap<Long, TeamPostDto.ResponseSearchTeamPost> responseData = new LinkedHashMap<>();
 

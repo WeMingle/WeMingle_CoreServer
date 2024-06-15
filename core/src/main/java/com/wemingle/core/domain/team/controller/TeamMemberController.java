@@ -1,9 +1,10 @@
-package com.wemingle.core.domain.member.controller;
+package com.wemingle.core.domain.team.controller;
 
-import com.wemingle.core.domain.member.dto.TeamMemberDto;
+import com.wemingle.core.domain.team.dto.TeamMemberDto;
 import com.wemingle.core.domain.member.service.TeamMemberLeaveService;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.responseform.ResponseHandler;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -105,5 +106,19 @@ public class TeamMemberController {
         teamMemberLeaveService.banTeamMember(banDto);
         
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/members/teams/result")
+    public ResponseEntity<ResponseHandler<HashMap<Long, TeamMemberDto.ResponseTeamMembers>>> getSearchTeamMembers(@RequestParam Long teamId,
+                                                                                                                  @NotBlank(message = "검색어는 최소 한글자입니다.")
+                                                                                                                  @RequestParam String query) {
+        HashMap<Long, TeamMemberDto.ResponseTeamMembers> responseData = teamMemberService.getSearchTeamMembers(teamId, query);
+
+        return ResponseEntity.ok(
+                ResponseHandler.<HashMap<Long, TeamMemberDto.ResponseTeamMembers>>builder()
+                        .responseMessage("Team members retrieval successfully")
+                        .responseData(responseData)
+                        .build()
+        );
     }
 }
