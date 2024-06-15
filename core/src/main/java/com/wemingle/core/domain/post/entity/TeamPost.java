@@ -40,9 +40,7 @@ public class TeamPost extends BaseEntity {
     @Column(name = "REPLY_COUNT")
     private int replyCount;
 
-    @NotNull
-    @Column(name = "COMPLAINTS_COUNT")
-    private int complaintsCount;
+
 
     @NotNull
     @Column(name = "COMMENT_ALLOW")
@@ -79,7 +77,6 @@ public class TeamPost extends BaseEntity {
         this.content = content;
         this.likeCount = 0;
         this.replyCount = 0;
-        this.complaintsCount = 0;
         this.commentAllow = commentAllow;
         this.likeAllow = likeAllow;
         this.postType = postType;

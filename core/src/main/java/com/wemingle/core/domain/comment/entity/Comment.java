@@ -31,10 +31,6 @@ public class Comment extends BaseEntity {
     private boolean isLocked;
 
     @NotNull
-    @Column(name = "COMPLAINTS_COUNT")
-    private int complaintsCount;
-
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM_POST")
     private TeamPost teamPost;
