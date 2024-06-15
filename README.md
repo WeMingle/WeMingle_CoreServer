@@ -56,6 +56,13 @@
 * **사용자 차단** - 신고가 누적되어 부적절한 사용자로 분류될 시 시스템에서 사용자를 차단하여 일정 기간 서비스 사용을 제한합니다.
 
 
+## AWS Architecture
+<img src="https://github.com/WeMingle/WeMingle_CoreServer/assets/68003036/cc9bcc7c-4a22-4dc9-8823-a7244236e9d9">
+
+## ERD
+<img src="https://github.com/WeMingle/WeMingle_CoreServer/assets/68003036/906d0caa-28d4-46fc-8521-4ebfe74e0dcc">
+
+
 ## 🙇🏻 Backend Members
 
 |정우|호왕|
