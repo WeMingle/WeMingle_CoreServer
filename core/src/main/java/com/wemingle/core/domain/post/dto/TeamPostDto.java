@@ -1,11 +1,15 @@
 package com.wemingle.core.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wemingle.core.domain.post.dto.searchoption.SearchOption;
 import com.wemingle.core.domain.post.entity.posttype.PostType;
-import com.wemingle.core.domain.vote.vo.SaveVoteVo;
 import com.wemingle.core.domain.vote.entity.votestatus.VoteStatus;
+import com.wemingle.core.domain.vote.vo.SaveVoteVo;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -139,11 +143,17 @@ public class TeamPostDto {
     @NoArgsConstructor
     public static class VoteInfo{
         private Long votePk;
+        private String title;
+        private LocalDateTime expiryTime;
+        private int participantCnt;
         private List<VoteOptionInfo> voteOptionInfos;
 
         @Builder
-        public VoteInfo(Long votePk, List<VoteOptionInfo> voteOptionInfos) {
+        public VoteInfo(Long votePk, String title, LocalDateTime expiryTime, List<VoteOptionInfo> voteOptionInfos) {
             this.votePk = votePk;
+            this.title = title;
+            this.expiryTime = expiryTime;
+            this.participantCnt = voteOptionInfos.stream().mapToInt(VoteOptionInfo::getResultCnt).sum();
             this.voteOptionInfos = voteOptionInfos;
         }
     }
@@ -284,6 +294,9 @@ public class TeamPostDto {
     @NoArgsConstructor
     public static class VoteInfoWithPk{
         private Long votePk;
+        private String title;
+        private LocalDateTime expiryTime;
+        private int participantCnt;
         @JsonProperty(value = "isMultiVoting")
         private boolean isMultiVoting;
         @JsonProperty(value = "isComplete")
@@ -291,8 +304,11 @@ public class TeamPostDto {
         private List<VoteOptionInfoWithPk> voteOptionInfos;
 
         @Builder
-        public VoteInfoWithPk(Long votePk, boolean isMultiVoting, boolean isComplete, List<VoteOptionInfoWithPk> voteOptionInfos) {
+        public VoteInfoWithPk(Long votePk, String title, LocalDateTime expiryTime, boolean isMultiVoting, boolean isComplete, List<VoteOptionInfoWithPk> voteOptionInfos) {
             this.votePk = votePk;
+            this.title = title;
+            this.expiryTime = expiryTime;
+            this.participantCnt = voteOptionInfos.stream().mapToInt(VoteOptionInfoWithPk::getResultCnt).sum();
             this.isMultiVoting = isMultiVoting;
             this.isComplete = isComplete;
             this.voteOptionInfos = voteOptionInfos;
@@ -325,5 +341,16 @@ public class TeamPostDto {
             this.myVotePk = myVotePk;
             this.myVoteOption = myVoteOption;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class RequestSearchTeamPost {
+        private Long nextIdx;
+        private Long teamId;
+        private SearchOption searchOption;
+        @NotBlank(message = "검색어는 최소 한글자입니다.")
+        private String query;
     }
 }

@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TeamPostRepository extends JpaRepository<TeamPost, Long>, DSLTeamPostRepository {
-    List<TeamPost> findByTeam_Pk(Long teamPk);
+    @Query("select tp from TeamPost tp where tp.team.pk = :teamId and tp.teamPostVote is not null")
+    List<TeamPost> findTeamPostWithVote(@Param("teamId") Long teamId);
     @Query("select tp.team from TeamPost tp where tp.pk = :teamPostPk")
     Optional<Team> findTeam(@Param("teamPostPk")Long teamPostPk);
     List<TeamPost> findByWriter(TeamMember teamMember);

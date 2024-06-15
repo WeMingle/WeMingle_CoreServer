@@ -45,7 +45,7 @@ public class TeamPostVote extends BaseEntity {
     private VoteStatus voteStatus;
 
     @NotNull
-    @OneToOne
+    @OneToOne(mappedBy = "teamPostVote", cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "TEAM_POST")
     private TeamPost teamPost;
 

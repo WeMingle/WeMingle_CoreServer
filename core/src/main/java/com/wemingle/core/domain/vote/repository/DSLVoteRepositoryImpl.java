@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.vote.entity.TeamPostVote;
+import com.wemingle.core.domain.vote.entity.votestatus.VoteStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ import static com.wemingle.core.domain.vote.entity.QTeamPostVote.teamPostVote;
 public class DSLVoteRepositoryImpl implements DSLVoteRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
-    private static final int PAGE_SIZE = 30;
+    private static final int PAGE_SIZE = 50;
 
 
     @Override
@@ -32,7 +33,8 @@ public class DSLVoteRepositoryImpl implements DSLVoteRepository {
                 .where(
                         nextIdxLoe(nextIdx),
                         teamPostVote.teamPost.in(teamPosts),
-                        expiredVoteFilter()
+                        expiredVoteFilter(),
+                        realNameVoteFilter()
                 )
                 .limit(PAGE_SIZE)
                 .orderBy(teamPostVote.pk.desc())
@@ -42,8 +44,10 @@ public class DSLVoteRepositoryImpl implements DSLVoteRepository {
     private BooleanExpression nextIdxLoe(Long nextIdx){
         return nextIdx == null ? null : teamPostVote.pk.loe(nextIdx);
     }
-
     private BooleanExpression expiredVoteFilter() {
-        return teamPostVote.expiryTime.lt(LocalDateTime.now());
+        return teamPostVote.expiryTime.lt(LocalDateTime.now()).or(teamPostVote.voteStatus.eq(VoteStatus.COMPLETE));
+    }
+    private BooleanExpression realNameVoteFilter() {
+        return teamPostVote.isAnonymousVoting.eq(false);
     }
 }

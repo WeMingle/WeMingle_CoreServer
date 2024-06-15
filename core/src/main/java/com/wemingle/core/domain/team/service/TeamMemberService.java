@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.team.service;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
-import com.wemingle.core.domain.member.dto.TeamMemberDto;
+import com.wemingle.core.domain.team.dto.TeamMemberDto;
 import com.wemingle.core.domain.member.entity.BannedTeamMember;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.BannedTeamMemberRepository;
@@ -179,5 +179,16 @@ public class TeamMemberService {
                 .banStartDate(bannedTeamMember.getBannedDate())
                 .banEndDate(bannedTeamMember.getBanEndDate())
                 .build();
+    }
+
+    public HashMap<Long, TeamMemberDto.ResponseTeamMembers> getSearchTeamMembers(Long teamId, String query) {
+        List<TeamMember> teamMembers = teamMemberRepository.findByTeam_PkAndNicknameContaining(teamId, query);
+        LinkedHashMap<Long, TeamMemberDto.ResponseTeamMembers> responseData = new LinkedHashMap<>();
+
+        teamMembers.forEach(teamMember -> responseData.put(teamMember.getPk(), TeamMemberDto.ResponseTeamMembers.builder()
+                .nickname(teamMember.getNickname())
+                .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamMember.getProfileImg()))
+                .build()));
+        return responseData;
     }
 }

@@ -34,7 +34,7 @@ public class VoteService {
     private final TeamMemberService teamMemberService;
 
     public List<VoteDto.ResponseExpiredVoteInfo> getExpiredVotesInfo(Long nextIdx, Long teamPk){
-        List<TeamPost> teamPosts = teamPostRepository.findByTeam_Pk(teamPk);
+        List<TeamPost> teamPosts = teamPostRepository.findTeamPostWithVote(teamPk);
         List<TeamPostVote> expiredVotes = teamPostVoteRepository.getExpiredVotes(nextIdx, teamPosts);
 
         if (expiredVotes == null){
