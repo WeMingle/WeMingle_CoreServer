@@ -27,6 +27,10 @@
     <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white"/>
     <img src="https://img.shields.io/badge/Github-181717?style=flat-square&logo=github&logoColor=white"/>
     <img src="https://img.shields.io/badge/GithubActions-2088FF?style=flat-square&logo=githubactions&logoColor=white"/>
+    <img src="https://img.shields.io/badge/AmazonEc2-FF9900?style=flat-square&logo=amazonec2&logoColor=white"/>
+    <img src="https://img.shields.io/badge/AmazonS3-569A31?style=flat-square&logo=amazons3&logoColor=white"/>
+    <img src="https://img.shields.io/badge/AmazonRds-527FFF?style=flat-square&logo=amazonrds&logoColor=white"/>
+    <img src="https://img.shields.io/badge/AmazonRoute53-8C4FFF?style=flat-square&logo=amazonroute53&logoColor=white"/>
 </div>
 
 
