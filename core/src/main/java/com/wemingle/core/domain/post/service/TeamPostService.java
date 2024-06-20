@@ -282,9 +282,7 @@ public class TeamPostService {
         TeamPost teamPost = findById(teamPostId);
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
 
-        if (teamPost.isWriter(requester)){
-            throw new WriterNotAllowedException();
-        }
+        verifyTeamPostLikeCond(teamPost, requester);
 
         Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
         if (postLike.isPresent()){
@@ -295,14 +293,22 @@ public class TeamPostService {
         }
     }
 
+    private void verifyTeamPostLikeCond(TeamPost teamPost, TeamMember requester) {
+        if (teamPost.isWriter(requester)){
+            throw new WriterNotAllowedException();
+        }
+
+        if (teamPost.isLikeAllow()) {
+            throw new RuntimeException(ExceptionMessage.NOT_ALLOW_TEAM_POST_LIKE.getExceptionMessage());
+        }
+    }
+
     @Transactional
     public void deletePostLike(Long teamPostId, String memberId) {
         TeamPost teamPost = findById(teamPostId);
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
 
-        if (teamPost.isWriter(requester)){
-            throw new WriterNotAllowedException();
-        }
+        verifyTeamPostLikeCond(teamPost, requester);
 
         TeamPostLike postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_LIKE_NOT_FOUND.getExceptionMessage()));;

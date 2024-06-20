@@ -36,7 +36,9 @@ public enum ExceptionMessage {
     POST_LIKE_NOT_FOUND("글 좋아요를 찾을 수 없습니다."),
     IS_NOT_ME("본인이 아닙니다"),
     UNBANNED_USER("정지된 사용자가 아닙니다"),
-    SEARCH_OPTION_NOT_FOUND("검색 조건이 없습니다.");
+    SEARCH_OPTION_NOT_FOUND("검색 조건이 없습니다."),
+    NOT_ALLOW_TEAM_POST_LIKE("좋아요가 허용되지 않는 글입니다."),
+    NOT_ALLOW_TEAM_POST_COMMENT("댓글 작성이 허용되지 않는 글입니다.");
 
     private final String exceptionMessage;
 }
