@@ -13,7 +13,6 @@ import com.wemingle.core.domain.member.repository.MemberRepository;
 import com.wemingle.core.domain.member.repository.PolicyTermsRepository;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
-import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -77,10 +76,8 @@ public class InitDatabaseV2 {
         List<TeamMember> teamMemberRepositoryAll = teamMemberRepository.findAll();
         ArrayList<MatchingPost> matchingPost = createMatchingPost(teamMemberRepositoryAll, teamList);
         List<MatchingPostArea> matchingPostArea = createMatchingPostArea(matchingPost);
-        List<MatchingPostMatchingDate> matchingDate = createMatchingPostMatchingDate(matchingPost);
         for (int i = 0; i < 10; i++) {
             matchingPost.get(i).putArea(matchingPostArea.get(i));
-            matchingPost.get(i).putMatchingDates(List.of(matchingDate.get(i)));
         }
         List<MatchingPost> matchingPosts = matchingPostRepository.saveAll(matchingPost);
 
@@ -106,9 +103,6 @@ public class InitDatabaseV2 {
         return matchingPosts.stream().map(m -> MatchingPostArea.builder().areaName(AreaName.경기).matchingPost(m).build()).toList();
     }
 
-    private List<MatchingPostMatchingDate> createMatchingPostMatchingDate(ArrayList<MatchingPost> matchingPosts) {
-        return matchingPosts.stream().map(m -> MatchingPostMatchingDate.builder().matchingDate(LocalDate.of(2024, 4, 30)).matchingPost(m).build()).toList();
-    }
 
     private List<TeamMember> createTeamMember(List<Member> memberList, List<Team> teams) {
         List<TeamMember> returnTeamMembers = new ArrayList<>();
@@ -153,12 +147,14 @@ public class InitDatabaseV2 {
         for (int i = 0; i < 10; i++) {
             matchingPosts.add(MatchingPost.builder()
                     .expiryDate(LocalDate.of(2024, new Random().nextInt(12)+1, new Random().nextInt(29)+1))
+                    .matchingDate(LocalDate.of(2024, new Random().nextInt(12)+1, new Random().nextInt(29)+1))
                     .locationName("jacob house")
                     .lat(new Random().nextDouble(90))
                     .lon(new Random().nextDouble(180))
                     .content("msg")
                     .capacityLimit(10)
                     .isLocationConsensusPossible(true)
+                    .viewCnt(new Random().nextInt(100))//new Random().nextInt(100000)
                     .ability(Ability.MEDIUM)
                     .gender(Gender.MALE)
                     .recruiterType(RecruiterType.TEAM)
@@ -166,7 +162,6 @@ public class InitDatabaseV2 {
                     .locationSelectionType(LocationSelectionType.SELECT_BASED)
                     .writer(memberList.get(i))
                     .team(teams.get(i))
-                    .viewCnt(new Random().nextInt(100))//new Random().nextInt(100000)
                     .sportsCategory(SportsType.OTHER)
                     .build());
         }

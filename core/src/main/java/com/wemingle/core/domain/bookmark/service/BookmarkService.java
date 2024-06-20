@@ -12,7 +12,6 @@ import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.domain.post.dto.MatchingPostDto;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
-import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.TeamPost;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.TeamPostRepository;
@@ -92,7 +91,7 @@ public class BookmarkService {
                 .forEach(matchingPost -> matchingPostDtoList.add(
                         MatchingPostDto.ResponseMyBookmarkDto.builder()
                                 .pk(matchingPost.getPk())
-                                .matchingDate(matchingPost.getMatchingDates().stream().map(MatchingPostMatchingDate::getMatchingDate).toList())
+                                .matchingDate(matchingPost.getMatchingDate())
                                 .isBookmarked(true)
                                 .ability(matchingPost.getAbility())
                                 .recruiterType(matchingPost.getRecruiterType())

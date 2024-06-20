@@ -15,7 +15,6 @@ import com.wemingle.core.domain.post.dto.MatchingPostMapDto;
 import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
-import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -23,7 +22,6 @@ import com.wemingle.core.domain.post.entity.locationselectiontype.LocationSelect
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.post.entity.recruitertype.RecruiterType;
 import com.wemingle.core.domain.post.repository.MatchingPostAreaRepository;
-import com.wemingle.core.domain.post.repository.MatchingPostMatchingDateRepository;
 import com.wemingle.core.domain.post.repository.MatchingPostRepository;
 import com.wemingle.core.domain.post.vo.MatchingPostByCalendarVo;
 import com.wemingle.core.domain.rating.repository.TeamRatingRepository;
@@ -71,7 +69,6 @@ public class MatchingPostService {
     private final BookmarkMatchingPostRepository bookmarkMatchingPostRepository;
     private final TeamReviewRepository teamReviewRepository;
     private final S3ImgService s3ImgService;
-    private final MatchingPostMatchingDateRepository matchingPostMatchingDateRepository;
     private final MatchingRequestRepository matchingRequestRepository;
     private final TeamRatingRepository teamRatingRepository;
     private final TeamMemberService teamMemberService;
@@ -312,7 +309,7 @@ public class MatchingPostService {
                                     post.getWriter().getTeam().getTeamType().equals(TeamType.INDIVIDUAL) ?
                                     post.getWriter().getMember().getMemberId() : post.getWriter().getTeam().getTeamName()
                             )
-                            .matchingDate(getMatchingDates(post))
+                            .matchingDate(post.getMatchingDate())
                             .areaList(
                                     post.getLocationName().isEmpty() ?
                                     post.getAreaList().stream().map(matchingPostArea -> matchingPostArea.getAreaName().toString()).toList() : List.of(post.getLocationName())
@@ -333,10 +330,6 @@ public class MatchingPostService {
         return postsMap;
     }
 
-    private List<LocalDate> getMatchingDates(MatchingPost matchingPost){
-        return matchingPost.getMatchingDates().stream().map(MatchingPostMatchingDate::getMatchingDate).toList();
-    }
-
     private HashMap<Long, Object> createMatchingPostDtoMapDetail(List<MatchingPost> filteredMatchingPost, List<BookmarkedMatchingPost> bookmarkedByMatchingPosts, List<Matching> matchingResultByMemberId) {
         HashMap<Long, Object> postsMap = new LinkedHashMap<>();
 
@@ -346,7 +339,7 @@ public class MatchingPostService {
 
             postsMap.put(post.getPk(), MatchingPostDto.ResponseMatchingPostByMapDetailDto.builder()
                     .writer(post.getWriter().getTeam().getTeamName())
-                    .matchingDate(getMatchingDates(post))
+                    .matchingDate(post.getMatchingDate())
                     .areaList(post.getAreaList().stream().map(MatchingPostArea::getAreaName).toList())
                     .ability(post.getAbility())
                     .isLocationConsensusPossible(post.isLocationConsensusPossible())
@@ -527,7 +520,7 @@ public class MatchingPostService {
         LinkedHashMap<Long, MatchingPostDto.ResponseCompletedMatchingPost> responseHashMap = new LinkedHashMap<>();
 
         matchingPosts.forEach(matchingPost -> responseHashMap.put(matchingPost.getPk(), MatchingPostDto.ResponseCompletedMatchingPost.builder()
-                .matchingDate(getMatchingDates(matchingPost))
+                .matchingDate(matchingPost.getMatchingDate())
                 .recruiterType(matchingPost.getRecruiterType())
                 .nickname(getNickname(matchingPost))
                 .completedMatchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
@@ -536,7 +529,7 @@ public class MatchingPostService {
                 .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
                 .ability(matchingPost.getAbility())
                 .profileImgUrl(getProfileImgUrl(matchingPost))
-                .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), getMinMatchingDate(matchingPost)))
+                .matchingStatus(matchingStatusFactory(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate()))
                 .scheduledRequestDescription(getScheduledRequest(matchingPost, managerOrHigherTeamMembers, member, matchingPostWrittenReview))
                 .build()));
 
@@ -572,15 +565,8 @@ public class MatchingPostService {
 
     private String getScheduledRequest(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member, List<MatchingPost> matchingPostWrittenReview) {
         return isTeamOwner(matchingPost, managerOrHigherTeamMembers, member)
-                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), getMinMatchingDate(matchingPost), matchingPost, matchingPostWrittenReview)
+                ? createScheduledRequestWithOwner(matchingPost.getMatchingStatus(), matchingPost.getMatchingDate(), matchingPost, matchingPostWrittenReview)
                 : createScheduledRequestWithMember(matchingPost.getMatchingStatus(), matchingPost, matchingPostWrittenReview);
-    }
-
-    private LocalDate getMinMatchingDate(MatchingPost matchingPost) {
-        return matchingPost.getMatchingDates().stream()
-                .map(MatchingPostMatchingDate::getMatchingDate)
-                .min(Comparator.naturalOrder())
-                .orElseThrow(() -> new RuntimeException(MATCHING_DATE_NOT_FOUND.getExceptionMessage()));
     }
 
     private boolean isTeamOwner(MatchingPost matchingPost, List<TeamMember> managerOrHigherTeamMembers, Member member) {
@@ -634,21 +620,20 @@ public class MatchingPostService {
     }
 
     @Transactional
-    public void saveMatchingPost(MatchingPostDto.CreateMatchingPostDto createMatchingPostDto, String writerId){
-        RecruiterType recruiterType = createMatchingPostDto.getRecruiterType();
-        Long teamPk = createMatchingPostDto.getTeamPk();
-        List<Long> participantsTeamMemberId = createMatchingPostDto.getParticipantsId();
+    public void saveMatchingPost(MatchingPostDto.CreateMatchingPostDto createDto, String writerId){
+        List<Long> participantsTeamMemberId = createDto.getParticipantsId();
 
-        Team team = teamRepository.findById(teamPk).orElseThrow(() -> new EntityNotFoundException(TEAM_NOT_FOUND.getExceptionMessage()));
+        Team team = teamRepository.findById(createDto.getTeamPk())
+                .orElseThrow(() -> new EntityNotFoundException(TEAM_NOT_FOUND.getExceptionMessage()));
         TeamMember writerInTeam = teamMemberService.findByTeamAndMember_MemberId(team, writerId);
 
-        MatchingPost matchingPost = createMatchingPostDto.of(team, writerInTeam, createMatchingPostDto.getMatchingDate());
+        MatchingPost matchingPost = createDto.of(team, writerInTeam, createDto.getMatchingDate());
         matchingPostRepository.save(matchingPost);
 
         Member teamOwner = memberService.findByMemberId(writerId);
         saveMatchingOwner(team, teamOwner, matchingPost);
 
-        if (isExistTeamParticipant(recruiterType, participantsTeamMemberId)){
+        if (isExistTeamParticipant(createDto.getRecruiterType(), participantsTeamMemberId)){
             List<Member> memberList = teamMemberRepository.findMemberByTeamMemberIdIn(participantsTeamMemberId);
             saveMatchingParticipants(team, memberList, matchingPost);
         }
@@ -720,7 +705,7 @@ public class MatchingPostService {
         Member requester = memberService.findByMemberId(memberId);
         MatchingPost matchingPost = getMatchingPostByPostId(postId);
 
-        if (matchingPost.isWriter(requester)) {
+        if (!matchingPost.isWriter(requester)) {
             throw new NotWriterException();
         }
 
@@ -735,7 +720,6 @@ public class MatchingPostService {
         matchingPostRepository.save(reCreateMatchingPost);
 
         updateBookmarkedWithNewPost(bookmarkedMatchingPosts, reCreateMatchingPost);
-        reSaveMatchingDates(matchingPost, reCreateMatchingPost);
         reSaveAreas(matchingPost, reCreateMatchingPost);
 
         matchingPostRepository.delete(matchingPost);
@@ -743,16 +727,6 @@ public class MatchingPostService {
 
     private void updateBookmarkedWithNewPost(List<BookmarkedMatchingPost> bookmarkedMatchingPosts, MatchingPost reCreateMatchingPost) {
         bookmarkedMatchingPosts.forEach(bookmarkedMatchingPost -> bookmarkedMatchingPost.updateMatchingPost(reCreateMatchingPost));
-    }
-
-    private void reSaveMatchingDates(MatchingPost matchingPost, MatchingPost reCreateMatchingPost) {
-        List<MatchingPostMatchingDate> reCreateMatchingDates =matchingPost.getMatchingDates().stream()
-                .map(matchingDate -> MatchingPostMatchingDate.builder()
-                        .matchingDate(matchingDate.getMatchingDate())
-                        .matchingPost(reCreateMatchingPost).build())
-                .toList();
-
-        matchingPostMatchingDateRepository.saveAll(reCreateMatchingDates);
     }
 
     private void reSaveAreas(MatchingPost matchingPost, MatchingPost reCreateMatchingPost) {
@@ -782,7 +756,7 @@ public class MatchingPostService {
                 .nickname(getNickname(matchingPost))
                 .areas(getAreas(matchingPost))
                 .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
-                .matchingDate(getMatchingDates(matchingPost))
+                .matchingDate(matchingPost.getMatchingDate())
                 .expiryDate(matchingPost.getExpiryDate())
                 .recruiterType(matchingPost.getRecruiterType())
                 .ability(matchingPost.getAbility())
@@ -816,7 +790,7 @@ public class MatchingPostService {
                 .content(matchingPost.getContent())
                 .areas(getAreas(matchingPost))
                 .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
-                .matchingDate(getMatchingDates(matchingPost))
+                .matchingDate(matchingPost.getMatchingDate())
                 .recruiterType(matchingPost.getRecruiterType())
                 .ability(matchingPost.getAbility())
                 .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
@@ -847,7 +821,7 @@ public class MatchingPostService {
                         .content(matchingPost.getContent())
                         .areas(getAreas(matchingPost))
                         .matchingCnt(matchingPost.getTeam().getCompletedMatchingCnt())
-                        .matchingDate(getMatchingDates(matchingPost))
+                        .matchingDate(matchingPost.getMatchingDate())
                         .recruiterType(matchingPost.getRecruiterType())
                         .ability(matchingPost.getAbility())
                         .isLocationConsensusPossible(matchingPost.isLocationConsensusPossible())
@@ -890,7 +864,7 @@ public class MatchingPostService {
                 .content(post.getContent())
                 .areas(getAreas(post))
                 .matchingCnt(post.getTeam().getCompletedMatchingCnt())
-                .matchingDate(getMatchingDates(post))
+                .matchingDate(post.getMatchingDate())
                 .recruiterType(post.getRecruiterType())
                 .ability(post.getAbility())
                 .isLocationConsensusPossible(post.isLocationConsensusPossible())
@@ -999,7 +973,7 @@ public class MatchingPostService {
                 .teamName(writerTeam.getTeamName())
                 .teamRating(teamRatingUtil.adjustTeamRating(getNonNullTotalRating(totalRating)))
                 .reviewCnt(getNonNullReviewCnt(reviewCnt))
-                .matchingDates(getMatchingDates(matchingPost))
+                .matchingDate(matchingPost.getMatchingDate())
                 .areas(getAreas(matchingPost))
                 .ability(matchingPost.getAbility())
                 .participantsCnt(matchingPost.getMyCapacityCount())
