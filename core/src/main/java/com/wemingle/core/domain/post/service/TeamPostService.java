@@ -327,6 +327,8 @@ public class TeamPostService {
                 .isManager(teamMember.isManager())
                 .isBookmarked(bookmarkedTeamPostRepository.existsByTeamPostAndMember(teamPost, member))
                 .isLiked(teamPostLikeRepository.existsByTeamPostAndTeamMember(teamPost, teamMember))
+                .isLikeAllow(teamPost.isLikeAllow())
+                .isCommentAllow(teamPost.isCommentAllow())
                 .voteStatus(teamPost.getTeamPostVote().getVoteStatus())
                 .voteInfo(getVoteInfoWithPk(teamPost.getTeamPostVote()))
                 .myVoteHistory(getMyVoteHistory(teamPost.getTeamPostVote(), teamMember))
