@@ -100,7 +100,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, member))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .isLiked(isLiked(teamPostLikes, teamPost))
-                .isLikedAllow(teamPost.isLikeAllow())
+                .isLikeAllow(teamPost.isLikeAllow())
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
@@ -138,7 +138,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, teamMember))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .isLiked(isLiked(teamPostLikes, teamPost))
-                .isLikedAllow(teamPost.isLikeAllow())
+                .isLikeAllow(teamPost.isLikeAllow())
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
@@ -298,7 +298,7 @@ public class TeamPostService {
             throw new WriterNotAllowedException();
         }
 
-        if (teamPost.isLikeAllow()) {
+        if (!teamPost.isLikeAllow()) {
             throw new RuntimeException(ExceptionMessage.NOT_ALLOW_TEAM_POST_LIKE.getExceptionMessage());
         }
     }
