@@ -100,6 +100,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, member))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .isLiked(isLiked(teamPostLikes, teamPost))
+                .isLikeAllow(teamPost.isLikeAllow())
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
@@ -137,6 +138,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, teamMember))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .isLiked(isLiked(teamPostLikes, teamPost))
+                .isLikeAllow(teamPost.isLikeAllow())
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
@@ -261,6 +263,7 @@ public class TeamPostService {
                 .isBookmarked(isBookmarked(teamPost, myBookmarkedTeamPosts))
                 .isWriter(isWriter(teamPost, member))
                 .isLiked(isLiked(teamPostLikes, teamPost))
+                .isLikeAllow(teamPost.isLikeAllow())
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()));
 
@@ -279,9 +282,7 @@ public class TeamPostService {
         TeamPost teamPost = findById(teamPostId);
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
 
-        if (teamPost.isWriter(requester)){
-            throw new WriterNotAllowedException();
-        }
+        verifyTeamPostLikeCond(teamPost, requester);
 
         Optional<TeamPostLike> postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester);
         if (postLike.isPresent()){
@@ -292,14 +293,22 @@ public class TeamPostService {
         }
     }
 
+    private void verifyTeamPostLikeCond(TeamPost teamPost, TeamMember requester) {
+        if (teamPost.isWriter(requester)){
+            throw new WriterNotAllowedException();
+        }
+
+        if (!teamPost.isLikeAllow()) {
+            throw new RuntimeException(ExceptionMessage.NOT_ALLOW_TEAM_POST_LIKE.getExceptionMessage());
+        }
+    }
+
     @Transactional
     public void deletePostLike(Long teamPostId, String memberId) {
         TeamPost teamPost = findById(teamPostId);
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
 
-        if (teamPost.isWriter(requester)){
-            throw new WriterNotAllowedException();
-        }
+        verifyTeamPostLikeCond(teamPost, requester);
 
         TeamPostLike postLike = teamPostLikeRepository.findByTeamPostAndTeamMember(teamPost, requester)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.POST_LIKE_NOT_FOUND.getExceptionMessage()));;
@@ -324,6 +333,8 @@ public class TeamPostService {
                 .isManager(teamMember.isManager())
                 .isBookmarked(bookmarkedTeamPostRepository.existsByTeamPostAndMember(teamPost, member))
                 .isLiked(teamPostLikeRepository.existsByTeamPostAndTeamMember(teamPost, teamMember))
+                .isLikeAllow(teamPost.isLikeAllow())
+                .isCommentAllow(teamPost.isCommentAllow())
                 .voteStatus(teamPost.getTeamPostVote().getVoteStatus())
                 .voteInfo(getVoteInfoWithPk(teamPost.getTeamPostVote()))
                 .myVoteHistory(getMyVoteHistory(teamPost.getTeamPostVote(), teamMember))
