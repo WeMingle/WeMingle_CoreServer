@@ -76,4 +76,7 @@ public class TeamMember extends BaseEntity {
         this.member = withdrawMember;
         this.nickname = UUID.randomUUID().toString();
     }
+    public boolean isBlocked() {
+        return this.teamRole.equals(TeamRole.BLOCKED_USER);
+    }
 }

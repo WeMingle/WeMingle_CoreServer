@@ -43,6 +43,7 @@ public class ReplyService {
         Comment comment = commentRepository.findByIdFetchPost(saveDto.getCommentId())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.COMMENT_NOT_FOUND.getExceptionMessage()));
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(comment.getTeamPost().getTeam(), memberId);
+        teamMemberService.verifyBlockTeamMember(requester);
 
         replyRepository.save(Reply.builder()
                 .comment(comment)
@@ -66,6 +67,7 @@ public class ReplyService {
             throw new NotWriterException();
         }
         Reply reply = findById(updateDto.getReplyId());
+        teamMemberService.verifyBlockTeamMember(reply.getWriter());
 
         reply.updateContent(updateDto.getContent());
     }
@@ -77,6 +79,8 @@ public class ReplyService {
         }
 
         Reply reply = findById(deleteDto.getReplyId());
+        teamMemberService.verifyBlockTeamMember(reply.getWriter());
+
         TeamPost teamPost = teamPostService.findById(deleteDto.getTeamPostId());
 
         reply.delete();
@@ -129,6 +133,7 @@ public class ReplyService {
         myReplies.forEach(Reply::updateByWithdrawMember);
     }
 
+    @Transactional
     public void deleteAllByComments(List<Comment> comments) {
         List<Reply> replies = replyRepository.findByCommentIn(comments);
         replyRepository.deleteAllInBatch(replies);

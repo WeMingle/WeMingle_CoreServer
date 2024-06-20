@@ -191,4 +191,10 @@ public class TeamMemberService {
                 .build()));
         return responseData;
     }
+
+    public void verifyBlockTeamMember(TeamMember teamMember) {
+        if (teamMember.isBlocked()) {
+            throw new RuntimeException(ExceptionMessage.BLOCKED_TEAM_MEMBER.getExceptionMessage());
+        }
+    }
 }

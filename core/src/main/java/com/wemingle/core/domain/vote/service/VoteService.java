@@ -127,16 +127,17 @@ public class VoteService {
     }
     @Transactional
     public void saveOrDeleteVoteResult(VoteDto.RequestVote voteDto, String memberId) {
-        if (voteDto.getRemoveVoteResult() != null && !voteDto.getRemoveVoteResult().isEmpty()) {
+        TeamPostVote teamPostVote = findById(voteDto.getVotePk());
+        TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPostVote.getTeamPost().getTeam(), memberId);
+        teamMemberService.verifyBlockTeamMember(requester);
+
+        if (voteDto.isExistRemoveVoteResult()) {
             List<VoteResult> removeVoteResults = voteResultRepository.findAllById(voteDto.getRemoveVoteResult());
             removeVoteResults.forEach(removeVoteResult -> removeVoteResult.getVoteOption().removeVoteResult(removeVoteResult));
         }
 
-        if (voteDto.getSaveVoteResult() != null && !voteDto.getSaveVoteResult().isEmpty()) {
-            TeamPostVote teamPostVote = findById(voteDto.getVotePk());
-            TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPostVote.getTeamPost().getTeam(), memberId);
+        if (voteDto.isExistSaveVoteResult()) {
             List<VoteOption> saveVotes = voteOptionRepository.findAllById(voteDto.getSaveVoteResult());
-
             List<VoteResult> saveVoteResults = saveVotes.stream()
                     .map(saveVote -> VoteResult.builder()
                             .voteOption(saveVote)
