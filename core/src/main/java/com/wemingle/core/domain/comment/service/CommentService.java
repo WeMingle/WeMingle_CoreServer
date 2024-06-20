@@ -41,6 +41,7 @@ public class CommentService {
     public void saveComment(CommentDto.RequestCommentSave saveDto, String memberId){
         TeamPost teamPost = teamPostService.findById(saveDto.getTeamPostId());
         TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
+        teamMemberService.verifyBlockTeamMember(requester);
 
         commentRepository.save(Comment.builder()
                 .teamPost(teamPost)
@@ -68,6 +69,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(updateDto.getCommentId())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.COMMENT_NOT_FOUND.getExceptionMessage()));
 
+        teamMemberService.verifyBlockTeamMember(comment.getWriter());
         comment.updateContent(updateDto.getContent());
     }
 
@@ -80,6 +82,7 @@ public class CommentService {
         Comment comment = commentRepository.findByIdFetchPost(deleteDto.getCommentId())
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionMessage.COMMENT_NOT_FOUND.getExceptionMessage()));
 
+        teamMemberService.verifyBlockTeamMember(comment.getWriter());
         comment.delete();
         comment.getTeamPost().reduceReplyCnt();
     }

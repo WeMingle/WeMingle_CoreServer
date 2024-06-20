@@ -38,7 +38,8 @@ public enum ExceptionMessage {
     UNBANNED_USER("정지된 사용자가 아닙니다"),
     SEARCH_OPTION_NOT_FOUND("검색 조건이 없습니다."),
     NOT_ALLOW_TEAM_POST_LIKE("좋아요가 허용되지 않는 글입니다."),
-    NOT_ALLOW_TEAM_POST_COMMENT("댓글 작성이 허용되지 않는 글입니다.");
+    NOT_ALLOW_TEAM_POST_COMMENT("댓글 작성이 허용되지 않는 글입니다."),
+    BLOCKED_TEAM_MEMBER("활동 정지된 그룹원입니다.");
 
     private final String exceptionMessage;
 }

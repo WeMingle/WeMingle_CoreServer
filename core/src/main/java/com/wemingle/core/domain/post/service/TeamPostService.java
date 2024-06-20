@@ -187,6 +187,7 @@ public class TeamPostService {
     public void saveTeamPost(TeamPostDto.RequestTeamPostSave savePostDto, String memberId) {
         Team team = teamService.findById(savePostDto.getTeamPk());
         TeamMember teamMember = teamMemberService.findByTeamAndMember_MemberId(team, memberId);
+        teamMemberService.verifyBlockTeamMember(teamMember);
 
         TeamPost teamPost = TeamPost.builder()
                 .title(savePostDto.getPostTitle())
@@ -270,13 +271,6 @@ public class TeamPostService {
         return responseData;
     }
 
-    public boolean isTeamPostWriter(Long teamPostId, String memberId) {
-        TeamPost teamPost = findById(teamPostId);
-        TeamMember requester = teamMemberService.findByTeamAndMember_MemberId(teamPost.getTeam(), memberId);
-
-        return teamPost.isWriter(requester);
-    }
-
     @Transactional
     public void savePostLike(Long teamPostId, String memberId) {
         TeamPost teamPost = findById(teamPostId);
@@ -294,6 +288,8 @@ public class TeamPostService {
     }
 
     private void verifyTeamPostLikeCond(TeamPost teamPost, TeamMember requester) {
+        teamMemberService.verifyBlockTeamMember(requester);
+
         if (teamPost.isWriter(requester)){
             throw new WriterNotAllowedException();
         }

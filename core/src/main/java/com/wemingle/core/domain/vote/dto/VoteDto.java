@@ -107,5 +107,13 @@ public class VoteDto {
         public int calculateTotalCnt(){
             return this.saveVoteResult.size() - this.removeVoteResult.size();
         }
+
+        public boolean isExistRemoveVoteResult() {
+            return this.getRemoveVoteResult() != null && !this.getRemoveVoteResult().isEmpty();
+        }
+
+        public boolean isExistSaveVoteResult() {
+            return this.getSaveVoteResult() != null && !this.getSaveVoteResult().isEmpty();
+        }
     }
 }
