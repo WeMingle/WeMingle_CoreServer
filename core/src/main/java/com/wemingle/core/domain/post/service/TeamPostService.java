@@ -100,6 +100,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, member))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .isLiked(isLiked(teamPostLikes, teamPost))
+                .isLikedAllow(teamPost.isLikeAllow())
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
@@ -137,6 +138,7 @@ public class TeamPostService {
                 .isWriter(isWriter(teamPost, teamMember))
                 .isBookmarked(isBookmarked(teamPost, bookmarkedTeamPosts))
                 .isLiked(isLiked(teamPostLikes, teamPost))
+                .isLikedAllow(teamPost.isLikeAllow())
                 .voteInfo(getVoteInfo(teamPost.getTeamPostVote()))
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()
@@ -261,6 +263,7 @@ public class TeamPostService {
                 .isBookmarked(isBookmarked(teamPost, myBookmarkedTeamPosts))
                 .isWriter(isWriter(teamPost, member))
                 .isLiked(isLiked(teamPostLikes, teamPost))
+                .isLikeAllow(teamPost.isLikeAllow())
                 .imgUrl(s3ImgService.getTeamMemberPreSignedUrl(teamPost.getWriter().getProfileImg()))
                 .build()));
 
