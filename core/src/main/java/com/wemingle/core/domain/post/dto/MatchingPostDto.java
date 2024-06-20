@@ -5,7 +5,6 @@ import com.wemingle.core.domain.category.sports.entity.sportstype.SportsType;
 import com.wemingle.core.domain.post.dto.sortoption.SortOption;
 import com.wemingle.core.domain.post.entity.MatchingPost;
 import com.wemingle.core.domain.post.entity.MatchingPostArea;
-import com.wemingle.core.domain.post.entity.MatchingPostMatchingDate;
 import com.wemingle.core.domain.post.entity.abillity.Ability;
 import com.wemingle.core.domain.post.entity.area.AreaName;
 import com.wemingle.core.domain.post.entity.gender.Gender;
@@ -67,14 +66,14 @@ public class MatchingPostDto {
         private String contents;
         private List<AreaName> areaList;
         private int matchingCnt;
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private RecruiterType recruiterType;
         private Ability ability;
         private boolean isLocationConsensusPossible;
         private boolean isBookmarked;
 
         @Builder
-        public ResponseMyBookmarkDto(Long pk, String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, List<LocalDate> matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
+        public ResponseMyBookmarkDto(Long pk, String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked) {
             this.pk = pk;
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
@@ -99,7 +98,7 @@ public class MatchingPostDto {
         private List<String> areaList;
         private int matchingCnt;
         private int viewCnt;
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private MatchingStatus matchingStatus;
         private LocalDate expiryDate;
         private RecruiterType recruiterType;
@@ -108,7 +107,7 @@ public class MatchingPostDto {
         private boolean isBookmarked;
 
         @Builder
-        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<String> areaList, int matchingCnt, int viewCnt, List<LocalDate> matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, MatchingStatus matchingStatus) {
+        public ResponseMatchingPostDto(String profilePicUrl, String writer, String contents, List<String> areaList, int matchingCnt, int viewCnt, LocalDate matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, MatchingStatus matchingStatus) {
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
             this.contents = contents;
@@ -134,7 +133,7 @@ public class MatchingPostDto {
         private List<AreaName> areaList;
         private int matchingCnt;
         private int viewCnt;
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private LocalDate expiryDate;
         private RecruiterType recruiterType;
         private Ability ability;
@@ -146,7 +145,7 @@ public class MatchingPostDto {
 
 
         @Builder
-        public ResponseMatchingPostByMapDetailDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, int viewCnt, List<LocalDate> matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, Double lat, Double lon, boolean isMatchedBefore) {
+        public ResponseMatchingPostByMapDetailDto(String profilePicUrl, String writer, String contents, List<AreaName> areaList, int matchingCnt, int viewCnt, LocalDate matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, Double lat, Double lon, boolean isMatchedBefore) {
             this.profilePicUrl = profilePicUrl;
             this.writer = writer;
             this.contents = contents;
@@ -169,8 +168,7 @@ public class MatchingPostDto {
     @Setter
     @NoArgsConstructor
     public static class CreateMatchingPostDto {
-        @NotNull
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private Double latitude;
         private Double longitude;
         @NotBlank
@@ -184,35 +182,26 @@ public class MatchingPostDto {
         private String myeon;
         private String ri;
         private List<AreaName> areaNameList;
-        @NotNull
         @JsonProperty(value = "isLocationConsensusPossible")
         private boolean isLocationConsensusPossible;
-        @NotNull
         private Ability ability;
         private Gender gender;
         @Min(value = 1, message = "myCapacityCount must be greater than 1")
         private int myCapacityCount;
-        @NotNull
         @Min(value = 1, message = "capacityLimit must be greater than 1")
         private int capacityLimit;
-        @NotNull
         private Long teamPk;
         private List<Long> participantsId = new ArrayList<>(); // member pk
-        @NotNull
         private LocalDate expiryDate;
-        @NotNull
         private RecruiterType recruiterType;
-        @NotNull
         private RecruitmentType recruitmentType;
         @NotBlank
         private String content;
-        @NotNull
         private LocationSelectionType locationSelectionType;
-        @NotNull
         private SportsType sportsType;
 
         @Builder
-        public CreateMatchingPostDto(List<LocalDate> matchingDate, Double latitude, Double longitude, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int myCapacityCount, int capacityLimit, Long teamPk, List<Long> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
+        public CreateMatchingPostDto(LocalDate matchingDate, Double latitude, Double longitude, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, List<AreaName> areaNameList, boolean isLocationConsensusPossible, Ability ability, Gender gender, int myCapacityCount, int capacityLimit, Long teamPk, List<Long> participantsId, LocalDate expiryDate, RecruiterType recruiterType, RecruitmentType recruitmentType, String content, LocationSelectionType locationSelectionType, SportsType sportsType) {
             this.matchingDate = matchingDate;
             this.latitude = latitude;
             this.longitude = longitude;
@@ -241,9 +230,10 @@ public class MatchingPostDto {
             this.sportsType = sportsType;
         }
 
-        public MatchingPost of(Team team, TeamMember writer, List<LocalDate> matchingDates) {
+        public MatchingPost of(Team team, TeamMember writer, LocalDate matchingDate) {
             MatchingPost matchingPost = MatchingPost.builder()
                     .expiryDate(expiryDate)
+                    .matchingDate(matchingDate)
                     .locationName(locationName)
                     .dou(dou)
                     .si(si)
@@ -272,12 +262,6 @@ public class MatchingPostDto {
             List<MatchingPostArea> areaList = areaNameList.stream().map(areaName -> new MatchingPostArea(areaName, matchingPost)).toList();
             matchingPost.putAreaList(areaList);
 
-            List<MatchingPostMatchingDate> matchingDateList = matchingDates.stream().map(matchingDate -> MatchingPostMatchingDate.builder()
-                    .matchingPost(matchingPost)
-                    .matchingDate(matchingDate)
-                    .build()).toList();
-            matchingPost.putMatchingDates(matchingDateList);
-
             return matchingPost;
         }
     }
@@ -286,7 +270,7 @@ public class MatchingPostDto {
     @Setter
     @NoArgsConstructor
     public static class ResponseCompletedMatchingPost {
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private RecruiterType recruiterType;
         private String nickname;
         private int completedMatchingCnt;
@@ -299,7 +283,7 @@ public class MatchingPostDto {
         private String scheduledRequestDescription;
 
         @Builder
-        public ResponseCompletedMatchingPost(List<LocalDate> matchingDate, RecruiterType recruiterType, String nickname, int completedMatchingCnt, String content, List<String> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String matchingStatus, String scheduledRequestDescription) {
+        public ResponseCompletedMatchingPost(LocalDate matchingDate, RecruiterType recruiterType, String nickname, int completedMatchingCnt, String content, List<String> areaNames, boolean isLocationConsensusPossible, Ability ability, String profileImgUrl, String matchingStatus, String scheduledRequestDescription) {
             this.matchingDate = matchingDate;
             this.recruiterType = recruiterType;
             this.nickname = nickname;
@@ -335,7 +319,7 @@ public class MatchingPostDto {
         private String nickname;
         private List<String> areas;
         private int matchingCnt;
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private LocalDate expiryDate;
         private RecruiterType recruiterType;
         private Ability ability;
@@ -343,7 +327,7 @@ public class MatchingPostDto {
         private boolean isLocationConsensusPossible;
 
         @Builder
-        public ResponseTop15PopularPost(String imgUrl, String nickname, List<String> areas, int matchingCnt, List<LocalDate> matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible) {
+        public ResponseTop15PopularPost(String imgUrl, String nickname, List<String> areas, int matchingCnt, LocalDate matchingDate, LocalDate expiryDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible) {
             this.imgUrl = imgUrl;
             this.nickname = nickname;
             this.areas = areas;
@@ -365,7 +349,7 @@ public class MatchingPostDto {
         private String content;
         private List<String> areas;
         private int matchingCnt;
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private RecruiterType recruiterType;
         private Ability ability;
         @JsonProperty(value = "isLocationConsensusPossible")
@@ -376,7 +360,7 @@ public class MatchingPostDto {
         private boolean isExpired;
 
         @Builder
-        public ResponseTop200PopularPost(String imgUrl, String nickname, String content, List<String> areas, int matchingCnt, List<LocalDate> matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, boolean isExpired) {
+        public ResponseTop200PopularPost(String imgUrl, String nickname, String content, List<String> areas, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, boolean isExpired) {
             this.imgUrl = imgUrl;
             this.nickname = nickname;
             this.content = content;
@@ -400,7 +384,7 @@ public class MatchingPostDto {
         private String content;
         private List<String> areas;
         private int matchingCnt;
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private RecruiterType recruiterType;
         private Ability ability;
         @JsonProperty(value = "isLocationConsensusPossible")
@@ -411,7 +395,7 @@ public class MatchingPostDto {
         private boolean isExpired;
 
         @Builder
-        public ResponseRecentPost(String imgUrl, String nickname, String content, List<String> areas, int matchingCnt, List<LocalDate> matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, boolean isExpired) {
+        public ResponseRecentPost(String imgUrl, String nickname, String content, List<String> areas, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, boolean isExpired) {
             this.imgUrl = imgUrl;
             this.nickname = nickname;
             this.content = content;
@@ -435,7 +419,7 @@ public class MatchingPostDto {
         private String content;
         private List<String> areas;
         private int matchingCnt;
-        private List<LocalDate> matchingDate;
+        private LocalDate matchingDate;
         private RecruiterType recruiterType;
         private Ability ability;
         @JsonProperty(value = "isLocationConsensusPossible")
@@ -447,7 +431,7 @@ public class MatchingPostDto {
         private String nextUrl;
 
         @Builder
-        public ResponseSearchPost(String imgUrl, String nickname, String content, List<String> areas, int matchingCnt, List<LocalDate> matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, boolean isExpired) {
+        public ResponseSearchPost(String imgUrl, String nickname, String content, List<String> areas, int matchingCnt, LocalDate matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, boolean isExpired) {
             this.imgUrl = imgUrl;
             this.nickname = nickname;
             this.content = content;
@@ -481,7 +465,7 @@ public class MatchingPostDto {
         private String teamName;
         private double teamRating;
         private int reviewCnt;
-        private List<LocalDate> matchingDates;
+        private LocalDate matchingDate;
         private List<String> areas;
         private Ability ability;
         private int participantsCnt;
@@ -497,14 +481,14 @@ public class MatchingPostDto {
         private boolean isCompleted;
 
         @Builder
-        public ResponseMatchingPostDetail(LocalDate teamCreateDate, int teamMemberCnt, String teamImgUrl, String teamName, double teamRating, int reviewCnt, List<LocalDate> matchingDates, List<String> areas, Ability ability, int participantsCnt, List<String> participantsImgUrls, RecruiterType recruiterType, LocalDate expiryDate, RecruitmentType recruitmentType, boolean isBookmarked, boolean isWriter, boolean isCompleted) {
+        public ResponseMatchingPostDetail(LocalDate teamCreateDate, int teamMemberCnt, String teamImgUrl, String teamName, double teamRating, int reviewCnt, LocalDate matchingDate, List<String> areas, Ability ability, int participantsCnt, List<String> participantsImgUrls, RecruiterType recruiterType, LocalDate expiryDate, RecruitmentType recruitmentType, boolean isBookmarked, boolean isWriter, boolean isCompleted) {
             this.teamCreateDate = teamCreateDate;
             this.teamMemberCnt = teamMemberCnt;
             this.teamImgUrl = teamImgUrl;
             this.teamName = teamName;
             this.teamRating = teamRating;
             this.reviewCnt = reviewCnt;
-            this.matchingDates = matchingDates;
+            this.matchingDate = matchingDate;
             this.areas = areas;
             this.ability = ability;
             this.participantsCnt = participantsCnt;
@@ -515,39 +499,6 @@ public class MatchingPostDto {
             this.isBookmarked = isBookmarked;
             this.isWriter = isWriter;
             this.isCompleted = isCompleted;
-        }
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class ResponsePostByArea {
-        private Long matchingPostPk;
-        private String nickname;
-        private List<String> areas;
-        private int matchingCnt;
-        private List<LocalDate> matchingDate;
-        private RecruiterType recruiterType;
-        private Ability ability;
-        @JsonProperty(value = "isLocationConsensusPossible")
-        private boolean isLocationConsensusPossible;
-        @JsonProperty(value = "isBookmarked")
-        private boolean isBookmarked;
-        @JsonProperty(value = "isExpired")
-        private boolean isExpired;
-
-        @Builder
-        public ResponsePostByArea(Long matchingPostPk, String nickname, List<String> areas, int matchingCnt, List<LocalDate> matchingDate, RecruiterType recruiterType, Ability ability, boolean isLocationConsensusPossible, boolean isBookmarked, boolean isExpired) {
-            this.matchingPostPk = matchingPostPk;
-            this.nickname = nickname;
-            this.areas = areas;
-            this.matchingCnt = matchingCnt;
-            this.matchingDate = matchingDate;
-            this.recruiterType = recruiterType;
-            this.ability = ability;
-            this.isLocationConsensusPossible = isLocationConsensusPossible;
-            this.isBookmarked = isBookmarked;
-            this.isExpired = isExpired;
         }
     }
 

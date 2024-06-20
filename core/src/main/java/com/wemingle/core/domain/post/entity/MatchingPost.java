@@ -36,6 +36,10 @@ public class MatchingPost extends BaseEntity {
     private LocalDate expiryDate;//마감
 
     @NotNull
+    @Column(name = "MATCHING_DATE")
+    private LocalDate matchingDate;
+
+    @NotNull
     @Column(name = "LOCATION_NAME")
     private String locationName; // 매칭 장소 이름
     @Column(name = "DOU")
@@ -120,13 +124,10 @@ public class MatchingPost extends BaseEntity {
     @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<MatchingPostArea> areaList = new ArrayList<>();
 
-    @NotNull
-    @OneToMany(mappedBy = "matchingPost", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<MatchingPostMatchingDate> matchingDates = new ArrayList<>();
-
     @Builder
-    public MatchingPost(LocalDate expiryDate, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, Double lat, Double lon, String content, int myCapacityCount, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
+    public MatchingPost(LocalDate expiryDate, LocalDate matchingDate, String locationName, String dou, String si, String gun, String gu, String dong, String eup, String myeon, String ri, Double lat, Double lon, String content, int myCapacityCount, int capacityLimit, boolean isLocationConsensusPossible, int viewCnt, Ability ability, Gender gender, RecruitmentType recruitmentType, RecruiterType recruiterType, MatchingStatus matchingStatus, LocationSelectionType locationSelectionType, TeamMember writer, Team team, SportsType sportsCategory) {
         this.expiryDate = expiryDate;
+        this.matchingDate = matchingDate;
         this.locationName = locationName;
         this.dou = dou;
         this.si = si;
@@ -157,6 +158,7 @@ public class MatchingPost extends BaseEntity {
     public MatchingPost reCreateMatchingPost(){
         return MatchingPost.builder()
                 .expiryDate(this.expiryDate)
+                .matchingDate(this.matchingDate)
                 .locationName(this.locationName)
                 .dou(this.dou)
                 .si(this.si)
@@ -189,9 +191,6 @@ public class MatchingPost extends BaseEntity {
 
     public void putArea(MatchingPostArea matchingPostArea){
         areaList.add(matchingPostArea);
-    }
-    public void putMatchingDates(List<MatchingPostMatchingDate> matchingDates){
-        this.matchingDates = matchingDates;
     }
     public void complete(){
         this.matchingStatus = MatchingStatus.COMPLETE;
