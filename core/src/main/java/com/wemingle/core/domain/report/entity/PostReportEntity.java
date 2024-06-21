@@ -17,7 +17,6 @@ public class PostReportEntity extends ReportEntity {
 
     @Column
     private Long reportPostId;
-
     @Column
     private String reportPostContent;
 
