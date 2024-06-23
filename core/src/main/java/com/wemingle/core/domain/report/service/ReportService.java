@@ -63,11 +63,6 @@ public class ReportService {
         }
     }
 
-    private PostReportEntity findPostReportById(Long reportPostId) {
-        return postReportRepository.findById(reportPostId)
-                .orElseThrow(() -> new NoSuchElementException(ExceptionMessage.REPORT_POST_NOT_FOUND.getExceptionMessage()));
-    }
-
     private boolean isReportPostCntLimitExceeded(Long reportPostId) {
         Integer reportCnt = postReportRepository.findReportCntByPostId(reportPostId);
         return reportCnt == REPORT_POST_CNT_LIMIT;
@@ -124,6 +119,19 @@ public class ReportService {
                 .reportCommentContent(commentReportDto.getReportCommentContent())
                 .build();
         commentReportRepository.save(commentReportEntity);
+
+        incrementCommentWarningCount(commentReportDto.getReportCommentId(),reportedMember);
+    }
+
+    public void incrementCommentWarningCount(Long reportCommentId, Member reportedMember) {
+        if (isReportCommentCntLimitExceeded(reportCommentId)) {
+            incrementMemberWarningCount(reportedMember);
+        }
+    }
+
+    private boolean isReportCommentCntLimitExceeded(Long reportCommentId) {
+        Integer reportCnt = commentReportRepository.findReportCntByCommentId(reportCommentId);
+        return reportCnt == REPORT_COMMENT_CNT_LIMIT;
     }
 
     private boolean isExistDuplicateCommentReport(Member reporter, Long reportCommentId) {

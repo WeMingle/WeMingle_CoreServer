@@ -13,4 +13,7 @@ public interface CommentReportRepository extends JpaRepository<CommentReportEnti
             "where c.reporter = :reporter and c.reportCommentId = :reportCommentId ")
     Optional<CommentReportEntity> findDuplicateCommentReport(@Param("reporter") Member reporter, @Param("reportCommentId") Long reportCommentId);
 
+    @Query("select count(*) from CommentReportEntity c " +
+            "where c.reportCommentId = :reportCommentId")
+    Integer findReportCntByCommentId(@Param("reportCommentId") Long reportCommentId);
 }
