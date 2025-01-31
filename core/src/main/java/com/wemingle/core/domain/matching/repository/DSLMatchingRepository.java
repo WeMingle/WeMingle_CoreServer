@@ -1,7 +1,6 @@
 package com.wemingle.core.domain.matching.repository;
 
 import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
-import org.springframework.data.repository.query.Param;
 
 public interface DSLMatchingRepository {
     Integer findCompleteMatchingCnt(String memberId, MatchingStatus matchingStatus);

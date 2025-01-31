@@ -3,7 +3,6 @@ package com.wemingle.core.domain.matching.repository;
 import com.wemingle.core.domain.matching.entity.Matching;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.post.entity.MatchingPost;
-import com.wemingle.core.domain.post.entity.matchingstatus.MatchingStatus;
 import com.wemingle.core.domain.team.entity.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
