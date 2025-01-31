@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,7 +32,7 @@ public class AuthenticationController {
                     );
             }
 
-        TokenDto.ResponseTokenDto responseData = tokenService.createNewTokens(requestTokenDto.getRefreshToken());
+        TokenDto.ResponseTokenDto responseData = tokenService.createNewTokens(requestTokenDto);
 
         return ResponseEntity
                 .ok(ResponseHandler.<TokenDto.ResponseTokenDto>builder()

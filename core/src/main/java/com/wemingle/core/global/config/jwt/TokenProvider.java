@@ -4,6 +4,7 @@ import com.wemingle.core.domain.member.entity.role.Role;
 import com.wemingle.core.global.exception.InvalidRoleException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,8 +14,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Period;
+import java.time.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -25,7 +25,8 @@ import java.util.Set;
 public class TokenProvider {
     private final JwtProperties jwtProperties;
 
-    private static final String ROLE_PREFIX = "ROLE_";
+    private final static String AUTHORIZATION = "Authorization";
+    private final static String TOKEN_PREFIX = "Bearer ";
     private static final String REFRESH_TOKEN= "refreshToken";
     private static final String ACCESS_TOKEN = "accessToken";
 
@@ -154,15 +155,35 @@ public class TokenProvider {
         return String.valueOf(claims.get("role"));
     }
 
-    public Duration getRemainingTokenExpirationTime(String jwtToken){
-        Claims claim = getClaim(jwtToken);
-        Date expirationDate = claim.getExpiration();
-
-        return Duration.ofMillis(expirationDate.getTime() - System.currentTimeMillis());
+    public Date getExpirationTime(String jwtToken){
+        try {
+            Claims claim = getClaim(jwtToken);
+            return claim.getExpiration();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims().getExpiration();
+        } catch (JwtException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public Date getExpirationTime(String jwtToken){
-        Claims claim = getClaim(jwtToken);
-        return claim.getExpiration();
+    public Duration getRemainingExpirationTime(String jwtToken){
+        Date expirationTime = getExpirationTime(jwtToken);
+        return expirationTime.after(Date.from(Instant.now()))
+                ? Duration.ofMillis(expirationTime.getTime() - System.currentTimeMillis())
+                : Duration.ZERO;
+    }
+
+    public String getJwtToken(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+
+        if (validAuthorizationHeader(authorizationHeader)) {
+            return authorizationHeader.substring(TOKEN_PREFIX.length());
+        }else {
+            return null;
+        }
+    }
+
+    private boolean validAuthorizationHeader(String authorizationHeader) {
+        return authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX);
     }
 }
