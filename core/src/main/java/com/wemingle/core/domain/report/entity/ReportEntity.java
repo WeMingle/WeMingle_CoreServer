@@ -7,7 +7,6 @@ import com.wemingle.core.domain.report.entity.reporttype.ReportPath;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity

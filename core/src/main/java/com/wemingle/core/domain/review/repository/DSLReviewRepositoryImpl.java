@@ -1,9 +1,7 @@
 package com.wemingle.core.domain.review.repository;
 
-import com.querydsl.core.QueryFactory;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.wemingle.core.domain.review.entity.QTeamReview;
 import com.wemingle.core.domain.review.entity.TeamReview;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

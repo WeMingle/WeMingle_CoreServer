@@ -9,13 +9,11 @@ import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.entity.recruitmenttype.RecruitmentType;
 import com.wemingle.core.domain.team.entity.teamrole.TeamRole;
 import com.wemingle.core.domain.team.entity.teamtype.TeamType;
-import com.wemingle.core.domain.team.repository.TeamMemberRepository;
 import com.wemingle.core.domain.team.repository.TeamRepository;
 import com.wemingle.core.domain.univ.entity.UnivEntity;
 import com.wemingle.core.domain.univ.service.UnivCertificationService;
 import com.wemingle.core.global.exceptionmessage.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service

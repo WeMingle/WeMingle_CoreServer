@@ -1,7 +1,6 @@
 package com.wemingle.core.domain.team.service;
 
 import com.wemingle.core.domain.img.service.S3ImgService;
-import com.wemingle.core.domain.team.dto.TeamMemberDto;
 import com.wemingle.core.domain.member.entity.BannedTeamMember;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.repository.BannedTeamMemberRepository;
@@ -11,6 +10,7 @@ import com.wemingle.core.domain.member.vo.MemberSummaryInfoVo;
 import com.wemingle.core.domain.memberunivemail.entity.VerifiedUniversityEmail;
 import com.wemingle.core.domain.memberunivemail.repository.VerifiedUniversityEmailRepository;
 import com.wemingle.core.domain.team.dto.TeamDto;
+import com.wemingle.core.domain.team.dto.TeamMemberDto;
 import com.wemingle.core.domain.team.entity.Team;
 import com.wemingle.core.domain.team.entity.TeamMember;
 import com.wemingle.core.domain.team.repository.TeamMemberRepository;

@@ -13,18 +13,13 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final TokenProvider tokenProvider;
-    private final static String AUTHORIZATION = "Authorization";
-    private final static String TOKEN_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
-
-        String jwtToken = getTokenByHeader(authorizationHeader);
+        String jwtToken = tokenProvider.getJwtToken(request);
 
         if (tokenProvider.validToken(jwtToken)) {
             Authentication authentication = tokenProvider.getAuthentication(jwtToken);
@@ -32,17 +27,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private static String getTokenByHeader(String authorizationHeader) {
-        if (validAuthorizationHeader(authorizationHeader)) {
-            return authorizationHeader.substring(TOKEN_PREFIX.length());
-        }else {
-            return null;
-        }
-    }
-
-    private static boolean validAuthorizationHeader(String authorizationHeader) {
-        return authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX);
     }
 }

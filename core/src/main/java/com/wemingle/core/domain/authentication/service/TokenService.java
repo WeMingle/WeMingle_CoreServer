@@ -4,6 +4,7 @@ import com.wemingle.core.domain.authentication.dto.TokenDto;
 import com.wemingle.core.domain.member.dto.SignInDto;
 import com.wemingle.core.domain.member.entity.Member;
 import com.wemingle.core.domain.member.entity.role.Role;
+import com.wemingle.core.domain.member.service.BlacklistService;
 import com.wemingle.core.domain.member.service.MemberService;
 import com.wemingle.core.global.config.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -20,7 +22,7 @@ import java.util.Objects;
 public class TokenService {
     private final TokenProvider tokenProvider;
     private final MemberService memberService;
-
+    private final BlacklistService blacklistService;
 
     public boolean isVerifiedRefreshAndAccessToken(String refreshToken, String accessToken) {
         return tokenProvider.validToken(refreshToken) && tokenProvider.validToken(accessToken);
@@ -117,20 +119,21 @@ public class TokenService {
     }
 
     public boolean isExpiredAfter21Days(String refreshToken) {
-        return tokenProvider.getRemainingTokenExpirationTime(refreshToken).compareTo(Duration.ofDays(21)) < 0;
+        return tokenProvider.getRemainingExpirationTime(refreshToken).compareTo(Duration.ofDays(21)) < 0;
     }
 
     @Transactional
-    public TokenDto.ResponseTokenDto createNewTokens(String refreshToken) {
+    public TokenDto.ResponseTokenDto createNewTokens(TokenDto.RequestTokenDto tokenDto) {
         TokenDto.ResponseTokenDto.ResponseTokenDtoBuilder responseTokenDtoBuilder = TokenDto.ResponseTokenDto.builder();
+        blacklistService.saveBlacklistToken(List.of(tokenDto.getRefreshToken(), tokenDto.getAccessToken()));
 
-        if (isVerifiedRefreshToken(refreshToken)) {
-            String newAccessToken = createAccessTokenByRefreshToken(refreshToken);
+        if (isVerifiedRefreshToken(tokenDto.getRefreshToken())) {
+            String newAccessToken = createAccessTokenByRefreshToken(tokenDto.getRefreshToken());
             responseTokenDtoBuilder.accessToken(newAccessToken);
             responseTokenDtoBuilder.accessTokenExpiredTime(getExpirationTime(newAccessToken));
 
-            if (isExpiredAfter21Days(refreshToken)) {
-                String newRefreshToken = createAndPatchRefreshTokenInMember(refreshToken);
+            if (isExpiredAfter21Days(tokenDto.getRefreshToken())) {
+                String newRefreshToken = createAndPatchRefreshTokenInMember(tokenDto.getRefreshToken());
                 responseTokenDtoBuilder.refreshToken(newRefreshToken);
                 responseTokenDtoBuilder.refreshTokenExpiredTime(getExpirationTime(newRefreshToken));
             }

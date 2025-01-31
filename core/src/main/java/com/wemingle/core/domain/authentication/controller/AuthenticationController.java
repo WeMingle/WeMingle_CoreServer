@@ -31,7 +31,7 @@ public class AuthenticationController {
                     );
             }
 
-        TokenDto.ResponseTokenDto responseData = tokenService.createNewTokens(requestTokenDto.getRefreshToken());
+        TokenDto.ResponseTokenDto responseData = tokenService.createNewTokens(requestTokenDto);
 
         return ResponseEntity
                 .ok(ResponseHandler.<TokenDto.ResponseTokenDto>builder()

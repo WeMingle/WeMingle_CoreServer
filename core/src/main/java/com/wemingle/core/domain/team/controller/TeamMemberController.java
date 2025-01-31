@@ -1,7 +1,7 @@
 package com.wemingle.core.domain.team.controller;
 
-import com.wemingle.core.domain.team.dto.TeamMemberDto;
 import com.wemingle.core.domain.member.service.TeamMemberLeaveService;
+import com.wemingle.core.domain.team.dto.TeamMemberDto;
 import com.wemingle.core.domain.team.service.TeamMemberService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import jakarta.validation.constraints.NotBlank;

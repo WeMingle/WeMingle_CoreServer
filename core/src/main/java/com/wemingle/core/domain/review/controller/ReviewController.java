@@ -1,7 +1,6 @@
 package com.wemingle.core.domain.review.controller;
 
 import com.wemingle.core.domain.review.dto.ReviewDto;
-import com.wemingle.core.domain.review.entity.TeamReview;
 import com.wemingle.core.domain.review.service.TeamReviewService;
 import com.wemingle.core.global.responseform.ResponseHandler;
 import lombok.RequiredArgsConstructor;
